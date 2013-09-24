@@ -1,0 +1,2 @@
+module SanguoHelper
+end
