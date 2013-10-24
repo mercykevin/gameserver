@@ -1,4 +1,8 @@
-# This file is used by Rack-based servers to start the application.
+# Set application dependencies
+require File.expand_path("../boot", __FILE__)
 
-require ::File.expand_path('../config/environment',  __FILE__)
-run Rails.application
+# release thread current connection return to connection pool in multi-thread mode
+use ActiveRecord::ConnectionAdapters::ConnectionManagement
+
+# Boot application
+run Sinatra::Application
