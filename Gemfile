@@ -12,6 +12,9 @@ gem 'kgio'
 gem "second_level_cache", :git => "git://github.com/csdn-dev/second_level_cache.git"
 
 gem 'rake'
+
+gem 'redis'
+
 # gem 'pony'   # pony must be after activerecord
 
 group :production do

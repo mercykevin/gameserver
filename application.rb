@@ -1,10 +1,12 @@
 configure do
   # = Configuration =
-  set :run,             false
+  set :run,             true
   set :show_exceptions, development?
   set :raise_errors,    development?
   set :logging,         true
   set :static,          false # your upstream server should deal with those (nginx, Apache)
+  set :server,		      'thin'
+  set :logging,         true
 end
 
 configure :production do
@@ -40,6 +42,9 @@ ActiveSupport.on_load(:active_record) do
   self.logger = logger
   # self.observers = :cacher, :garbage_collector, :forum_observer
 end
+
+redis_config = YAML.load_file("config/redis.yml")[ENV["RACK_ENV"]]
+RedisClient = Redis.new(:host => redis_config['host'], :port => redis_config['port'])
 
 # load project config
 APP_CONFIG = YAML.load_file(File.expand_path("../config", __FILE__) + '/app_config.yml')[ENV["RACK_ENV"]]
