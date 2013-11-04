@@ -23,4 +23,13 @@ class JsonTest < Test::Unit::TestCase
 		assert_equal("kevin2",b[0])
 		assert_equal(2,b.length)
 	end
+
+	def test_ruby
+		if not false
+			puts "it's true"
+		end
+		if ! false
+			puts "it's true too"
+		end
+	end
 end

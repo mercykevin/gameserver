@@ -1,4 +1,4 @@
-get '/hero/recruit' do 
+post '/hero/recruit' do
+	 
 end
 
-post '/hero/'

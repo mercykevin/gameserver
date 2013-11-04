@@ -43,5 +43,9 @@ module Model
 		def self.getNoticeListKey()
 			"player_notice_list"
 		end
+
+		def self.getGameAreasKey
+			"game_areas"
+		end
 	end
 end
