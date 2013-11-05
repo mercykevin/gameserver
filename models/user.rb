@@ -36,6 +36,10 @@ module Model
 				return nil
 			end
 		end
+
+		def self.set(player)
+			RedisClient.set(::Model::Rediskeys.getPlayer[player["playerId"]],player.to_json)
+		end
 		#根据用户名称获取用户信息
 		def self.getByName(playerName)
 			playerNameKey = ::Model::Rediskeys.getPlayerNameKey(playerName)

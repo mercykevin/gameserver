@@ -10,6 +10,7 @@ module Model
 		HeroRecuritShortOfGold = 9000001
 		#招募英雄失败，超过最高上限
 		HeroRecuritOutofLimit = 9000002
-		
+		#数据非法
+		HeroRecuritTempleteHeroIsNotExist = 9000003
 	end
 end
