@@ -6,7 +6,7 @@ module Model
 			playerNameKey = ::Model::Rediskeys.getPlayerNameKey(userName)
 			if ::RedisClient.exists(userName)
 				#用户已经存在
-				return false
+				{:retcode => Model::ErrorCode::Fail}
 			else
 				playerId = ::RedisClient.incr(::Model::Rediskeys.getPlayerIdAutoIncKey)
 				player ={}
@@ -24,6 +24,7 @@ module Model
 				player[:itemList] = []
 				::RedisClient.set(::Model::Rediskeys.getPlayerKey(playerId),player.to_json)
 				::RedisClient.set(playerNameKey,playerId.to_s)
+				{:retcode => Model::ErrorCode::Ok,:player => player}
 			end
 		end
 		#获取用户信息接口
@@ -38,6 +39,10 @@ module Model
 		end
 
 		def self.set(player)
+			RedisClient.set(::Model::Rediskeys.getPlayer[player["playerId"]],player.to_json)
+		end
+
+		def self.update(player)
 			RedisClient.set(::Model::Rediskeys.getPlayer[player["playerId"]],player.to_json)
 		end
 		#根据用户名称获取用户信息

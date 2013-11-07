@@ -4,9 +4,9 @@ class GameAreaTest < Test::Unit::TestCase
 	def test_getGameAreas
 		game_area = 
 		[
-			{:areaName => "三国鼎立",:areaHost => "http://127.0.0.1",:areaPort => 4567,:areaStatus =>"new"},
-			{:areaName => "初出茅庐",:areaHost => "http://127.0.0.1",:areaPort => 4567,:areaStatus =>"new"},
-			{:areaName => "火烧赤壁",:areaHost => "http://127.0.0.1",:areaPort => 4567,:areaStatus =>"hot"}
+			{:areaId =>1,:areaName => "三国鼎立",:areaHost => "http://127.0.0.1",:areaPort => 4567,:areaStatus =>"new"},
+			{:areaId =>2,:areaName => "初出茅庐",:areaHost => "http://127.0.0.1",:areaPort => 4567,:areaStatus =>"new"},
+			{:areaId =>3,:areaName => "火烧赤壁",:areaHost => "http://127.0.0.1",:areaPort => 4567,:areaStatus =>"hot"}
 		]
 		RedisClient.set(Model::Rediskeys.getGameAreasKey,game_area.to_json)
 		areaList = Model::GameArea.getGameAreas

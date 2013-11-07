@@ -16,15 +16,15 @@ module Model
 			"city:[#{playerId}]"
 		end
 
-		def self.getBuildingKey(playerId,buildName)
+		def self.getBuildingKey(buildName,playerId)
 			"city_building:[#{playerId}]:[#{buildName}]"
 		end
 
-		def self.getHeroKey(playerId,heroId)
+		def self.getHeroKey(heroId,playerId)
 			"hero:[#{playerId}]:[#{heroId}]"
 		end
 
-		def self.getItemKey(playerId,itemId)
+		def self.getItemKey(itemId,playerId)
 			"item:[#{playerId}]:[#{itemId}]"
 		end
 

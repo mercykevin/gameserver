@@ -3,12 +3,12 @@ module Model
 		def self.recuritHero(templeteHeroId,playerId)
 			player = ::Model::User.get(playerId)
 			if ! player
-				return {:retCode => ::Model::ErrorCode::PlayerIsNotExist}
+				return {:retcode => ::Model::ErrorCode::PlayerIsNotExist}
 			end
 			heroId = RedisClient.incr(::Model::Rediskeys.getHeroIdAutoIncKey(playerId))
 			templeteHero = getTempleteHero(templeteHeroId)
 			if ! templeteHero
-				return {:retCode => ::Model::ErrorCode::HeroRecuritTempleteHeroIsNotExist}
+				return {:retcode => ::Model::ErrorCode::HeroRecuritTempleteHeroIsNotExist}
 			end
 			#创建hero
 			hero = {}
@@ -24,6 +24,7 @@ module Model
 			#在player中增加一个英雄
 			player["heroList"] << heroId
 			::Model::User.set(player)
+			{:retcode => ::Model::ErrorCode::Ok,:hero => hero}
 		end
 
 		def self.getHeroList(playerId)
@@ -35,9 +36,14 @@ module Model
 		end
 
 		def self.getHero(heroId,playerId)
+			heroData = RedisClient.get(::Model::Rediskeys.getHeroKey(heroId,playerId))
+			if heroData and not heroData.empty?
+				JSON.parse(heroData)
+			end
 		end
 
 		def self.getTempleteHero(templeteHeroId)
+			
 		end
 
 		

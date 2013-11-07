@@ -1,6 +1,6 @@
 get '/' do
-  p = Post.find :first
-  "Hello world! #{p.name}\n"
+  #p = Post.find :first
+  "Hello world! \n"
 end
 
 get '/post/:id' do

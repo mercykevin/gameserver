@@ -8,7 +8,7 @@ class JsonTest < Test::Unit::TestCase
 		player[:playerName] = "kevin"
 		jsonValue = player.to_json
 		player = JSON.parse(jsonValue)
-		puts player["playerId"]
+		assert_equal("kevin",player[:playerName.to_s])
 	end
 
 	def test_rand
