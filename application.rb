@@ -65,21 +65,36 @@ SecondLevelCache.configure do |config|
 end
 
 # Set autoload directory
-%w{models controllers lib}.each do |dir|
+%w{models controllers lib exception}.each do |dir|
   Dir.glob(File.expand_path("../#{dir}", __FILE__) + '/**/*.rb').each do |file|
     require file
   end
 end
 
-# AOP model method
+# AOP model method for redis object state exception
 require 'aquarium'
 require 'aquarium/dsl/object_dsl'
 include Aquarium::Aspects
 
-Aspect.new :around, :calls_to => :all_methods, :on_types => [Model::Hero, Model::User],
+Aspect.new :around, :calls_to => :all_methods, :on_types => [Model::Hero, Model::User,Model::Rediskeys],
 :method_options =>[:class,:exclude_ancestor_methods] do |join_point, object, *args|
-    p "Entering: #{join_point.target_type.name}##{join_point.method_name} for object #{object}"
-    result = join_point.proceed
-    p "Leaving: #{join_point.target_type.name}##{join_point.method_name} for object #{object}"
-    result  # block needs to return the result of the "proceed"!
+  retrytime = Constants::RetryTimes
+  while retrytime > 0 
+    begin
+      p "Entering: #{join_point.target_type.name}##{join_point.method_name} for object #{object}"
+      result = join_point.proceed
+      if retrytime < Constants::RetryTimes 
+        p "Entering retry process #{retrytime}"
+      end
+      p "Leaving: #{join_point.target_type.name}##{join_point.method_name} for object #{object}"
+      retrytime = 0
+      return result
+    rescue Exception => ex
+      if ex.instance_of?(RedisStaleObjectStateException)
+        retrytime = retrytime - 1
+      else
+        raise ex
+      end
+    end
+  end
 end

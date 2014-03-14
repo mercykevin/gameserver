@@ -1,0 +1,3 @@
+class RedisStaleObjectStateException < Exception
+	
+end
