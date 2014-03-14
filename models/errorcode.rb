@@ -6,6 +6,8 @@ module Model
 		Fail = 0
 		#玩家信息不存在
 		PlayerIsNotExist = 1000001
+		#该角色名已被注册
+		PlayerIsExistByName = 1000001
 		#招募英雄失败，您的金币不够
 		HeroRecuritShortOfGold = 9000001
 		#招募英雄失败，超过最高上限

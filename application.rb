@@ -72,13 +72,16 @@ end
 end
 
 # AOP model method for redis object state exception
+# 用来处理redis乐观锁异常的重试逻辑
 require 'aquarium'
 require 'aquarium/dsl/object_dsl'
 include Aquarium::Aspects
 
-Aspect.new :around, :calls_to => :all_methods, :on_types => [Model::Hero, Model::User,Model::Rediskeys],
+Aspect.new :around, :calls_to => :all_methods, :on_types => [Model::Hero, Model::User,
+Model::Rediskeys,Model::GameArea,Model::Item,Model::Notice],
 :method_options =>[:class,:exclude_ancestor_methods] do |join_point, object, *args|
   retrytime = Constants::RetryTimes
+  result = nil
   while retrytime > 0 
     begin
       p "Entering: #{join_point.target_type.name}##{join_point.method_name} for object #{object}"
@@ -88,13 +91,13 @@ Aspect.new :around, :calls_to => :all_methods, :on_types => [Model::Hero, Model:
       end
       p "Leaving: #{join_point.target_type.name}##{join_point.method_name} for object #{object}"
       retrytime = 0
-      return result
     rescue Exception => ex
       if ex.instance_of?(RedisStaleObjectStateException)
         retrytime = retrytime - 1
       else
-        raise ex
+        raise ex 
       end
     end
   end
+  result
 end

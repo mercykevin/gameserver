@@ -4,7 +4,6 @@ module Model
 		#用户的key
 		def self.getPlayerKey(playerId)
 			"player:[#{playerId}]"
-			raise RedisStaleObjectStateException,"stale error"
 		end
 		#用户id生成key
 		def self.getPlayerIdAutoIncKey

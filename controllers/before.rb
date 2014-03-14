@@ -3,7 +3,7 @@ helpers do
 		if request.body
 			request.body.rewind
 			bodyData = request.body.read
-			if bodyData and ! bodyData.empty?
+			if bodyData and ! bodyData.empty? and bodyData !=''
 				request[:req_parames] = JSON.parse bodyData
 			end
 		end

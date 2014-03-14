@@ -1,7 +1,7 @@
 ENV["RACK_ENV"] = "test"
 require File.expand_path('../../boot', __FILE__)
 #clean all redis data
-flushRet = ::RedisClient.flushall
+flushRet = RedisClient.flushall
 puts "flush redis data is #{flushRet}"
 
 require 'test/unit'
