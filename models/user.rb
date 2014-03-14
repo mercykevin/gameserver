@@ -67,6 +67,5 @@ module Model
 			end
 			return ""			
 		end
-
 	end #class User
-end # Sanguo
+end # End Moudle

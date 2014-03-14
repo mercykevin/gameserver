@@ -10,10 +10,10 @@ gem 'mysql2'
 gem 'dalli', :require => 'active_support/cache/dalli_store'
 gem 'kgio'
 gem "second_level_cache", :git => "git://github.com/csdn-dev/second_level_cache.git"
-
 gem 'rake'
-
 gem 'redis'
+gem "hiredis"
+gem "aquarium", :git => "https://github.com/deanwampler/Aquarium.git"
 
 # gem 'pony'   # pony must be after activerecord
 

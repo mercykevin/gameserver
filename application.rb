@@ -44,7 +44,8 @@ ActiveSupport.on_load(:active_record) do
 end
 
 redis_config = YAML.load_file("config/redis.yml")[ENV["RACK_ENV"]]
-RedisClient = Redis.new(:host => redis_config['host'], :port => redis_config['port'])
+
+RedisClient = Redis.new(:host => redis_config['host'], :port => redis_config['port'],:driver => :hiredis)
 
 # load project config
 APP_CONFIG = YAML.load_file(File.expand_path("../config", __FILE__) + '/app_config.yml')[ENV["RACK_ENV"]]
@@ -68,4 +69,17 @@ end
   Dir.glob(File.expand_path("../#{dir}", __FILE__) + '/**/*.rb').each do |file|
     require file
   end
+end
+
+# AOP model method
+require 'aquarium'
+require 'aquarium/dsl/object_dsl'
+include Aquarium::Aspects
+
+Aspect.new :around, :calls_to => :all_methods, :on_types => [Model::Hero, Model::User],
+:method_options =>[:class,:exclude_ancestor_methods] do |join_point, object, *args|
+    p "Entering: #{join_point.target_type.name}##{join_point.method_name} for object #{object}"
+    result = join_point.proceed
+    p "Leaving: #{join_point.target_type.name}##{join_point.method_name} for object #{object}"
+    result  # block needs to return the result of the "proceed"!
 end

@@ -1,5 +1,6 @@
 module Model
 	class Hero
+		#招募英雄
 		def self.recuritHero(templeteHeroId,playerId)
 			player = ::Model::User.get(playerId)
 			if ! player
