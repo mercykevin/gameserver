@@ -9,7 +9,7 @@ game_area =
 	{:areaId =>2,:areaName => "初出茅庐",:areaHost => "http://127.0.0.1",:areaPort => 4567,:areaStatus =>"new"},
 	{:areaId =>3,:areaName => "火烧赤壁",:areaHost => "http://127.0.0.1",:areaPort => 4567,:areaStatus =>"hot"}
 ]
-RedisClient.set(Model::Rediskeys.getGameAreasKey,game_area.to_json)
+RedisClient.set(Const::Rediskeys.getGameAreasKey,game_area.to_json)
 #hero meta data
 heroTempleteData =
 [

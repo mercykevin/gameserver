@@ -6,7 +6,6 @@ class CommonDaoTest < Test::Unit::TestCase
 		value["test1"] = "abc"
 		value["test2"] = "bcd"
 		CommonDao.update(value)
-
 		assert_equal("abc",RedisClient.get("test1"))
 	end
 end

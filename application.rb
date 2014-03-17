@@ -72,7 +72,7 @@ SecondLevelCache.configure do |config|
 end
 
 # Set autoload directory
-%w{models controllers lib exception daos}.each do |dir|
+%w{lib utils daos models exception controllers}.each do |dir|
   Dir.glob(File.expand_path("../#{dir}", __FILE__) + '/**/*.rb').each do |file|
     require file
   end
@@ -84,8 +84,8 @@ require 'aquarium'
 require 'aquarium/dsl/object_dsl'
 include Aquarium::Aspects
 
-Aspect.new :around, :calls_to => :all_methods, :on_types => [Model::Hero, Model::User,
-Model::Rediskeys,Model::GameArea,Model::Item,Model::Notice],
+Aspect.new :around, :calls_to => :all_methods, :on_types => [Model::Hero, Model::Player, 
+  Model::GameArea, Model::Item, Model::Notice],
 :method_options =>[:class,:exclude_ancestor_methods] do |join_point, object, *args|
   retrytime = Constants::RetryTimes
   result = nil

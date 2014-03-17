@@ -1,4 +1,4 @@
-module Model
+module Const
 	class ErrorCode
 		#操作成功
 		Ok = 1

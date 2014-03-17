@@ -1,5 +1,5 @@
 #用来处理所有redis存储的key值
-module Model
+module Const
 	class Rediskeys
 		#用户的key
 		def self.getPlayerKey(playerId)
@@ -28,6 +28,14 @@ module Model
 		#英雄key
 		def self.getHeroKey(heroId,playerId)
 			"hero:[#{playerId}]:[#{heroId}]"
+		end
+		#所有英雄的id列表
+		def self.getHeroListKey(playerId)
+			"hero_id_all_list:[#{playerId}]"
+		end
+		#获取战斗英雄的列表
+		def self.getBattleHeroListKey(playerId)
+			"battle_hero_id_list:[#{playerId}]"
 		end
 		#道具key
 		def self.getItemKey(itemId,playerId)

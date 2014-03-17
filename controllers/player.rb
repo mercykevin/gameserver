@@ -5,13 +5,13 @@ post '/player/get' do
 end
 
 post '/player/randname' do
-	randName = Model::User.randomName
+	randName = Model::Player.randomName
 	randName.to_json
 end
 
 post '/player/register' do
 	name = request[:req_parames][:name]
-	ret = Model::User.register(name)
+	ret = Model::Player.register(name)
 	ret.to_json
 end
 

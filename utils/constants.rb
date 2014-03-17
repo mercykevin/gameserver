@@ -1,3 +1,3 @@
-class Constants
+module Const
 	RetryTimes = 3
 end
