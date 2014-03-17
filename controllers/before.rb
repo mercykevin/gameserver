@@ -4,7 +4,8 @@ helpers do
 			request.body.rewind
 			bodyData = request.body.read
 			if bodyData and ! bodyData.empty? and bodyData !=''
-				request[:req_parames] = JSON.parse bodyData
+				#json解析出来的Hash key是symbols
+				request[:req_parames] = JSON.parse(bodyData, {:symbolize_names => true})
 			end
 		end
 	end
