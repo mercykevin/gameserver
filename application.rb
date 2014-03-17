@@ -1,6 +1,5 @@
 configure do
   # = Configuration =
-  set :run,             true
   set :show_exceptions, development?
   set :raise_errors,    development?
   set :logging,         true
@@ -10,7 +9,15 @@ configure do
 end
 
 configure :production do
-end  
+end
+
+configure :development do
+  set :run,             false
+end
+
+configure :test do
+  set :run,             true
+end
 
 # initialize log
 require 'logger'
@@ -65,7 +72,7 @@ SecondLevelCache.configure do |config|
 end
 
 # Set autoload directory
-%w{models controllers lib exception}.each do |dir|
+%w{models controllers lib exception daos}.each do |dir|
   Dir.glob(File.expand_path("../#{dir}", __FILE__) + '/**/*.rb').each do |file|
     require file
   end

@@ -1,3 +1,3 @@
-class RedisStaleObjectStateException < Exception
+class RedisStaleObjectStateException < StandardError
 	
 end
