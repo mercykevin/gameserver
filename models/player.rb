@@ -41,6 +41,16 @@ module Model
 			playerDao.getPlayer(playerId)
 		end
 
+		# get player info by player name
+  		#
+  		# @param [String] playerName 
+  		# @return [Hash] player's information
+		#获取用户信息接口
+		def self.getByName(playerName)
+			playerDao = PlayerDao.new
+			playerDao.getPlayerByName(playerName)
+		end
+
 		# random player name with design configuration
 		#
 		# @return [String] player name

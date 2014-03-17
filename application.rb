@@ -12,11 +12,11 @@ configure :production do
 end
 
 configure :development do
-  set :run,             false
+  set :run,             true
 end
 
 configure :test do
-  set :run,             true
+  set :run,             false
 end
 
 # initialize log
@@ -87,13 +87,13 @@ include Aquarium::Aspects
 Aspect.new :around, :calls_to => :all_methods, :on_types => [Model::Hero, Model::Player, 
   Model::GameArea, Model::Item, Model::Notice],
 :method_options =>[:class,:exclude_ancestor_methods] do |join_point, object, *args|
-  retrytime = Constants::RetryTimes
+  retrytime = Const::RetryTimes
   result = nil
   while retrytime > 0 
     begin
       p "Entering: #{join_point.target_type.name}##{join_point.method_name} for object #{object}"
       result = join_point.proceed
-      if retrytime < Constants::RetryTimes 
+      if retrytime < Const::RetryTimes 
         p "Entering retry process #{retrytime}"
       end
       p "Leaving: #{join_point.target_type.name}##{join_point.method_name} for object #{object}"

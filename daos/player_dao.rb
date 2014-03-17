@@ -9,7 +9,7 @@ class PlayerDao
 		playerIdKey = Const::Rediskeys.getPlayerKey(playerId)
 		player = RedisClient.get(playerIdKey)
 		if player
-			Json.parse player {:symbolize_names => true}
+			JSON.parse(player, {:symbolize_names => true})
 		else
 			nil
 		end
@@ -48,9 +48,8 @@ class PlayerDao
 		playerNameKey = Const::Rediskeys.getPlayerNameKey(player[:playerName])
 		RedisClient.watch(playerIdKey, playerNameKey) do
 			multiret = RedisClient.multi do |multi|
-				entities.each do |k,v|
-					multi.set(k,v.to_json)
-				end
+				multi.set(playerIdKey,player.to_json)
+				multi.set(playerNameKey,player[:playerId])
 			end
 			if multiret == nil || multiret.empty? || multiret[0] != 'OK'
 			#抛出乐观锁异常
