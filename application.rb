@@ -71,11 +71,16 @@ SecondLevelCache.configure do |config|
   config.cache_key_prefix = 'domain'
 end
 
-# Set autoload directory
+# Set autoload directory 加载一些常用的类
 %w{lib utils daos models exception controllers}.each do |dir|
   Dir.glob(File.expand_path("../#{dir}", __FILE__) + '/**/*.rb').each do |file|
     require file
   end
+end
+
+#Load game config data from csv file
+Dir.glob(File.expand_path("../csvs", __FILE__) + '/**/*.csv').each do |file|
+  
 end
 
 # AOP model method for redis object state exception
