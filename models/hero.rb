@@ -1,22 +1,20 @@
 module Model
 	class Hero
 		#招募英雄
-		def self.recuritHero(templeteHeroId,playerId)
-			player = ::Model::Player.get(playerId)
-			if ! player
-				return {:retcode => ::Const::ErrorCode::PlayerIsNotExist}
-			end
-			heroId = RedisClient.incr(::Const::Rediskeys.getHeroIdAutoIncKey(playerId))
-			templeteHero = getTempleteHero(templeteHeroId)
+		def self.recuritHero(templeteHeroId,playerId,recuritetype)
+			metaDatao = MetaDao.instance
+			player = Model::Player.get(playerId)
+			heroId = RedisClient.incr(Const::Rediskeys.getHeroIdAutoIncKey)
+			templeteHero = metaDatao.getHeroMetaData(templeteHeroId)
 			if ! templeteHero
-				return {:retcode => ::Const::ErrorCode::HeroRecuritTempleteHeroIsNotExist}
+				return {:retcode => Const::ErrorCode::HeroRecuritTempleteHeroIsNotExist}
 			end
 			#创建hero
 			hero = {}
 			hero[:heroId] = heroId
 			hero[:templeteHeroId] = templeteHeroId
 			hero[:playerId] = playerId
-			hero[:attack] = 0
+			hero[:attack] = templeteHero。
 			hero[:defend] = 0
 			hero[:intelegence] = 0
 			hero[:blood] = 0 
@@ -24,7 +22,7 @@ module Model
 			RedisClient.set(::Const::Rediskeys.getHeroKey(heroId,playerId),hero.to_json)
 			#在player中增加一个英雄
 			player["heroList"] << heroId
-			::Model::Player.set(player)
+			Model::Player.set(player)
 			{:retcode => ::Const::ErrorCode::Ok,:hero => hero}
 		end
 

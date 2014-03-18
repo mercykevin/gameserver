@@ -50,9 +50,12 @@ ActiveSupport.on_load(:active_record) do
   # self.observers = :cacher, :garbage_collector, :forum_observer
 end
 
+# init player data redis
 redis_config = YAML.load_file("config/redis.yml")[ENV["RACK_ENV"]]
-
 RedisClient = Redis.new(:host => redis_config['host'], :port => redis_config['port'],:driver => :hiredis)
+# init session data redis
+redis_config = YAML.load_file("config/session_redis.yml")[ENV["RACK_ENV"]]
+SessionRedisClient = Redis.new(:host => redis_config['host'], :port => redis_config['port'],:driver => :hiredis)
 
 # load project config
 APP_CONFIG = YAML.load_file(File.expand_path("../config", __FILE__) + '/app_config.yml')[ENV["RACK_ENV"]]
