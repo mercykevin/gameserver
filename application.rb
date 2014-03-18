@@ -80,7 +80,7 @@ end
 
 #Load game config data from csv file
 Dir.glob(File.expand_path("../csvs", __FILE__) + '/**/*.csv').each do |file|
-  
+  MetaDao.instance.initMetaDataFromCSV(file)
 end
 
 # AOP model method for redis object state exception
