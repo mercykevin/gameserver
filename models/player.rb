@@ -54,16 +54,13 @@ module Model
 		# random player name with design configuration
 		#
 		# @return [String] player name
-		def self.randomName()
-			nameList = RedisClient.get(Const::Rediskeys.getRandomListKey())
-			names = JSON.parse(nameList)
-			if names.length > 0
-				randNum = rand(names.length)
-				randName = names[randNum]
-				names.delete_at(randNum + 1)
-				return randName
-			end
-			return ""			
+		def self.randomName(gender)
+			playerDao = PlayerDao.new
+			name = nil 
+			begin
+				name = MetaDao.instance.generatePlayerName(gender)
+			end while playerDao.existByName?(name) 
+			name
 		end
 	end #class Player
 end # End Moudle

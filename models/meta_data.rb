@@ -21,9 +21,5 @@ module Model
         		@attributes[attribute]
         	end
         end
-
-        def getAttr(name)
-        	@attributes[name]
-        end
 	end
 end

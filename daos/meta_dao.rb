@@ -66,4 +66,14 @@ class MetaDao
 	def getHeroMetaData(herotempleteid)
 		@heroMetaMap[herotempleteid]
 	end
+	# generate player name random
+	# @param [String] player gender
+	# @return [String] player name
+	def generatePlayerName(gender)
+		if gender == "male"
+			"#{@playerFirstName.sample}#{@playerSecondNameMale.sample}"
+		else
+			"#{@playerFirstName.sample}#{@playerSecondNameFemale.sample}"
+		end
+	end
 end

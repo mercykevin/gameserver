@@ -20,9 +20,11 @@ class UserTest < Test::Unit::TestCase
 	end
 
 	def test_randName
-		names = ["kevin1","kevin2","kevin3","kevin4","kevin5"]
-		RedisClient.set(Const::Rediskeys.getRandomListKey,names.to_json)
-		playerName = Model::Player.randomName()
-		assert_not_nil(names.index(playerName))
+		names = []
+		10.times do
+			names.push Model::Player.randomName("male")
+		end
+		newnames = names.uniq
+		assert_equal(names.length, newnames.length)
 	end
 end
