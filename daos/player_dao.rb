@@ -32,7 +32,7 @@ class PlayerDao
 	# 
   	# @return [String] player id
 	def generatePlayerId
-		RedisClient.incr(Const::Rediskeys.getPlayerIdAutoIncKey).to_s
+		RedisClient.incr(Const::Rediskeys.getPlayerIdAutoIncKey)
 	end
 	# is exist player with player name
 	#

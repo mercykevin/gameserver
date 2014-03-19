@@ -14,5 +14,7 @@ module Const
 		HeroRecuritOutofLimit = 9000002
 		#数据非法
 		HeroRecuritTempleteHeroIsNotExist = 9000003
+		#注册主英雄失败，已经有上阵的主英雄了
+		HeroRegisterFailHeroExist = 9000004
 	end
 end

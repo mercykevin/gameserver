@@ -13,9 +13,9 @@ module Const
 		def self.getAllPlayerIdListKey
 			"player_id_all_list"
 		end
-		#随机名列表
-		def self.getRandomListKey
-			"random_name_list"
+		#用户名key值
+		def self.getPlayerNameKey(playerName)
+			"player_name:[#{playerName}]"
 		end
 		#用户城市key
 		def self.getCityKey(playerId)
@@ -35,23 +35,19 @@ module Const
 		end
 		#获取战斗英雄的列表
 		def self.getBattleHeroListKey(playerId)
-			"battle_hero_id_list:[#{playerId}]"
-		end
-		#道具key
-		def self.getItemKey(itemId,playerId)
-			"item:[#{playerId}]:[#{itemId}]"
+			"hero_id_battle_list:[#{playerId}]"
 		end
 		#英雄自增长id
 		def self.getHeroIdAutoIncKey()
 			"hero_id_inc"
 		end
+		#道具key
+		def self.getItemKey(itemId,playerId)
+			"item:[#{playerId}]:[#{itemId}]"
+		end
 		#道具自增长id
 		def self.getItemIdAutoIncKey()
 			"item_id_inc"
-		end
-		#用户名key值
-		def self.getPlayerNameKey(playerName)
-			"player_name:[#{playerName}]"
 		end
 		#游戏公告
 		def self.getNoticeListKey()
