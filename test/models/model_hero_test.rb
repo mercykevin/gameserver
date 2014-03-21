@@ -34,4 +34,18 @@ class HeroTest < Test::Unit::TestCase
 		assert_equal(1 ,heroList.length)
 		assert_equal(hero[:heroId], heroList[0][:heroId])
 	end
+
+	def test_replace_hero
+		player = Model::Player.register("kevin_for_replace_hero")[:player]
+		heroMain  = Model::Hero.registerMainHero("11001",player)[:hero]
+		heroFree  = Model::Hero.recuritHero("12001",player,"normal")[:hero]
+		ret = Model::Hero.replaceHero(heroMain[:heroId], heroFree[:heroId], player)
+		assert_equal(Const::ErrorCode::Ok, ret[:retcode])
+		heroDao = HeroDao.new
+		battleHeroIdList = heroDao.getBattleHeroIdList(player[:playerId])
+		heroIdlist = heroDao.getHeroIdList(player[:playerId])
+		assert_equal(true, battleHeroIdList.include?(heroFree[:heroId]))
+		assert_equal(true, heroIdlist.include?(heroMain[:heroId]))
+	end
+
 end

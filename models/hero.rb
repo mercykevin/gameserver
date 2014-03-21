@@ -137,10 +137,13 @@ module Model
 		end
 		#英雄传承
 		#@param[Integer,Integer Hash]
+		#@return [Hash]
 		def self.transHero(heroId,freeHeroId,player)
 
 		end
-
+		#空闲英雄列表
+		#@param[Integer]
+		#@return [Array]
 		def self.getHeroList(playerId)
 
 		end
