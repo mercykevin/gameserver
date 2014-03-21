@@ -26,6 +26,7 @@ module Model
 				player[:strength] = 0
 				player[:command] = 0
 				player[:exp] = 0
+				player[:freeheromax] = 50
 				#更新player信息到redis中
 				playerDao.create(player)
 				{:retcode => Const::ErrorCode::Ok,:player => player}

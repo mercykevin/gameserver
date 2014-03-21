@@ -1,6 +1,6 @@
 class HeroDao
 	#get all hero id list by playerId
-	#@param [String] player id
+	#@param [Integer] player id
 	#@return [Array] id list
 	def getHeroIdList(playerId)
 		heroIdListKey = Const::Rediskeys.getHeroListKey(playerId)
@@ -12,7 +12,7 @@ class HeroDao
 		end
 	end
 	#get hero info by hero id and player id
-	#@param [String,String] hero id and player id
+	#@param [Integer,Integer] hero id and player id
 	#@return [Hash] hero info
 	def get(heroId,playerId)
 		herokey = Const::Rediskeys.getHeroKey(heroId,playerId)
@@ -23,8 +23,15 @@ class HeroDao
 			nil
 		end
 	end
+	#验证英雄是否存在
+	#@param [Integer,Integer]
+	#@return [Boolean]
+	def exist?(heroId,playerId)
+		herokey = Const::Rediskeys.getHeroKey(heroId,playerId)
+		RedisClient.exists(herokey)
+	end
 	#get hero info by hero id and player id
-	#@param [String] player id
+	#@param [Integer] player id
 	#@return [Array] hero list
 	def getBattleHeroList(playerId)
 		heroList = []
@@ -42,7 +49,7 @@ class HeroDao
 		heroList
 	end
 	#get hero list in battle 
-	#@param [String] player id
+	#@param [Integer] player id
 	#@return [Array] hero list
 	def getBattleHeroIdList(playerId)
 		heroIdListKey = Const::Rediskeys.getBattleHeroListKey(playerId)

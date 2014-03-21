@@ -1,19 +1,48 @@
 module Model
 	class Hero
 		#招募英雄
+		#@param [Integer,Hash,String]
+		#@return [Hash]
 		def self.recuritHero(templeteHeroId,player,recuritetype)
-			metaDatao = MetaDao.instance
+			metaDao = MetaDao.instance
 			commonDao = CommonDao.new
 			heroDao = HeroDao.new
-			templeteHero = metaDatao.getHeroMetaData(templeteHeroId)
+			templeteHero = metaDao.getHeroMetaData(templeteHeroId)
 			if ! templeteHero
 				return {:retcode => Const::ErrorCode::HeroRecuritTempleteHeroIsNotExist}
 			end
 			#空闲的英雄列表
 			heroIdList = heroDao.getHeroIdList(player[:playerId])
+			if heroIdList.length >= player[:freeheromax]
+				return {:retcode => Const::ErrorCode::HeroRecuritLimitsUp}
+			end
+			case recuritetype
+			when "normal"
+				#普通招募验证有没有到冷却时间
+				metaData = metaDao.getRecuriteMetaData("普通")
+				if player.key?(:recuriteherocd) && (Time.now.to_i - player[:recuriteherocd]) < metaData.rFreeCooling.to_i
+					return {:retcode => Const::ErrorCode::HeroRecuritCDError}
+				end
+			when "advanced"
+				#高级招募
+				metaData = metaDao.getRecuriteMetaData("高级")
+				if player.key?(:recuriteheroadvancedcd) and (Time.now.to_i - player[:recuriteheroadvancedcd]) < metaData.rFreeCooling.to_i
+					return {:retcode => Const::ErrorCode::HeroRecuritCDError}
+				end 
+			else
+				metaData = metaDao.getRecuriteMetaData("英雄令")
+			end
 			#创建英雄
 			hero = createHero(templeteHero, player, heroIdList)
 			#更新相关信息到redis中
+			case recuritetype
+			when "normal"
+				player[:recuriteherocd] = Time.new.to_i
+				#TODO 扣钱
+			when "advanced"
+				player[:recuriteheroadvancedcd] = Time.new.to_i
+			else
+			end	
 			heroIdListKey = Const::Rediskeys.getHeroListKey(player[:playerId])
 			herokey = Const::Rediskeys.getHeroKey(hero[:heroId],player[:playerId])
 			playerkey = Const::Rediskeys.getPlayerKey(player[:playerId])
@@ -32,22 +61,22 @@ module Model
 			hero[:heroId] = heroId
 			hero[:templeteHeroId] = templeteHero.GeneralID
 			hero[:playerId] = player[:playerId]
-			hero[:attack] = templeteHero.GInitialATK.to_f
-			hero[:defend] = templeteHero.GInitialDEF.to_f
+			hero[:attack] = templeteHero.gInitialATK.to_f
+			hero[:defend] = templeteHero.gInitialDEF.to_f
 			hero[:intelegence] = 0
-			hero[:blood] = templeteHero.GInitialHP.to_f 
+			hero[:blood] = templeteHero.gInitialHP.to_f 
 			hero[:exp] = 0
-			hero[:star] = templeteHero.GStart.to_i
+			hero[:star] = templeteHero.gStart.to_i
 			heroIdList << heroId
 			hero
 		end
 		#register main hero
 		#@param 
 		def self.registerMainHero(templeteHeroId,player)
-			metaDatao = MetaDao.instance
+			metaDao = MetaDao.instance
 			commonDao = CommonDao.new
 			heroDao = HeroDao.new
-			templeteHero = metaDatao.getHeroMetaData(templeteHeroId)
+			templeteHero = metaDao.getHeroMetaData(templeteHeroId)
 			if ! templeteHero
 				return {:retcode => Const::ErrorCode::HeroRecuritTempleteHeroIsNotExist}
 			end
@@ -66,18 +95,54 @@ module Model
 			{:retcode => Const::ErrorCode::Ok,:hero => hero}
 		end
 		#get a hero info 
-		#@param [String,String] hero id ,player id
+		#@param [Integer,Integer] hero id ,player id
 		#@return [Hash]
 		def self.getHero(heroId,playerId)
 			heroDao = HeroDao.new
 			heroDao.get(heroid,playerId)
 		end
 		#get battle hero list 
-		#@param [String] player id
+		#@param [Integer] player id
 		#@return [Array]
 		def self.getBattleHeroList(playerId)
 			heroDao = HeroDao.new
 			heroDao.getBattleHeroList(playerId)
+		end
+		#更换英雄
+		#@param[Integer,Integer,Hash]
+		#@return [Hash]
+		def self.replaceHero(heroId,freeHeroId,player)
+			commonDao = CommonDao.new
+			heroDao = HeroDao.new
+			#上阵的英雄列表
+			battleHeroIdList = heroDao.getBattleHeroIdList(player[:playerId])
+			#空闲的英雄列表
+			heroIdList = heroDao.getHeroIdList(player[:playerId])
+			if battleHeroIdList.include?(heroId) && heroIdList.include?(freeHeroId)
+				if heroDao.exist?(heroId,player[:playerId]) && heroDao.exist?(freeHeroId,player[:playerId])
+					index = battleHeroIdList.index(heroId)
+					battleHeroIdList[index] = freeHeroId
+					heroIdList.delete(freeHeroId)
+					heroIdList << heroId
+					battleHeroIdListKey = Const::Rediskeys.getBattleHeroListKey(player[:playerId])
+					heroIdListKey = Const::Rediskeys.getHeroListKey(player[:playerId])
+					commonDao.update({battleHeroIdListKey => battleHeroIdList, heroIdListKey => heroIdList })
+					{:retcode => Const::ErrorCode::Ok}
+				else
+					{:retcode => Const::ErrorCode::Fail}
+				end
+			else
+				{:retcode => Const::ErrorCode::Fail}
+			end
+		end
+		#英雄传承
+		#@param[Integer,Integer Hash]
+		def self.transHero(heroId,freeHeroId,player)
+
+		end
+
+		def self.getHeroList(playerId)
+
 		end
 	end # class
 end # model definition

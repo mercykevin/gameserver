@@ -16,13 +16,13 @@ class MetaDao
 			initPlayerNameMetaData(csvfile)
 		when 'Generals'
 			@heroMetaMap = {}
-			initMetaData(csvfile,@heroMetaMap,"GeneralID")
+			initMetaData(csvfile,@heroMetaMap,"generalID")
 		when 'Recruit'
 			@recuriteMetaMap = {}
-			initMetaData(csvfile,@recuriteMetaMap,"RecruitName")
+			initMetaData(csvfile,@recuriteMetaMap,"recruitName")
 		when 'Fate'
 			@fateMetaMap = {}
-			initMetaData(csvfile,@fateMetaMap,"FateID")
+			initMetaData(csvfile,@fateMetaMap,"fateID")
 		else
 
 		end
@@ -75,5 +75,9 @@ class MetaDao
 		else
 			"#{@playerFirstName.sample}#{@playerSecondNameFemale.sample}"
 		end
+	end
+
+	def getRecuriteMetaData(key)
+		@recuriteMetaMap[key]
 	end
 end

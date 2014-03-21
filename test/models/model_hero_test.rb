@@ -10,6 +10,9 @@ class HeroTest < Test::Unit::TestCase
 		assert_equal(heroFromRedis[:heroId],hero[:heroId])
 		heroidlist = JSON.parse(RedisClient.get(Const::Rediskeys.getHeroListKey(player[:playerId])), {:symbolize_names => true})
 		assert_equal(true, heroidlist.index(heroid) != nil)
+		#recurite again
+		retcode  = Model::Hero.recuritHero("11001",player,"normal")[:retcode]
+		assert_equal(Const::ErrorCode::HeroRecuritCDError, retcode)
 	end
 
 	def test_register_main_hero

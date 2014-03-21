@@ -16,5 +16,9 @@ module Const
 		HeroRecuritTempleteHeroIsNotExist = 9000003
 		#注册主英雄失败，已经有上阵的主英雄了
 		HeroRegisterFailHeroExist = 9000004
+		#英雄超过最大可招募数
+		HeroRecuritLimitsUp = 9000005
+		#现在还不能招募，待cd冷却
+		HeroRecuritCDError = 9000006
 	end
 end
