@@ -62,7 +62,8 @@ module Model
 			name = nil 
 			begin
 				name = MetaDao.instance.generatePlayerName(gender)
-			end while playerDao.existByName?(name) 
+			end while playerDao.existByName?(name)
+			GameLogger.debug("Model::Player.randomName:the rand name = #{name}") 
 			name
 		end
 		#根据session获取用户信息

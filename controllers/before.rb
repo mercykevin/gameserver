@@ -21,7 +21,7 @@ before do
 	request[:game_session_id] = session_id
 	player = Model::Player.getBySession(session_id)
 	request[:player] = player
-	logger << " session_id = #{session_id} path_info = #{request.path_info} \n"
+	logger << "before do:session_id = #{session_id},path_info = #{request.path_info} \n"
 	parseReq(request)
 end
 
