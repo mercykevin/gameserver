@@ -30,5 +30,12 @@ post '/hero/freelist' do
 	herolist.to_json
 end
 
+post '/hero/trans' do
+	player = request[:player]
+	battleHeroId = request[:req_parames][:battleheroid]
+	freeHeroId = request[:req_parames][:freeheroid]
+	ret = Model::Hero.transHero(battleHeroId, freeHeroId ,player)
+end
+
 
 

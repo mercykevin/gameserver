@@ -155,10 +155,11 @@ module Model
 						#TODO 处理battle hero升级
 						heroIdList.delete(freeHero[:heroId])
 						#更新相关的redis数据
-						battleHeroKey = Const::Rediskeys.getHeroKey(battleHero[:heroId],playerId)
-						freeHeroKey = Const::Rediskeys.getHeroKey(freeHero[:heroId],playerId)
+						battleHeroKey = Const::Rediskeys.getHeroKey(battleHero[:heroId],player[:playerId])
+						freeHeroKey = Const::Rediskeys.getHeroKey(freeHero[:heroId],player[:playerId])
 						heroIdListKey = Const::Rediskeys.getHeroListKey(player[:playerId])
 						commonDao.update({battleHeroKey => battleHero, freeHeroKey => nil,heroIdListKey => heroIdList})
+						{:retcode => Const::ErrorCode::Ok,:hero => battleHero}
 					else
 						{:retcode => Const::ErrorCode::Fail}
 					end

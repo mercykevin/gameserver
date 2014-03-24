@@ -48,4 +48,19 @@ class HeroTest < Test::Unit::TestCase
 		assert_equal(true, heroIdlist.include?(heroMain[:heroId]))
 	end
 
+	def test_trans_hero
+		player = Model::Player.register("kevin_for_trans_hero","image")[:player]
+		heroMain  = Model::Hero.registerMainHero("11001",player)[:hero]
+		heroFree  = Model::Hero.recuritHero("12001",player,"normal")[:hero]
+		commonDao = CommonDao.new
+		heroDao = HeroDao.new
+		freeHeroKey = Const::Rediskeys.getHeroKey(heroFree[:heroId],player[:playerId])
+		heroFree[:level] = 4
+		commonDao.update({freeHeroKey => heroFree})
+		Model::Hero.transHero(heroMain[:heroId],heroFree[:heroId],player)
+		heroIdlist = heroDao.getHeroIdList(player[:playerId])
+		assert_equal(0,heroIdlist.length)
+		assert_equal(nil,heroDao.get(heroFree[:heroId],player[:playerId]))
+	end
+
 end
