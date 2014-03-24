@@ -6,6 +6,7 @@ configure do
   set :static,          false # your upstream server should deal with those (nginx, Apache)
   set :server,		      'thin'
   set :logging,         true
+  set :bind,            '0.0.0.0'
 end
 
 configure :production do

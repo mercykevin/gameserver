@@ -13,10 +13,15 @@ end
 
 before do
 	response['X-UA-Compatible'] = "IE=edge,chrome=1"
-	if not request.cookies["game_session_id"]
+	session_id = request.cookies["game_session_id"]
+	if not session_id
 		session_id = SecureRandom.hex
 		response.set_cookie("game_session_id", :value => session_id)
 	end
+	request[:game_session_id] = session_id
+	player = Model::Player.getBySession(session_id)
+	request[:player] = player
+	logger << " session_id = #{session_id} path_info = #{request.path_info} \n"
 	parseReq(request)
 end
 

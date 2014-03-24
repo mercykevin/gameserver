@@ -1,7 +1,7 @@
 module Model
 	class Hero
 		#招募英雄
-		#@param [Integer,Hash,String]
+		#@param [String,Hash,String]
 		#@return [Hash]
 		def self.recuritHero(templeteHeroId,player,recuritetype)
 			metaDao = MetaDao.instance
@@ -141,11 +141,12 @@ module Model
 		def self.transHero(heroId,freeHeroId,player)
 
 		end
-		#空闲英雄列表
+		#取空闲的英雄列表
 		#@param[Integer]
 		#@return [Array]
 		def self.getHeroList(playerId)
-
+			heroDao = HeroDao.new
+			heroDao.getHeroList(playerId)
 		end
 	end # class
 end # model definition

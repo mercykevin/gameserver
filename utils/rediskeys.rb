@@ -57,5 +57,9 @@ module Const
 		def self.getGameAreasKey
 			"game_areas"
 		end
+		#获取session key
+		def self.getSessionKey(sessionId)
+			"session:[#{sessionId}]"
+		end
 	end
 end

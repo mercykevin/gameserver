@@ -5,13 +5,19 @@ post '/player/get' do
 end
 
 post '/player/randname' do
-	randName = Model::Player.randomName
-	randName.to_json
+	requestParams = request[:req_parames]
+	randName = Model::Player.randomName(requestParams[:gender])
+	{:name => randName}.to_json
 end
 
 post '/player/register' do
 	name = request[:req_parames][:name]
-	ret = Model::Player.register(name)
+	headimg = request[:req_parames][:headpic]
+	ret = Model::Player.register(name,headimg)
+	player = ret[:player]
+	if ret[:retcode] == Const::ErrorCode::Ok
+		Model::Player.setOnline(request[:game_session_id],player[:playerId])
+	end
 	ret.to_json
 end
 

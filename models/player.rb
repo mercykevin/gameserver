@@ -4,14 +4,15 @@ module Model
 	class Player
 		# register new player with name.
   		#
-  		# @param [String] playerName 
+  		# @param [String,String,String] player name ,head img ,meta hero id
   		# @return [Hash] player's information store with Hash or nil if player is not exist
-		def self.register(playerName)
+		def self.register(playerName,headImg)
 			playerDao = PlayerDao.new
 			commonDao = CommonDao.new
 			if playerDao.existByName?(playerName)
 				#用户已经存在
-				{:retcode => Const::ErrorCode::PlayerIsExistByName}
+				player = playerDao.getPlayerByName(playerName)
+				{:retcode => Const::ErrorCode::Ok,:player => player}
 			else
 				#用户id自增长
 				playerId = playerDao.generatePlayerId
@@ -19,14 +20,15 @@ module Model
 				player[:playerId] = playerId
 				player[:playerName] = playerName
 				player[:level] = 0
-				player[:money] = 0
 				player[:siliver] = 0
-				player[:books] = 0
-				player[:gold] = 0
+				player[:diamond] = 0
 				player[:strength] = 0
 				player[:command] = 0
+				player[:books] = 0
 				player[:exp] = 0
 				player[:freeheromax] = 50
+				player[:vip] = 0
+				player[:headimg] = headImg
 				#更新player信息到redis中
 				playerDao.create(player)
 				{:retcode => Const::ErrorCode::Ok,:player => player}
@@ -62,6 +64,24 @@ module Model
 				name = MetaDao.instance.generatePlayerName(gender)
 			end while playerDao.existByName?(name) 
 			name
+		end
+		#根据session获取用户信息
+		#@param [String] session id
+		#@return [Hash]
+		def self.getBySession(sessionId)
+			sessionDao = SessionDao.new
+			playerDao = PlayerDao.new
+			playerId = sessionDao.getPlayerIdBySession(sessionId)
+			if playerId
+				playerDao.getPlayer(playerId)
+			else
+				nil
+			end
+		end
+
+		def self.setOnline(sessionId,playerId)
+			sessionDao = SessionDao.new
+			sessionDao.setPlayerIdBySession(sessionId,playerId)
 		end
 	end #class Player
 end # End Moudle

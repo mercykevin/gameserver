@@ -2,7 +2,7 @@ require File.expand_path("../../test_helper",__FILE__)
 require 'json'
 class HeroTest < Test::Unit::TestCase
 	def test_recurite
-		player = Model::Player.register("kevin")[:player]
+		player = Model::Player.register("kevin","image")[:player]
 		hero  = Model::Hero.recuritHero("11001",player,"normal")[:hero]
 		heroid = hero[:heroId]
 		heroFromRedis = JSON.parse(RedisClient.get(Const::Rediskeys.getHeroKey(heroid,player[:playerId])), {:symbolize_names => true})
@@ -16,7 +16,7 @@ class HeroTest < Test::Unit::TestCase
 	end
 
 	def test_register_main_hero
-		player = Model::Player.register("kevin_main")[:player]
+		player = Model::Player.register("kevin_main","image")[:player]
 		hero  = Model::Hero.registerMainHero("11001",player)[:hero]
 		heroid = hero[:heroId]
 		heroFromRedis = JSON.parse(RedisClient.get(Const::Rediskeys.getHeroKey(heroid,player[:playerId])), {:symbolize_names => true})
@@ -27,7 +27,7 @@ class HeroTest < Test::Unit::TestCase
 	end
 
 	def test_get_battle_hero_list
-		player = Model::Player.register("kevin_for_main_hero")[:player]
+		player = Model::Player.register("kevin_for_main_hero","image")[:player]
 		hero  = Model::Hero.registerMainHero("11001",player)[:hero]
 		heroList = Model::Hero.getBattleHeroList(player[:playerId])
 		assert_not_nil(heroList, "battle hero list is not exist ")
@@ -36,7 +36,7 @@ class HeroTest < Test::Unit::TestCase
 	end
 
 	def test_replace_hero
-		player = Model::Player.register("kevin_for_replace_hero")[:player]
+		player = Model::Player.register("kevin_for_replace_hero","image")[:player]
 		heroMain  = Model::Hero.registerMainHero("11001",player)[:hero]
 		heroFree  = Model::Hero.recuritHero("12001",player,"normal")[:hero]
 		ret = Model::Hero.replaceHero(heroMain[:heroId], heroFree[:heroId], player)

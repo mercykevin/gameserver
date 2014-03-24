@@ -11,6 +11,24 @@ class HeroDao
 			[]
 		end
 	end
+	#取空闲英雄的列表
+	#@param [Integer]
+	#@return [Array] free hero list
+	def getHeroList(playerId)
+		heroList = []
+		heroIdList = getHeroIdList(playerId)
+		if heroIdList and heroIdList.length > 0
+			herokeyList = []
+			heroIdList.each do |heroId|
+				herokeyList << Const::Rediskeys.getHeroKey(heroId,playerId)
+			end
+			jsonHeroList = RedisClient.mget(herokeyList)
+			jsonHeroList.each do |hero|
+				heroList << JSON.parse(hero, {:symbolize_names => true})
+			end
+		end
+		heroList
+	end
 	#get hero info by hero id and player id
 	#@param [Integer,Integer] hero id and player id
 	#@return [Hash] hero info
