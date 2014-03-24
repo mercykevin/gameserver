@@ -19,23 +19,23 @@ module Const
 		end
 		#用户城市key
 		def self.getCityKey(playerId)
-			"city:[#{playerId}]"
+			"player:[#{playerId}]city"
 		end
 		#建筑key
 		def self.getBuildingKey(buildName,playerId)
-			"city_building:[#{playerId}]:[#{buildName}]"
+			"player:[#{playerId}]city_building:[#{buildName}]"
 		end
 		#英雄key
 		def self.getHeroKey(heroId,playerId)
-			"hero:[#{playerId}]:[#{heroId}]"
+			"player:[#{playerId}]hero:[#{heroId}]"
 		end
 		#所有英雄的id列表
 		def self.getHeroListKey(playerId)
-			"hero_id_all_list:[#{playerId}]"
+			"player:[#{playerId}]herolist"
 		end
 		#获取战斗英雄的列表
 		def self.getBattleHeroListKey(playerId)
-			"hero_id_battle_list:[#{playerId}]"
+			"player:[#{playerId}]battleherolist"
 		end
 		#英雄自增长id
 		def self.getHeroIdAutoIncKey()
@@ -43,7 +43,7 @@ module Const
 		end
 		#道具key
 		def self.getItemKey(itemId,playerId)
-			"item:[#{playerId}]:[#{itemId}]"
+			"player:[#{playerId}]item[#{itemId}]"
 		end
 		#道具自增长id
 		def self.getItemIdAutoIncKey()
@@ -59,7 +59,7 @@ module Const
 		end
 		#获取session key
 		def self.getSessionKey(sessionId)
-			"session:[#{sessionId}]"
+			"gamesession:[#{sessionId}]"
 		end
 	end
 end
