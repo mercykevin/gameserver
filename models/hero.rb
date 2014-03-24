@@ -67,6 +67,7 @@ module Model
 			hero[:blood] = templeteHero.gInitialHP.to_f 
 			hero[:exp] = 0
 			hero[:star] = templeteHero.gStart.to_i
+			hero[:level] = 1
 			heroIdList << heroId
 			hero
 		end
@@ -139,7 +140,34 @@ module Model
 		#@param[Integer,Integer Hash]
 		#@return [Hash]
 		def self.transHero(heroId,freeHeroId,player)
-
+			commonDao = CommonDao.new
+			heroDao = HeroDao.new
+			#上阵的英雄列表
+			battleHeroIdList = heroDao.getBattleHeroIdList(player[:playerId])
+			#空闲的英雄列表
+			heroIdList = heroDao.getHeroIdList(player[:playerId])
+			if battleHeroIdList.include?(heroId) && heroIdList.include?(freeHeroId)
+				battleHero = heroDao.get(heroId,player[:playerId])
+				freeHero = heroDao.get(freeHeroId,player[:playerId])
+				if battleHero and freeHero
+					if freeHero[:level] > 1 
+						battleHero[:exp] = battleHero[:exp] + freeHero[:exp]
+						#TODO 处理battle hero升级
+						heroIdList.delete(freeHero[:heroId])
+						#更新相关的redis数据
+						battleHeroKey = Const::Rediskeys.getHeroKey(battleHero[:heroId],playerId)
+						freeHeroKey = Const::Rediskeys.getHeroKey(freeHero[:heroId],playerId)
+						heroIdListKey = Const::Rediskeys.getHeroListKey(player[:playerId])
+						commonDao.update({battleHeroKey => battleHero, freeHeroKey => nil,heroIdListKey => heroIdList})
+					else
+						{:retcode => Const::ErrorCode::Fail}
+					end
+				else
+					{:retcode => Const::ErrorCode::Fail}
+				end
+			else
+				{:retcode => Const::ErrorCode::Fail}
+			end
 		end
 		#取空闲的英雄列表
 		#@param[Integer]

@@ -6,7 +6,11 @@ class CommonDao
 			RedisClient.watch(entities.keys) do
 				multiret = RedisClient.multi do |multi|
 					entities.each do |k,v|
-						multi.set(k,v.to_json)
+						if v == nil
+							multi.del(k)
+						else
+							multi.set(k,v.to_json)
+						end
 					end
 				end
 				if multiret == nil || multiret.empty? || multiret[0] != 'OK'
