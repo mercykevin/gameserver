@@ -1,3 +1,26 @@
+post '/hero/prerecruite' do
+	ret = {:lefttime1 => 0, :lefttime2 => 0, :lefttime3 => 0}
+	player = request[:player]
+	recruiteInfo = Model::Hero.getHeroRecruiteInfo(player[:playerId])
+	metaDao = MetaDao.instance
+	if recruiteInfo.key?(:recuritetime1)
+		metaData = metaDao.getRecuriteMetaData("普通")
+		lefttime = metaData.rFreeCooling.to_i - (Time.now.to_i - recruiteInfo[:recuritetime1])
+		ret[:lefttime1] = lefttime unless lefttime < 0
+	end
+	if recruiteInfo.key?(:recuritetime2)
+		metaData = metaDao.getRecuriteMetaData("高级")
+		lefttime = metaData.rFreeCooling.to_i - (Time.now.to_i - recruiteInfo[:recuritetime2])
+		ret[:lefttime2] = lefttime unless lefttime < 0
+	end
+	if recruiteInfo.key?(:recuritetime3)
+		metaData = metaDao.getRecuriteMetaData("将军令")
+		lefttime = metaData.rFreeCooling.to_i - (Time.now.to_i - recruiteInfo[:recuritetime3])
+		ret[:lefttime3] = lefttime unless lefttime < 0
+	end
+	ret.to_json
+end
+
 #英雄招募
 post '/hero/recruite' do
 	player = request[:player]

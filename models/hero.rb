@@ -202,5 +202,13 @@ module Model
 			heroDao = HeroDao.new
 			heroDao.getHeroList(playerId)
 		end
+		#取招募英雄的信息
+		#@param[Integer]
+		#@return [Hash]
+		def self.getHeroRecruiteInfo(playerId)
+			heroDao = HeroDao.new
+			metaDao = MetaDao.instance
+			heroDao.getHeroRecruiteInfo(playerId)
+		end
 	end # class
 end # model definition
