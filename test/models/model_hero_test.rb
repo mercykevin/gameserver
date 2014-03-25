@@ -12,7 +12,7 @@ class HeroTest < Test::Unit::TestCase
 		assert_equal(true, heroidlist.index(heroid) != nil)
 		#recurite again
 		retcode  = Model::Hero.recuritHero("11001",player,"normal")[:retcode]
-		assert_equal(Const::ErrorCode::HeroRecuritCDError, retcode)
+		assert_equal(Const::ErrorCode::HeroRecuritDimondNotEnough, retcode)
 	end
 
 	def test_register_main_hero

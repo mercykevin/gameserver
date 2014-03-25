@@ -85,5 +85,16 @@ class HeroDao
 	def generateHeroId
 		RedisClient.incr(Const::Rediskeys.getHeroIdAutoIncKey)
 	end
-
+	# 英雄招募的相关信息.
+	# 
+  	# @return [Hash] recruiteinfo
+	def getHeroRecruiteInfo(playerId)
+		key = Const::Rediskeys.getHeroRecruiteKey(playerId)
+		info = RedisClient.get(key)
+		if info
+			JSON.parse(info, {:symbolize_names => true})
+		else
+			{}
+		end
+	end
 end

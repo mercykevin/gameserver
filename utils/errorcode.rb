@@ -20,5 +20,7 @@ module Const
 		HeroRecuritLimitsUp = 9000005
 		#现在还不能招募，待cd冷却
 		HeroRecuritCDError = 9000006
+		#钻石数不够，不能招募
+		HeroRecuritDimondNotEnough = 9000007
 	end
 end

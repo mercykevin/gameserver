@@ -16,37 +16,62 @@ module Model
 			if heroIdList.length >= player[:freeheromax]
 				return {:retcode => Const::ErrorCode::HeroRecuritLimitsUp}
 			end
+			#招募
+			recruiteinfo = heroDao.getHeroRecruiteInfo(player[:playerId])
+			consumetype = "time"
+			lefttime = Time.now.to_i
+			metaData = nil
 			case recuritetype
 			when "normal"
 				#普通招募验证有没有到冷却时间
 				metaData = metaDao.getRecuriteMetaData("普通")
-				if player.key?(:recuriteherocd) && (Time.now.to_i - player[:recuriteherocd]) < metaData.rFreeCooling.to_i
-					return {:retcode => Const::ErrorCode::HeroRecuritCDError}
+				if recruiteinfo.key?(:recuritetime1)
+					lefttime = lefttime - recruiteinfo[:recuritetime1]
 				end
 			when "advanced"
 				#高级招募
 				metaData = metaDao.getRecuriteMetaData("高级")
-				if player.key?(:recuriteheroadvancedcd) and (Time.now.to_i - player[:recuriteheroadvancedcd]) < metaData.rFreeCooling.to_i
-					return {:retcode => Const::ErrorCode::HeroRecuritCDError}
-				end 
+				if recruiteinfo.key?(:recuritetime2) 
+					lefttime = lefttime - recruiteinfo[:recuritetime2]
+				end
 			else
 				metaData = metaDao.getRecuriteMetaData("英雄令")
+				if recruiteinfo.key?(:recuritetime3)
+					lefttime = lefttime - recruiteinfo[:recuritetime3]
+				end
+			end
+			if lefttime < metaData.rFreeCooling.to_i
+				#使用钻石招募
+				consumetype = "diamond"
+				if player[:diamond] < metaData.rCost.to_i
+					return {:retcode => Const::ErrorCode::HeroRecuritDimondNotEnough}
+				end
 			end
 			#创建英雄
 			hero = createHero(templeteHero, player, heroIdList)
-			#更新相关信息到redis中
-			case recuritetype
-			when "normal"
-				player[:recuriteherocd] = Time.new.to_i
-				#TODO 扣钱
-			when "advanced"
-				player[:recuriteheroadvancedcd] = Time.new.to_i
+			if consumetype == "diamond"
+				player[:diamond] = player[:diamond] - metaData.rCost.to_i
+
 			else
-			end	
+				case recuritetype
+				when "normal"
+					recruiteinfo[:recuritetime1] = Time.new.to_i
+				when "advanced"
+					recruiteinfo[:recuritetime2] = Time.new.to_i
+				else
+					recruiteinfo[:recuritetime3] = Time.new.to_i
+				end
+			end
+			#更新相关信息到redis中
 			heroIdListKey = Const::Rediskeys.getHeroListKey(player[:playerId])
 			herokey = Const::Rediskeys.getHeroKey(hero[:heroId],player[:playerId])
 			playerkey = Const::Rediskeys.getPlayerKey(player[:playerId])
-			commonDao.update({herokey => hero, heroIdListKey => heroIdList, playerkey => player})
+			recruiteInfokey = Const::Rediskeys.getHeroRecruiteKey(player[:playerId])
+			if consumetype == "diamond"
+				commonDao.update({herokey => hero, heroIdListKey => heroIdList, playerkey => player})
+			else
+				commonDao.update({herokey => hero, heroIdListKey => heroIdList, recruiteInfokey => recruiteinfo})
+			end
 			{:retcode => Const::ErrorCode::Ok,:hero => hero}
 		end
 		#get a hero info 

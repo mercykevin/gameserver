@@ -25,6 +25,10 @@ module Const
 		def self.getBuildingKey(buildName,playerId)
 			"player:[#{playerId}]city_building:[#{buildName}]"
 		end
+
+		def self.getHeroRecruiteKey(playerId)
+			"player:[#{playerId}]herorecurite"
+		end
 		#英雄key
 		def self.getHeroKey(heroId,playerId)
 			"player:[#{playerId}]hero:[#{heroId}]"
