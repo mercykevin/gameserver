@@ -63,4 +63,29 @@ class HeroTest < Test::Unit::TestCase
 		assert_equal(nil,heroDao.get(heroFree[:heroId],player[:playerId]))
 	end
 
+	def test_batle_hero
+		player = Model::Player.register("battle_hero","image")[:player]
+		heroMain  = Model::Hero.registerMainHero("11001",player)[:hero]
+		heroDao = HeroDao.new
+		heroFree  = Model::Hero.recuritHero("12001",player,"normal")[:hero]
+		ret = Model::Hero.batleHero(heroFree[:heroId],player[:playerId])
+		newHeroIdList = heroDao.getHeroIdList(player[:playerId])
+		newBattleHeroIdList = heroDao.getBattleHeroIdList(player[:playerId])
+		assert_equal(Const::ErrorCode::Ok,ret[:retcode])
+		assert_equal(0,newHeroIdList.length)
+		assert_equal([heroMain[:heroId],heroFree[:heroId]] ,newBattleHeroIdList)
+	end
+
+	def test_arrange_battle
+		player = Model::Player.register("battle_arrange","image")[:player]
+		heroMain  = Model::Hero.registerMainHero("11001",player)[:hero]
+		heroDao = HeroDao.new
+		heroFree  = Model::Hero.recuritHero("12001",player,"normal")[:hero]
+		Model::Hero.batleHero(heroFree[:heroId],player[:playerId])
+		ret = Model::Hero.arrangeBattleHero(heroMain[:heroId],heroFree[:heroId],player[:playerId])
+		assert_equal(Const::ErrorCode::Ok,ret[:retcode])
+		newBattleHeroIdList = heroDao.getBattleHeroIdList(player[:playerId])
+		assert_equal([heroFree[:heroId],heroMain[:heroId]] ,newBattleHeroIdList)
+	end
+
 end

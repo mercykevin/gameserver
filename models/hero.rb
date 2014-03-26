@@ -166,6 +166,7 @@ module Model
 			commonDao = CommonDao.new
 			heroDao = HeroDao.new
 			metaDao = MetaDao.instance
+			playerDao = PlayerDao.new
 			#取玩家信息
 			player = playerDao.getPlayer(playerId)
 			#上阵的英雄列表
@@ -258,7 +259,7 @@ module Model
 				battleHeroIdList[secondIndex] = firstHeroId
 				battleHeroIdList[firstIndex] = secondHeroId
 				battleHeroIdListKey = Const::Rediskeys.getBattleHeroListKey(player[:playerId])
-				commonDao.update({battleHeroIdListKey => battleHeroIdList}
+				commonDao.update({battleHeroIdListKey => battleHeroIdList})
 				{:retcode => Const::ErrorCode::Ok}
 			else
 				{:retcode => Const::ErrorCode::Fail}
