@@ -1,3 +1,4 @@
+#英雄招募冷却时间显示
 post '/hero/prerecruite' do
 	ret = {:lefttime1 => 0, :lefttime2 => 0, :lefttime3 => 0}
 	player = request[:player]
@@ -53,6 +54,7 @@ post '/hero/freelist' do
 	herolist.to_json
 end
 
+#英雄传承
 post '/hero/trans' do
 	player = request[:player]
 	battleHeroId = request[:req_parames][:battleheroid]
@@ -60,5 +62,15 @@ post '/hero/trans' do
 	ret = Model::Hero.transHero(battleHeroId, freeHeroId ,player)
 end
 
+#英雄进阶
+post '/hero/advanced' do
+	player = request[:player]
+end
+
+#英雄培养
+post '/hero/bringup' do
+	player = request[:player]
+
+end
 
 

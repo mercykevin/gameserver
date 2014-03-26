@@ -20,11 +20,11 @@ module Model
 				player[:playerId] = playerId
 				player[:playerName] = playerName
 				player[:level] = 0
-				player[:siliver] = 0
+				player[:siliver] = 10000
 				player[:diamond] = 0
 				player[:strength] = 0
-				player[:command] = 0
-				player[:books] = 0
+				player[:command] = 30
+				player[:books] = 15
 				player[:exp] = 0
 				player[:freeheromax] = 50
 				player[:vip] = 0
