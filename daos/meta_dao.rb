@@ -23,6 +23,9 @@ class MetaDao
 		when 'Fate'
 			@fateMetaMap = {}
 			initMetaData(csvfile,@fateMetaMap,"fateID")
+		when 'CharacterLevel'
+			@playerLevelMetaMap = {}
+			initMetaData(csvfile, @playerLevelMetaMap ,"characterLevel")
 		else
 
 		end
@@ -79,5 +82,9 @@ class MetaDao
 
 	def getRecuriteMetaData(key)
 		@recuriteMetaMap[key]
+	end
+
+	def getPlayerLevelMetaData(key)
+		@playerLevelMetaMap[key.to_s]
 	end
 end

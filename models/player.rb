@@ -19,7 +19,7 @@ module Model
 				player = {}
 				player[:playerId] = playerId
 				player[:playerName] = playerName
-				player[:level] = 0
+				player[:level] = 1
 				player[:siliver] = 10000
 				player[:diamond] = 0
 				player[:strength] = 0
