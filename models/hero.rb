@@ -74,7 +74,6 @@ module Model
 			else
 				commonDao.update({herokey => hero, heroIdListKey => heroIdList, recruiteInfokey => recruiteinfo})
 			end
-
 			{:retcode => Const::ErrorCode::Ok,:hero => hero}
 		end
 		#get a hero info 
