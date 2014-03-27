@@ -1,3 +1,2 @@
-post '/item/use' do 
-	
+get '/item/use' do 
 end

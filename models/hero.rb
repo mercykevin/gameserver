@@ -75,7 +75,7 @@ module Model
 			#计算剩余时间，返回给前端
 			lefttime = metaData.rFreeCooling.to_i - (Time.now.to_i - recruiteTime)
 			lefttime = 0 unless lefttime >= 0
-			{:retcode => Const::ErrorCode::Ok,:hero => hero,:lefttime=>lefttime}
+			{:retcode => Const::ErrorCode::Ok,:hero => hero,:lefttime=>lefttime,:recuritetype=>recuritetype}
 		end
 		#get a hero info 
 		#@param [MetaData,Hash,Array] hero csv data,player info in Hash,

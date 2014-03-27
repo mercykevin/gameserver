@@ -31,3 +31,4 @@ post '/player/listnotice' do
 	noticeList = Model::Notice.getNoticeList
 	noticeList.to_json
 end
+
