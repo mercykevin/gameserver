@@ -23,24 +23,22 @@ module Model
 			consumetype = "time"
 			lefttime = Time.now.to_i
 			metaData = nil
+			recruiteTime = nil
 			case recuritetype
 			when "normal"
 				#普通招募验证有没有到冷却时间
 				metaData = metaDao.getRecuriteMetaData("普通")
-				if recruiteinfo.key?(:recuritetime1)
-					lefttime = lefttime - recruiteinfo[:recuritetime1]
-				end
+				recruiteTime = recruiteinfo[:recuritetime1]
 			when "advanced"
 				#高级招募
 				metaData = metaDao.getRecuriteMetaData("高级")
-				if recruiteinfo.key?(:recuritetime2) 
-					lefttime = lefttime - recruiteinfo[:recuritetime2]
-				end
+				recruiteTime = recruiteinfo[:recuritetime2]
 			else
 				metaData = metaDao.getRecuriteMetaData("英雄令")
-				if recruiteinfo.key?(:recuritetime3)
-					lefttime = lefttime - recruiteinfo[:recuritetime3]
-				end
+				recruiteTime = recruiteinfo[:recuritetime3]
+			end
+			if recruiteTime 
+				lefttime = lefttime - recruiteTime
 			end
 			if lefttime < metaData.rFreeCooling.to_i
 				#使用钻石招募
@@ -53,7 +51,6 @@ module Model
 			hero = createHero(templeteHero, player, heroIdList)
 			if consumetype == "diamond"
 				player[:diamond] = player[:diamond] - metaData.rCost.to_i
-
 			else
 				case recuritetype
 				when "normal"
@@ -63,6 +60,7 @@ module Model
 				else
 					recruiteinfo[:recuritetime3] = Time.new.to_i
 				end
+				recruiteTime = Time.new.to_i
 			end
 			#更新相关信息到redis中
 			heroIdListKey = Const::Rediskeys.getHeroListKey(player[:playerId])
@@ -74,7 +72,10 @@ module Model
 			else
 				commonDao.update({herokey => hero, heroIdListKey => heroIdList, recruiteInfokey => recruiteinfo})
 			end
-			{:retcode => Const::ErrorCode::Ok,:hero => hero}
+			#计算剩余时间，返回给前端
+			lefttime = metaData.rFreeCooling.to_i - (Time.now.to_i - recruiteTime)
+			lefttime = 0 unless lefttime >= 0
+			{:retcode => Const::ErrorCode::Ok,:hero => hero,:lefttime=>lefttime}
 		end
 		#get a hero info 
 		#@param [MetaData,Hash,Array] hero csv data,player info in Hash,
