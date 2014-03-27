@@ -25,9 +25,8 @@ end
 #英雄招募
 post '/hero/recruite' do
 	player = request[:player]
-	metaheroid = request[:req_parames][:metaheroid]
 	recruitetype = request[:req_parames][:recruitetype]
-	ret = Model::Hero.recuritHero(metaheroid,player,recruitetype)
+	ret = Model::Hero.recuritHero(player,recruitetype)
 	ret.to_json
 end
 

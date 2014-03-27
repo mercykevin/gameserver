@@ -67,7 +67,7 @@ class MetaDao
 	end
 	# get hero meta data 
 	def getHeroMetaData(herotempleteid)
-		@heroMetaMap[herotempleteid]
+		@heroMetaMap[herotempleteid.to_s]
 	end
 	# generate player name random
 	# @param [String] player gender
@@ -81,7 +81,7 @@ class MetaDao
 	end
 
 	def getRecuriteMetaData(key)
-		@recuriteMetaMap[key]
+		@recuriteMetaMap[key.to_s]
 	end
 
 	def getPlayerLevelMetaData(key)

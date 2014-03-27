@@ -3,7 +3,9 @@ module Model
 		#招募英雄
 		#@param [String,Hash,String]
 		#@return [Hash]
-		def self.recuritHero(templeteHeroId,player,recuritetype)
+		def self.recuritHero(player,recuritetype)
+			#TODO random templete hero id
+			templeteHeroId = 11001
 			metaDao = MetaDao.instance
 			commonDao = CommonDao.new
 			heroDao = HeroDao.new
@@ -72,6 +74,7 @@ module Model
 			else
 				commonDao.update({herokey => hero, heroIdListKey => heroIdList, recruiteInfokey => recruiteinfo})
 			end
+
 			{:retcode => Const::ErrorCode::Ok,:hero => hero}
 		end
 		#get a hero info 

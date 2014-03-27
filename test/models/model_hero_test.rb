@@ -3,7 +3,7 @@ require 'json'
 class HeroTest < Test::Unit::TestCase
 	def test_recurite
 		player = Model::Player.register("kevin","image")[:player]
-		hero  = Model::Hero.recuritHero("11001",player,"normal")[:hero]
+		hero  = Model::Hero.recuritHero(player,"normal")[:hero]
 		heroid = hero[:heroId]
 		heroFromRedis = JSON.parse(RedisClient.get(Const::Rediskeys.getHeroKey(heroid,player[:playerId])), {:symbolize_names => true})
 		assert_not_nil(heroFromRedis,"hero info got from the redis is not exist")
@@ -11,7 +11,7 @@ class HeroTest < Test::Unit::TestCase
 		heroidlist = JSON.parse(RedisClient.get(Const::Rediskeys.getHeroListKey(player[:playerId])), {:symbolize_names => true})
 		assert_equal(true, heroidlist.index(heroid) != nil)
 		#recurite again
-		retcode  = Model::Hero.recuritHero("11001",player,"normal")[:retcode]
+		retcode  = Model::Hero.recuritHero(player,"normal")[:retcode]
 		assert_equal(Const::ErrorCode::HeroRecuritDimondNotEnough, retcode)
 	end
 
@@ -38,7 +38,7 @@ class HeroTest < Test::Unit::TestCase
 	def test_replace_hero
 		player = Model::Player.register("kevin_for_replace_hero","image")[:player]
 		heroMain  = Model::Hero.registerMainHero("11001",player)[:hero]
-		heroFree  = Model::Hero.recuritHero("12001",player,"normal")[:hero]
+		heroFree  = Model::Hero.recuritHero(player,"normal")[:hero]
 		ret = Model::Hero.replaceHero(heroMain[:heroId], heroFree[:heroId], player)
 		assert_equal(Const::ErrorCode::Ok, ret[:retcode])
 		heroDao = HeroDao.new
@@ -51,7 +51,7 @@ class HeroTest < Test::Unit::TestCase
 	def test_trans_hero
 		player = Model::Player.register("kevin_for_trans_hero","image")[:player]
 		heroMain  = Model::Hero.registerMainHero("11001",player)[:hero]
-		heroFree  = Model::Hero.recuritHero("12001",player,"normal")[:hero]
+		heroFree  = Model::Hero.recuritHero(player,"normal")[:hero]
 		commonDao = CommonDao.new
 		heroDao = HeroDao.new
 		freeHeroKey = Const::Rediskeys.getHeroKey(heroFree[:heroId],player[:playerId])
@@ -67,7 +67,7 @@ class HeroTest < Test::Unit::TestCase
 		player = Model::Player.register("battle_hero","image")[:player]
 		heroMain  = Model::Hero.registerMainHero("11001",player)[:hero]
 		heroDao = HeroDao.new
-		heroFree  = Model::Hero.recuritHero("12001",player,"normal")[:hero]
+		heroFree  = Model::Hero.recuritHero(player,"normal")[:hero]
 		ret = Model::Hero.batleHero(heroFree[:heroId],player[:playerId])
 		newHeroIdList = heroDao.getHeroIdList(player[:playerId])
 		newBattleHeroIdList = heroDao.getBattleHeroIdList(player[:playerId])
@@ -80,7 +80,7 @@ class HeroTest < Test::Unit::TestCase
 		player = Model::Player.register("battle_arrange","image")[:player]
 		heroMain  = Model::Hero.registerMainHero("11001",player)[:hero]
 		heroDao = HeroDao.new
-		heroFree  = Model::Hero.recuritHero("12001",player,"normal")[:hero]
+		heroFree  = Model::Hero.recuritHero(player,"normal")[:hero]
 		Model::Hero.batleHero(heroFree[:heroId],player[:playerId])
 		ret = Model::Hero.arrangeBattleHero(heroMain[:heroId],heroFree[:heroId],player[:playerId])
 		assert_equal(Const::ErrorCode::Ok,ret[:retcode])
