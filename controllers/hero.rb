@@ -53,6 +53,15 @@ post '/hero/freelist' do
 	herolist.to_json
 end
 
+#英雄更换
+post '/hero/replace' do
+	player = request[:player]
+	index = request[:req_parames][:index]
+	freeHeroId = request[:req_parames][:freeHeroId]
+	ret = Model::Hero.replaceHero(index, freeHeroId, player)
+	ret.to_json
+end
+
 #英雄传承
 post '/hero/trans' do
 	player = request[:player]

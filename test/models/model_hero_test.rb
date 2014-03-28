@@ -23,7 +23,11 @@ class HeroTest < Test::Unit::TestCase
 		assert_not_nil(heroFromRedis,"hero info got from the redis is not exist after register main hero")
 		assert_equal(heroFromRedis[:heroId],hero[:heroId])
 		heroidlist = JSON.parse(RedisClient.get(Const::Rediskeys.getBattleHeroListKey(player[:playerId])), {:symbolize_names => true})
-		assert_equal(true, heroidlist.index(heroid) != nil)
+		assert_equal(true, heroidlist.include?(heroid))
+		myIdList = Array.new(8){Const::HeroLocked}
+		myIdList[0] = heroid
+		myIdList[1] = Const::HeroEmpty
+		assert_equal(myIdList,heroidlist)
 	end
 
 	def test_get_battle_hero_list
@@ -31,20 +35,31 @@ class HeroTest < Test::Unit::TestCase
 		hero  = Model::Hero.registerMainHero("11001",player)[:hero]
 		heroList = Model::Hero.getBattleHeroList(player[:playerId])
 		assert_not_nil(heroList, "battle hero list is not exist ")
-		assert_equal(1 ,heroList.length)
+		assert_equal(8 ,heroList.length)
+		p heroList.to_json
 		assert_equal(hero[:heroId], heroList[0][:heroId])
+		assert_equal(Const::HeroEmpty, heroList[1])
 	end
 
 	def test_replace_hero
 		player = Model::Player.register("kevin_for_replace_hero","image")[:player]
 		heroMain  = Model::Hero.registerMainHero("11001",player)[:hero]
 		heroFree  = Model::Hero.recuritHero(player,"normal")[:hero]
-		ret = Model::Hero.replaceHero(heroMain[:heroId], heroFree[:heroId], player)
+		ret = Model::Hero.replaceHero(1, heroFree[:heroId], player)
 		assert_equal(Const::ErrorCode::Ok, ret[:retcode])
+		ret = Model::Hero.replaceHero(2, heroFree[:heroId], player)
+		assert_equal(Const::ErrorCode::Fail, ret[:retcode])
 		heroDao = HeroDao.new
 		battleHeroIdList = heroDao.getBattleHeroIdList(player[:playerId])
 		heroIdlist = heroDao.getHeroIdList(player[:playerId])
 		assert_equal(true, battleHeroIdList.include?(heroFree[:heroId]))
+		assert_equal(0,heroIdlist.length)
+		#跟主将更换
+		heroFree2 = Model::Hero.recuritHero(player,"advanced")[:hero]
+		ret = Model::Hero.replaceHero(0, heroFree2[:heroId], player)
+		assert_equal(Const::ErrorCode::Ok, ret[:retcode])
+		heroIdlist = heroDao.getHeroIdList(player[:playerId])
+		assert_equal(1, heroIdlist.length)
 		assert_equal(true, heroIdlist.include?(heroMain[:heroId]))
 	end
 
@@ -63,29 +78,22 @@ class HeroTest < Test::Unit::TestCase
 		assert_equal(nil,heroDao.get(heroFree[:heroId],player[:playerId]))
 	end
 
-	def test_batle_hero
-		player = Model::Player.register("battle_hero","image")[:player]
-		heroMain  = Model::Hero.registerMainHero("11001",player)[:hero]
-		heroDao = HeroDao.new
-		heroFree  = Model::Hero.recuritHero(player,"normal")[:hero]
-		ret = Model::Hero.batleHero(heroFree[:heroId],player[:playerId])
-		newHeroIdList = heroDao.getHeroIdList(player[:playerId])
-		newBattleHeroIdList = heroDao.getBattleHeroIdList(player[:playerId])
-		assert_equal(Const::ErrorCode::Ok,ret[:retcode])
-		assert_equal(0,newHeroIdList.length)
-		assert_equal([heroMain[:heroId],heroFree[:heroId]] ,newBattleHeroIdList)
-	end
-
 	def test_arrange_battle
 		player = Model::Player.register("battle_arrange","image")[:player]
 		heroMain  = Model::Hero.registerMainHero("11001",player)[:hero]
 		heroDao = HeroDao.new
 		heroFree  = Model::Hero.recuritHero(player,"normal")[:hero]
-		Model::Hero.batleHero(heroFree[:heroId],player[:playerId])
-		ret = Model::Hero.arrangeBattleHero(heroMain[:heroId],heroFree[:heroId],player[:playerId])
+		#跟空闲位交换
+		ret = Model::Hero.arrangeBattleHero(0, 1, player[:playerId])
 		assert_equal(Const::ErrorCode::Ok,ret[:retcode])
-		newBattleHeroIdList = heroDao.getBattleHeroIdList(player[:playerId])
-		assert_equal([heroFree[:heroId],heroMain[:heroId]] ,newBattleHeroIdList)
+		battleHeroIdList = heroDao.getBattleHeroIdList(player[:playerId])
+		assert_equal(Const::HeroEmpty, battleHeroIdList[0])
+		assert_equal(heroMain[:heroId], battleHeroIdList[1])
+		#上阵英雄
+		Model::Hero.replaceHero(0, heroFree[:heroId], player)
+		battleHeroIdList = heroDao.getBattleHeroIdList(player[:playerId])
+		assert_equal(heroFree[:heroId], battleHeroIdList[0])
+		assert_equal(heroMain[:heroId], battleHeroIdList[1])
 	end
 
 end

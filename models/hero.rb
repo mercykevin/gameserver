@@ -48,7 +48,9 @@ module Model
 				end
 			end
 			#创建英雄
-			hero = createHero(templeteHero, player, heroIdList)
+			hero = createHero(templeteHero, player)
+			heroIdList << hero[:heroId]
+			##
 			if consumetype == "diamond"
 				player[:diamond] = player[:diamond] - metaData.rCost.to_i
 			else
@@ -77,10 +79,10 @@ module Model
 			lefttime = 0 unless lefttime >= 0
 			{:retcode => Const::ErrorCode::Ok,:hero => hero,:lefttime=>lefttime,:recuritetype=>recuritetype}
 		end
-		#get a hero info 
+		#创建英雄信息 
 		#@param [MetaData,Hash,Array] hero csv data,player info in Hash,
 		#@return
-		def self.createHero(templeteHero,player,heroIdList)
+		def self.createHero(templeteHero,player)
 			heroDao = HeroDao.new
 			#生成hero id
 			heroId = heroDao.generateHeroId
@@ -96,11 +98,11 @@ module Model
 			hero[:exp] = 0
 			hero[:star] = templeteHero.gStart.to_i
 			hero[:level] = 1
-			heroIdList << heroId
 			hero
 		end
-		#register main hero
-		#@param 
+		#创建主将
+		#@param [Integer,player]
+		#@return [Hash]
 		def self.registerMainHero(templeteHeroId,player)
 			metaDao = MetaDao.instance
 			commonDao = CommonDao.new
@@ -116,10 +118,13 @@ module Model
 				return {:retcode => Const::ErrorCode::HeroRegisterFailHeroExist}
 			end
 			#创建英雄
-			hero = createHero(templeteHero, player, heroIdList)
+			hero = createHero(templeteHero, player)
+			heroIdList = Array.new(8) { Const::HeroLocked }
+			heroIdList[0] = hero[:heroId]
+			heroIdList[1] = Const::HeroEmpty
 			#更新相关信息到redis中
 			heroIdListKey = Const::Rediskeys.getBattleHeroListKey(playerId)
-			herokey = Const::Rediskeys.getHeroKey(hero[:heroId],playerId)
+			herokey = Const::Rediskeys.getHeroKey(hero[:heroId], playerId)
 			commonDao.update({herokey => hero, heroIdListKey => heroIdList })
 			{:retcode => Const::ErrorCode::Ok,:hero => hero}
 		end
@@ -140,58 +145,42 @@ module Model
 		#更换英雄
 		#@param[Integer,Integer,Hash]
 		#@return [Hash]
-		def self.replaceHero(heroId,freeHeroId,player)
+		def self.replaceHero(index,freeHeroId,player)
 			commonDao = CommonDao.new
 			heroDao = HeroDao.new
+			#验证英雄是否存在
+			if not heroDao.exist?(freeHeroId,player[:playerId])
+				return {:retcode => Const::ErrorCode::Fail}
+			end
 			#上阵的英雄列表
 			battleHeroIdList = heroDao.getBattleHeroIdList(player[:playerId])
 			#空闲的英雄列表
 			heroIdList = heroDao.getHeroIdList(player[:playerId])
-			if battleHeroIdList.include?(heroId) && heroIdList.include?(freeHeroId)
-				if heroDao.exist?(heroId,player[:playerId]) && heroDao.exist?(freeHeroId,player[:playerId])
-					index = battleHeroIdList.index(heroId)
-					battleHeroIdList[index] = freeHeroId
-					heroIdList.delete(freeHeroId)
-					heroIdList << heroId
-					battleHeroIdListKey = Const::Rediskeys.getBattleHeroListKey(player[:playerId])
-					heroIdListKey = Const::Rediskeys.getHeroListKey(player[:playerId])
-					commonDao.update({battleHeroIdListKey => battleHeroIdList, heroIdListKey => heroIdList })
-					{:retcode => Const::ErrorCode::Ok}
-				else
-					{:retcode => Const::ErrorCode::Fail}
-				end
-			else
-				{:retcode => Const::ErrorCode::Fail}
+			#数据非法
+			if battleHeroIdList.include?(freeHeroId) or not heroIdList.include?(freeHeroId)
+				return {:retcode => Const::ErrorCode::Fail}
 			end
-		end
-		#英雄上阵
-		def self.batleHero(freeHeroId, playerId)
-			commonDao = CommonDao.new
-			heroDao = HeroDao.new
-			metaDao = MetaDao.instance
-			playerDao = PlayerDao.new
-			#取玩家信息
-			player = playerDao.getPlayer(playerId)
-			#上阵的英雄列表
-			battleHeroIdList = heroDao.getBattleHeroIdList(player[:playerId])
-			#player level的配表数据
-			playerLevelMeta = metaDao.getPlayerLevelMetaData(player[:level])
-			if battleHeroIdList.length < playerLevelMeta.cArrayPositionNumber.to_i
-				#空闲的英雄列表
-				heroIdList = heroDao.getHeroIdList(player[:playerId])
-				if heroIdList.include?(freeHeroId) and heroDao.exist?(freeHeroId,player[:playerId])
-					battleHeroIdList << freeHeroId
-					heroIdList.delete(freeHeroId)
-					battleHeroIdListKey = Const::Rediskeys.getBattleHeroListKey(player[:playerId])
-					heroIdListKey = Const::Rediskeys.getHeroListKey(player[:playerId])
-					commonDao.update({battleHeroIdListKey => battleHeroIdList, heroIdListKey => heroIdList })
-					{:retcode => Const::ErrorCode::Ok}
-				else
-					{:retcode => Const::ErrorCode::Fail}
-				end
-			else
-				{:retcode => Const::ErrorCode::Fail}
+			#当前位置是锁住的位置，不能更换英雄
+			battleHeroId = battleHeroIdList[index]
+			if battleHeroId == Const::HeroLocked
+				return {:retcode => Const::ErrorCode::Fail}
 			end
+			if battleHeroId == Const::HeroEmpty
+				battleHeroIdList[index] = freeHeroId
+			else
+				if not heroDao.exist?(battleHeroId,player[:playerId])
+					return {:retcode => Const::ErrorCode::Fail}
+				end
+				heroIdList << battleHeroId
+				battleHeroIdList[index] = freeHeroId
+			end
+			heroIdList.delete(freeHeroId)
+			#
+			#验证都通的情况下
+			battleHeroIdListKey = Const::Rediskeys.getBattleHeroListKey(player[:playerId])
+			heroIdListKey = Const::Rediskeys.getHeroListKey(player[:playerId])
+			commonDao.update({battleHeroIdListKey => battleHeroIdList, heroIdListKey => heroIdList })
+			{:retcode => Const::ErrorCode::Ok}
 		end
 		#英雄传承
 		#@param[Integer,Integer Hash]
@@ -245,27 +234,40 @@ module Model
 		#武将阵位更换
 		#@param[Integer,Intger,Integer]
 		#@return [Hash]
-		def self.arrangeBattleHero(firstHeroId, secondHeroId, playerId)
+		def self.arrangeBattleHero(firstIndex, secondIndex, playerId)
 			playerDao = PlayerDao.new
 			heroDao = HeroDao.new
 			commonDao = CommonDao.new
 			metaDao = MetaDao.instance
-			#取玩家信息
-			player = playerDao.getPlayer(playerId)
-			#player level的配表数据
-			playerLevelMeta = metaDao.getPlayerLevelMetaData(player[:level])
-			#上阵的英雄列表
-			battleHeroIdList = heroDao.getBattleHeroIdList(player[:playerId])
-			if battleHeroIdList.include?(firstHeroId) && battleHeroIdList.include?(secondHeroId)
-				firstIndex = battleHeroIdList.index(firstHeroId)
-				secondIndex = battleHeroIdList.index(secondHeroId)
-				battleHeroIdList[secondIndex] = firstHeroId
-				battleHeroIdList[firstIndex] = secondHeroId
-				battleHeroIdListKey = Const::Rediskeys.getBattleHeroListKey(player[:playerId])
-				commonDao.update({battleHeroIdListKey => battleHeroIdList})
-				{:retcode => Const::ErrorCode::Ok}
-			else
+			if firstIndex == secondIndex
 				{:retcode => Const::ErrorCode::Fail}
+			else
+				if firstIndex >= 0 && firstIndex < 8 && secondIndex >= 0 && secondIndex < 8
+					#取玩家信息
+					player = playerDao.getPlayer(playerId)
+					#player level的配表数据
+					playerLevelMeta = metaDao.getPlayerLevelMetaData(player[:level])
+					#上阵的英雄列表
+					battleHeroIdList = heroDao.getBattleHeroIdList(player[:playerId])
+					#英雄布阵
+					firstHeroId = battleHeroIdList[firstIndex]	
+					secondHeroId = battleHeroIdList[secondIndex]
+					if firstHeroId == Const::HeroLocked || secondHeroId == Const::HeroLocked
+						{:retcode => Const::ErrorCode::Fail}
+					else
+						if firstHeroId == Const::HeroEmpty && secondHeroId == Const::HeroEmpty
+							{:retcode => Const::ErrorCode::Fail}
+						else
+							battleHeroIdList[firstIndex] = secondHeroId
+							battleHeroIdList[secondIndex] = firstHeroId
+							battleHeroIdListKey = Const::Rediskeys.getBattleHeroListKey(player[:playerId])
+							commonDao.update({battleHeroIdListKey => battleHeroIdList})
+							{:retcode => Const::ErrorCode::Ok}
+						end
+					end
+				else
+					{:retcode => Const::ErrorCode::Fail}
+				end
 			end
 		end
 	end # class

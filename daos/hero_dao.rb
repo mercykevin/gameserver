@@ -53,15 +53,26 @@ class HeroDao
 	#@return [Array] hero list
 	def getBattleHeroList(playerId)
 		heroList = []
+		heroMap = {}
 		heroIdList = getBattleHeroIdList(playerId)
 		if heroIdList and heroIdList.length > 0
 			herokeyList = []
 			heroIdList.each do |heroId|
-				herokeyList << Const::Rediskeys.getHeroKey(heroId,playerId)
+				if heroId != Const::HeroEmpty && heroId != Const::HeroLocked
+					herokeyList << Const::Rediskeys.getHeroKey(heroId,playerId)
+				end
 			end
 			jsonHeroList = RedisClient.mget(herokeyList)
-			jsonHeroList.each do |hero|
-				heroList << JSON.parse(hero, {:symbolize_names => true})
+			jsonHeroList.each do |heroJson|
+				hero = JSON.parse(heroJson, {:symbolize_names => true})
+				heroMap[hero[:heroId]] = hero
+			end
+		end
+		heroIdList.each_with_index do |heroId,index|
+			if heroId == Const::HeroEmpty || heroId == Const::HeroLocked
+				heroList[index] = heroId
+			else
+				heroList[index] = heroMap[heroId]
 			end
 		end
 		heroList
@@ -78,7 +89,19 @@ class HeroDao
 			[]
 		end
 	end
-
+	#获取已经解锁的数量 
+	#@param [Integer] player id
+	#@return [Integer] battle count 战斗位
+	def getBattleCount(playerId)
+		count = 0
+		heroIdList = getBattleHeroIdList(playerId)
+		heroIdList.each do |heroId|
+			if heroId != Const::HeroLocked
+				count = count + 1
+			end
+		end
+		count
+	end
 	# generate player id with redis inc.
 	# 
   	# @return [String] player id
