@@ -29,7 +29,7 @@ group :development do
 end
 
 group :test do
-  gem 'minitest','~> 4.0', :require => "minitest/autorun"
+  gem 'minitest', :require => "minitest/autorun"
   gem 'rack-test', :require => "rack/test"
   gem 'factory_girl'
   gem 'database_cleaner'
