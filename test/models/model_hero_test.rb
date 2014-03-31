@@ -1,12 +1,12 @@
 require File.expand_path("../../test_helper",__FILE__)
 require 'json'
-class HeroTest < Test::Unit::TestCase
+class HeroTest < Minitest::Test
 	def test_recurite
 		player = Model::Player.register("kevin","image")[:player]
 		hero  = Model::Hero.recuritHero(player,"normal")[:hero]
 		heroid = hero[:heroId]
 		heroFromRedis = JSON.parse(RedisClient.get(Const::Rediskeys.getHeroKey(heroid,player[:playerId])), {:symbolize_names => true})
-		assert_not_nil(heroFromRedis,"hero info got from the redis is not exist")
+		assert(heroFromRedis,"hero info got from the redis is not exist")
 		assert_equal(heroFromRedis[:heroId],hero[:heroId])
 		heroidlist = JSON.parse(RedisClient.get(Const::Rediskeys.getHeroListKey(player[:playerId])), {:symbolize_names => true})
 		assert_equal(true, heroidlist.index(heroid) != nil)
@@ -20,7 +20,7 @@ class HeroTest < Test::Unit::TestCase
 		hero  = Model::Hero.registerMainHero("11001",player)[:hero]
 		heroid = hero[:heroId]
 		heroFromRedis = JSON.parse(RedisClient.get(Const::Rediskeys.getHeroKey(heroid,player[:playerId])), {:symbolize_names => true})
-		assert_not_nil(heroFromRedis,"hero info got from the redis is not exist after register main hero")
+		assert(heroFromRedis,"hero info got from the redis is not exist after register main hero")
 		assert_equal(heroFromRedis[:heroId],hero[:heroId])
 		heroidlist = JSON.parse(RedisClient.get(Const::Rediskeys.getBattleHeroListKey(player[:playerId])), {:symbolize_names => true})
 		assert_equal(true, heroidlist.include?(heroid))
@@ -34,7 +34,7 @@ class HeroTest < Test::Unit::TestCase
 		player = Model::Player.register("kevin_for_main_hero","image")[:player]
 		hero  = Model::Hero.registerMainHero("11001",player)[:hero]
 		heroList = Model::Hero.getBattleHeroList(player[:playerId])
-		assert_not_nil(heroList, "battle hero list is not exist ")
+		assert(heroList, "battle hero list is not exist ")
 		assert_equal(8 ,heroList.length)
 		p heroList.to_json
 		assert_equal(hero[:heroId], heroList[0][:heroId])

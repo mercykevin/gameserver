@@ -1,6 +1,6 @@
 require File.expand_path("../../test_helper" ,__FILE__)
 
-class GameAreaTest < Test::Unit::TestCase
+class GameAreaTest < Minitest::Test
 	def test_getGameAreas
 		game_area = 
 		[

@@ -1,6 +1,6 @@
 require 'json'
-require 'test/unit'
-class JsonTest < Test::Unit::TestCase
+require "minitest/autorun"
+class JsonTest < Minitest::Test
 
 	def test_to_json
 		player = {}

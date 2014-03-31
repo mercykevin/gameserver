@@ -5,8 +5,7 @@ require File.expand_path('../../boot', __FILE__)
 flushRet = RedisClient.flushall
 puts "flush redis data is #{flushRet}"
 
-require 'test/unit'
-require 'rack/test'
+require "minitest/autorun"
 
 # require 'active_support/test_case'
 # require 'active_record/test_case'

@@ -9,6 +9,7 @@ module Model
 		def self.register(playerName,headImg)
 			playerDao = PlayerDao.new
 			commonDao = CommonDao.new
+			GameLogger.debug("Model::Player.register playerName:#{playerName}")
 			if playerDao.existByName?(playerName)
 				#用户已经存在
 				player = playerDao.getPlayerByName(playerName)

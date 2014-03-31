@@ -1,10 +1,10 @@
 require File.expand_path("../../test_helper",__FILE__)
 require 'json'
-class UserTest < Test::Unit::TestCase
+class UserTest < Minitest::Test
 	def test_register
 		Model::Player.register("kevin","image")
 		playerId = RedisClient.get(Const::Rediskeys.getPlayerNameKey("kevin"))
-		assert_not_nil(playerId,"player info got from the redis is not exist,the player name is kevin")
+		assert(playerId,"player info got from the redis is not exist,the player name is kevin")
 		player = RedisClient.get(Const::Rediskeys.getPlayerKey(playerId))
 		player = JSON.parse(player, {:symbolize_names => true})
 		assert_equal("kevin",player[:playerName])

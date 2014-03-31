@@ -146,6 +146,7 @@ module Model
 		#@param[Integer,Integer,Hash]
 		#@return [Hash]
 		def self.replaceHero(index,freeHeroId,player)
+			GameLogger.debug("Model::Hero.replaceHero method params index:#{index},freeHeroId:#{freeHeroId}")
 			commonDao = CommonDao.new
 			heroDao = HeroDao.new
 			#验证英雄是否存在

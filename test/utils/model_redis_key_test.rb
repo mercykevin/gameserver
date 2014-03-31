@@ -1,6 +1,6 @@
-require File.expand_path("../test_helper", __FILE__)
+require File.expand_path("../../test_helper", __FILE__)
 
-class RedisKeyTest <  Test::Unit::TestCase
+class RedisKeyTest <  Minitest::Test
 	def test_getPlayerKey
 		assert_equal("player:[1]",Const::Rediskeys.getPlayerKey(1))
 	end
