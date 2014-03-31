@@ -74,9 +74,8 @@ end
 #英雄布阵
 post '/hero/arrangebattle' do
 	player = request[:player]
-	firstIndex = request[:req_parames][:firstIndex]
-	secondIndex = request[:req_parames][:secondIndex]
-	ret = Model::Hero.arrangeBattleHero(firstIndex, secondIndex ,player[:playerId])
+	battleHeroIdList = request[:req_parames][:battleheroidlist]
+	ret = Model::Hero.arrangeAllBattleHero(battleHeroIdList ,player[:playerId])
 	ret.to_json
 end
 

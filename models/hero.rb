@@ -271,5 +271,56 @@ module Model
 				end
 			end
 		end
+		# 英雄布阵，又来布所有的英雄，不是一一对换
+		# @param[Array,Integer]
+		# @return[Hash]
+		def self.arrangeAllBattleHero(battleHeroIds, playerId)
+			heroDao = HeroDao.new
+			commonDao = CommonDao.new
+			oldHash = {}
+			newHash = {}
+			#上阵的英雄列表
+			oldBattleHeroIdList = heroDao.getBattleHeroIdList(playerId)
+			#验证数据是否一至
+			if battleHeroIds == nil or battleHeroIds.length != 8
+				return {:retcode => Const::ErrorCode::Fail}
+			else
+				battleHeroIds.each_with_index do |heroId,index|
+					if not oldBattleHeroIdList.include?(heroId)
+						 return {:retcode => Const::ErrorCode::Fail}
+					end
+					if newHash.key?(heroId)
+						newHash[heroId] = newHash[heroId] + 1
+					else
+						newHash[heroId] = 1
+					end
+				end
+			end
+			GameLogger.debug("Model::Hero.arrangeAllBattleHero step one check ok")
+			#验证锁的位置是否一至
+			oldBattleHeroIdList.each_with_index do |heroId,index|
+				if heroId == Const::HeroLocked
+					if battleHeroIds[index] != Const::HeroLocked
+						return {:retcode => Const::ErrorCode::Fail}
+					end
+				end
+				if oldHash.key?(heroId)
+					oldHash[heroId] = oldHash[heroId] + 1
+				else
+					oldHash[heroId] = 1
+				end
+			end
+			GameLogger.debug("Model::Hero.arrangeAllBattleHero step two check ok")
+			#验证元素数量是否一至
+			GameLogger.debug("Model::Hero.arrangeAllBattleHero oldHash:#{oldHash},newHash:#{newHash}")
+			if not oldHash.eql?(newHash)
+				return {:retcode => Const::ErrorCode::Fail}
+			end
+			GameLogger.debug("Model::Hero.arrangeAllBattleHero step three check ok")
+			#验证都通的情况下
+			battleHeroIdListKey = Const::Rediskeys.getBattleHeroListKey(playerId)
+			commonDao.update({battleHeroIdListKey => battleHeroIds})
+			{:retcode => Const::ErrorCode::Ok}
+		end
 	end # class
 end # model definition
