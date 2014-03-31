@@ -39,10 +39,10 @@ GEM
     i18n (0.6.9)
     kgio (2.9.2)
     method_source (0.8.2)
-    minitest (4.7.5)
+    minitest (5.3.1)
     multi_json (1.9.2)
     mysql2 (0.3.15)
-    oj (2.6.1)
+    oj (2.7.1)
     pry (0.9.12.6)
       coderay (~> 1.0)
       method_source (~> 0.8)
@@ -57,7 +57,7 @@ GEM
       rack (~> 1.1)
       unicorn (~> 4.8)
     raindrops (0.13.0)
-    rake (10.2.1)
+    rake (10.2.2)
     redis (3.0.7)
     sinatra (1.4.4)
       rack (~> 1.4)
@@ -93,7 +93,7 @@ DEPENDENCIES
   factory_girl
   hiredis
   kgio
-  minitest (~> 4.0)
+  minitest
   mysql2
   oj
   pry
