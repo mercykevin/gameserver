@@ -4,6 +4,10 @@ module Const
 		Ok = 1
 		#操作失败
 		Fail = 0
+
+		#非法的参数
+		IllegeParam = 100
+
 		#玩家信息不存在
 		PlayerIsNotExist = 1000001
 		#该角色名已被注册
@@ -22,5 +26,8 @@ module Const
 		HeroRecuritCDError = 9000006
 		#钻石数不够，不能招募
 		HeroRecuritDimondNotEnough = 9000007
+
+
+
 	end
 end

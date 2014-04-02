@@ -26,19 +26,37 @@ class MetaDao
 		when 'CharacterLevel'
 			@playerLevelMetaMap = {}
 			initMetaData(csvfile, @playerLevelMetaMap ,"characterLevel")
+<<<<<<< HEAD
 		when 'GeneralLevel'
 			@heroLevelMetaMap = {}
 			initMetaData(csvfile, @heroLevelMetaMap ,"levelGeneral")
 		when 'GenneralAdvanced'
 			@heroAdancedLevelMetaMap = {}
 			initMetaData(csvfile, @heroAdancedLevelMetaMap ,"advancedTime")
+=======
+		#装备
+		when 'Equipment'
+			@equipmentMap = {}
+			initMetaData(csvfile, @equipmentMap ,"equipmentID")
+		#兵法
+		when 'Book'
+			@bookMap = {}
+			initMetaData(csvfile,@bookMap,"bookID")
+		#宝物
+		when 'Prop'	
+			@propMap = {}
+			initMetaData(csvfile,@propMap,"propID")
+>>>>>>> item
 		else
+
 
 		end
 	end
 	# read character name from csv file for generate random name
 	# @param [String] csvfile , the path of csv file
 	# @return nothing
+	##
+	
 	def initPlayerNameMetaData(csvfile)
 		@playerFirstName = []
 		@playerSecondNameMale = []
@@ -93,6 +111,7 @@ class MetaDao
 	def getPlayerLevelMetaData(key)
 		@playerLevelMetaMap[key.to_s]
 	end
+<<<<<<< HEAD
 	#处理英雄等级的配表
 	def getHeroLevelMetaData(key)
 		@heroLevelMetaMap[key.to_s]
@@ -114,4 +133,41 @@ class MetaDao
 	def getAdancedHeroLevelMetaData(key)
 		@heroAdancedLevelMetaMap[key.to_s]
 	end
+=======
+
+	#
+	#道具信息
+	#
+	def getTempItem(iid)
+		tempItem = @propMap[iid.to_s]
+		 
+		if tempItem
+			return tempItem 
+		end
+		
+		tempItem = @equipmentMap[iid.to_s]
+		if tempItem
+			return tempItem 
+		end
+
+		tempItem = @bookMap[iid.to_s]
+		if tempItem
+			return tempItem 
+		end
+
+		tempItem = @propMap[iid.to_s]
+		if tempItem
+			return tempItem 
+		end
+
+		if ! tempItem
+			GameLogger.debug("MetaDao.getTempItem method params iid:#{iid} => tempItem is not exists !")
+		end
+
+		tempItem
+		
+	end
+
+
+>>>>>>> item
 end

@@ -32,7 +32,7 @@ module Const
 		#英雄key
 		def self.getHeroKey(heroId,playerId)
 			"player:[#{playerId}]hero:[#{heroId}]"
-		end
+		end	
 		#所有英雄的id列表
 		def self.getHeroListKey(playerId)
 			"player:[#{playerId}]herolist"
@@ -44,14 +44,6 @@ module Const
 		#英雄自增长id
 		def self.getHeroIdAutoIncKey()
 			"hero_id_inc"
-		end
-		#道具key
-		def self.getItemKey(itemId,playerId)
-			"player:[#{playerId}]item[#{itemId}]"
-		end
-		#道具自增长id
-		def self.getItemIdAutoIncKey()
-			"item_id_inc"
 		end
 		#游戏公告
 		def self.getNoticeListKey()
@@ -65,5 +57,40 @@ module Const
 		def self.getSessionKey(sessionId)
 			"gamesession:[#{sessionId}]"
 		end
+
+
+
+		#
+		# 分了两类，1：武器装备防具坐骑兵法。2：宝物
+		#
+		# ---------------------------------------------装备
+		#
+		# 装备类	自增长id
+		def self.getEquipIdAutoIncKey()
+			"equip_id_inc"
+		end
+		# 装备(武器防具坐骑道具兵法) key是id
+  		def self.getEquipKey(playerId,equipId)
+			"player:[#{playerId}]equipId:[#{equipId}]"
+		end
+
+		# 未装备id列表（武器防具坐骑道具兵法） key 
+		def self.getEquipUnusedIdListKey(playerId)
+			"player:[#{playerId}]equipUnusedList]"
+		end		
+		# 已装备id列表  {武器防具坐骑道具兵法} key
+		def self.getEquipUsedIdListKey(playerId,sort)
+			"player:[#{playerId}]sort:[#{sort}]equipUsedList"
+		end
+		#---------------------------------------------宝物
+		# 宝物 key 是 iid
+		def self.getPropKey(playerId,propIid)
+			"player:[#{playerId}]propIid:[#{propIid}]"
+		end
+		# 宝物id列表 key
+		def self.getPropListKey(playerId)
+			"player:[#{playerId}]propIdList"
+		end
+
 	end
 end
