@@ -26,6 +26,9 @@ class MetaDao
 		when 'CharacterLevel'
 			@playerLevelMetaMap = {}
 			initMetaData(csvfile, @playerLevelMetaMap ,"characterLevel")
+		when 'GeneralLevel'
+			@heroLevelMetaMap = {}
+			initMetaData(csvfile, @heroLevelMetaMap ,"levelGeneral")
 		else
 
 		end
@@ -79,12 +82,24 @@ class MetaDao
 			"#{@playerFirstName.sample}#{@playerSecondNameFemale.sample}"
 		end
 	end
-
+	#处理招募武将的配表
 	def getRecuriteMetaData(key)
 		@recuriteMetaMap[key.to_s]
 	end
-
+	#处理角色信息的配表
 	def getPlayerLevelMetaData(key)
 		@playerLevelMetaMap[key.to_s]
+	end
+	#处理英雄等级的配表
+	def getHeroLevelMetaData(key)
+		@heroLevelMetaMap[key.to_s]
+	end
+	#取英雄的最大等级
+	def getMaxHeroLevel()
+		@heroLevelMetaMap.length()
+	end
+	#取英雄经验的列表
+	def getAllHeroLevelMetaData()
+		@heroLevelMetaMap.values()
 	end
 end

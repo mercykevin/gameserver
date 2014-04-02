@@ -49,6 +49,9 @@ module Model
 			end
 			#创建英雄
 			hero = createHero(templeteHero, player)
+			#TODO need remove
+			hero[:level] = 20
+			hero[:exp] = 1000
 			heroIdList << hero[:heroId]
 			##
 			if consumetype == "diamond"
@@ -186,7 +189,7 @@ module Model
 		#英雄传承
 		#@param[Integer,Integer Hash]
 		#@return [Hash]
-		def self.transHero(heroId,freeHeroId,player)
+		def self.transHero(heroId,freeHeroId,transtype,player)
 			commonDao = CommonDao.new
 			heroDao = HeroDao.new
 			#上阵的英雄列表
@@ -198,8 +201,15 @@ module Model
 				freeHero = heroDao.get(freeHeroId,player[:playerId])
 				if battleHero and freeHero
 					if freeHero[:level] > 1 
-						battleHero[:exp] = battleHero[:exp] + freeHero[:exp]
-						#TODO 处理battle hero升级
+						#处理英雄升级
+						#TODO 要提供道具删除接口
+						addExp = 0
+						if transtype == 'normal'
+							addExp = (freeHero[:exp]*0.6).to_i
+						else
+							addExp = freeHero[:exp]
+						end
+						heroDao.handleHeroLevelUp(battleHero, addExp)
 						heroIdList.delete(freeHero[:heroId])
 						#更新相关的redis数据
 						battleHeroKey = Const::Rediskeys.getHeroKey(battleHero[:heroId],player[:playerId])
@@ -321,6 +331,11 @@ module Model
 			battleHeroIdListKey = Const::Rediskeys.getBattleHeroListKey(playerId)
 			commonDao.update({battleHeroIdListKey => battleHeroIds})
 			{:retcode => Const::ErrorCode::Ok}
+		end
+		#英雄进阶
+		#@param[Integer,Integer,Integer]
+		#@return[Integer]
+		def self.advancedHero(battleHeroId,freeHeroId,playerId)
 		end
 	end # class
 end # model definition

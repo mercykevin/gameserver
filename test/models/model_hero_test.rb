@@ -72,10 +72,11 @@ class HeroTest < Minitest::Test
 		freeHeroKey = Const::Rediskeys.getHeroKey(heroFree[:heroId],player[:playerId])
 		heroFree[:level] = 4
 		commonDao.update({freeHeroKey => heroFree})
-		Model::Hero.transHero(heroMain[:heroId],heroFree[:heroId],player)
+		Model::Hero.transHero(heroMain[:heroId],heroFree[:heroId],"normal",player)
 		heroIdlist = heroDao.getHeroIdList(player[:playerId])
 		assert_equal(0,heroIdlist.length)
 		assert_equal(nil,heroDao.get(heroFree[:heroId],player[:playerId]))
+		assert_equal(true, heroMain[:level] > 1)
 	end
 
 	def test_arrange_battle

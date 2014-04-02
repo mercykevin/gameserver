@@ -120,4 +120,24 @@ class HeroDao
 			{}
 		end
 	end
+	#处理英雄升级
+	def handleHeroLevelUp(hero,addexp)
+		metaDao = MetaDao.instance
+		hero[:exp] = hero[:exp] + addexp
+		maxHeroLevel = metaDao.getMaxHeroLevel()
+		if hero[:level] < maxHeroLevel
+			#取所有英雄的配置表
+			heroLevelMetaList = metaDao.getAllHeroLevelMetaData
+			if hero[:exp] >= heroLevelMetaList[heroLevelMetaList.length-1].lUPGeneral.to_i
+				hero[:exp] = heroLevelMetaList[heroLevelMetaList.length-1].levelGeneral.to_i
+			else
+				for i in hero[:level]..maxHeroLevel - 1 do
+					if hero[:exp] >= heroLevelMetaList[i-1].lUPGeneral.to_i and hero[:exp] < heroLevelMetaList[i].lUPGeneral.to_i
+						hero[:level] = heroLevelMetaList[i-1].levelGeneral.to_i
+						break
+					end
+				end
+			end
+		end
+	end
 end

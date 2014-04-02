@@ -67,8 +67,21 @@ post '/hero/trans' do
 	player = request[:player]
 	battleHeroId = request[:req_parames][:battleheroid]
 	freeHeroId = request[:req_parames][:freeheroid]
-	ret = Model::Hero.transHero(battleHeroId, freeHeroId ,player)
+	transtype = request[:req_parames][:transtype]
+	ret = Model::Hero.transHero(battleHeroId, freeHeroId ,transtype, player)
 	ret.to_json
+end
+#英雄级别大于1的
+post '/hero/freelistlevelbigone' do
+	levelbigoneHeroList = []
+	player = request[:player]
+	herolist = Model::Hero.getHeroList(player[:playerId])
+	herolist.each do |hero|
+		if hero[:level] > 1
+			levelbigoneHeroList << hero
+		end
+	end
+	levelbigoneHeroList.to_json
 end
 
 #英雄布阵
@@ -87,7 +100,6 @@ end
 #英雄培养
 post '/hero/bringup' do
 	player = request[:player]
-
 end
 
 
