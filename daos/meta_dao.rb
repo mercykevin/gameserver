@@ -26,14 +26,12 @@ class MetaDao
 		when 'CharacterLevel'
 			@playerLevelMetaMap = {}
 			initMetaData(csvfile, @playerLevelMetaMap ,"characterLevel")
-<<<<<<< HEAD
 		when 'GeneralLevel'
 			@heroLevelMetaMap = {}
 			initMetaData(csvfile, @heroLevelMetaMap ,"levelGeneral")
 		when 'GenneralAdvanced'
 			@heroAdancedLevelMetaMap = {}
 			initMetaData(csvfile, @heroAdancedLevelMetaMap ,"advancedTime")
-=======
 		#装备
 		when 'Equipment'
 			@equipmentMap = {}
@@ -46,7 +44,6 @@ class MetaDao
 		when 'Prop'	
 			@propMap = {}
 			initMetaData(csvfile,@propMap,"propID")
->>>>>>> item
 		else
 
 
@@ -111,7 +108,6 @@ class MetaDao
 	def getPlayerLevelMetaData(key)
 		@playerLevelMetaMap[key.to_s]
 	end
-<<<<<<< HEAD
 	#处理英雄等级的配表
 	def getHeroLevelMetaData(key)
 		@heroLevelMetaMap[key.to_s]
@@ -133,7 +129,6 @@ class MetaDao
 	def getAdancedHeroLevelMetaData(key)
 		@heroAdancedLevelMetaMap[key.to_s]
 	end
-=======
 
 	#
 	#道具信息
@@ -169,5 +164,4 @@ class MetaDao
 	end
 
 
->>>>>>> item
 end
