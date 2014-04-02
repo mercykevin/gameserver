@@ -95,6 +95,10 @@ end
 #英雄进阶
 post '/hero/advanced' do
 	player = request[:player]
+	battleHeroId = request[:req_parames][:battleheroid]
+	freeHeroId = request[:req_parames][:freeheroid]
+	ret = Model::Hero.advancedHero(battleHeroId, freeHeroId, player[:playerId])
+	ret.to_json
 end
 
 #英雄培养

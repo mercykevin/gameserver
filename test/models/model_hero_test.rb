@@ -76,6 +76,7 @@ class HeroTest < Minitest::Test
 		heroIdlist = heroDao.getHeroIdList(player[:playerId])
 		assert_equal(0,heroIdlist.length)
 		assert_equal(nil,heroDao.get(heroFree[:heroId],player[:playerId]))
+		heroMain = Model::Hero.getHero(heroMain[:heroId], player[:playerId])
 		assert_equal(true, heroMain[:level] > 1)
 	end
 
@@ -113,6 +114,18 @@ class HeroTest < Minitest::Test
 		battleHeroIdList[1] = heroMain[:heroId]
 		ret = Model::Hero.arrangeAllBattleHero(battleHeroIdList,player[:playerId])
 		assert_equal(Const::ErrorCode::Fail,ret[:retcode])
+	end
+
+	def test_advanced_hero
+		player = Model::Player.register("advanced_hero","image")[:player]
+		heroMain  = Model::Hero.registerMainHero("11001",player)[:hero]
+		heroFree  = Model::Hero.recuritHero(player,"normal")[:hero]
+		ret = Model::Hero.advancedHero(heroMain[:heroId], heroFree[:heroId], player[:playerId])
+		assert_equal(Const::ErrorCode::Ok,ret[:retcode])
+		advancedHeroMain = Model::Hero.getHero(heroMain[:heroId], player[:playerId])
+		assert_equal(1, advancedHeroMain[:adlevel])
+		assert_equal(true ,advancedHeroMain[:attack] > heroMain[:attack])
+		assert_equal(true ,advancedHeroMain[:capacity] > heroMain[:capacity])
 	end
 
 end

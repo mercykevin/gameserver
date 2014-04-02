@@ -29,6 +29,9 @@ class MetaDao
 		when 'GeneralLevel'
 			@heroLevelMetaMap = {}
 			initMetaData(csvfile, @heroLevelMetaMap ,"levelGeneral")
+		when 'GenneralAdvanced'
+			@heroAdancedLevelMetaMap = {}
+			initMetaData(csvfile, @heroAdancedLevelMetaMap ,"advancedTime")
 		else
 
 		end
@@ -101,5 +104,14 @@ class MetaDao
 	#取英雄经验的列表
 	def getAllHeroLevelMetaData()
 		@heroLevelMetaMap.values()
+	end
+	#取最大的进阶级别
+	def getMaxHeroAdvancedLevel()
+		advancedLevels = @heroAdancedLevelMetaMap.values()
+		advancedLevels[advancedLevels.length - 1].advancedTime.to_i
+	end
+	#取进阶配置信息
+	def getAdancedHeroLevelMetaData(key)
+		@heroAdancedLevelMetaMap[key.to_s]
 	end
 end

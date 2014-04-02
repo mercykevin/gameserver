@@ -107,12 +107,12 @@ Aspect.new :around, :calls_to => :all_methods, :on_types => [Model::Hero, Model:
   result = nil
   while retrytime > 0 
     begin
-      GameLogger.debug("Entering: #{join_point.target_type.name}##{join_point.method_name} for object #{object} arguments #{args * ','}")
+      #GameLogger.debug("Entering: #{join_point.target_type.name}##{join_point.method_name} for object #{object} arguments #{args * ','}")
       result = join_point.proceed
       if retrytime < Const::RetryTimes 
         #p "Entering retry process #{retrytime}"
       end
-      GameLogger.debug("Leaving: #{join_point.target_type.name}##{join_point.method_name} for object #{object}")
+      #GameLogger.debug("Leaving: #{join_point.target_type.name}##{join_point.method_name} for object #{object}")
       retrytime = 0
     rescue Exception => ex
       if ex.instance_of?(RedisStaleObjectStateException)

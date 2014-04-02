@@ -92,7 +92,7 @@ module Model
 			#创建hero
 			hero = {}
 			hero[:heroId] = heroId
-			hero[:templeteHeroId] = templeteHero.GeneralID
+			hero[:templeteHeroId] = templeteHero.generalID
 			hero[:playerId] = player[:playerId]
 			hero[:attack] = templeteHero.gInitialATK.to_f
 			hero[:defend] = templeteHero.gInitialDEF.to_f
@@ -101,6 +101,9 @@ module Model
 			hero[:exp] = 0
 			hero[:star] = templeteHero.gStart.to_i
 			hero[:level] = 1
+			#英雄阶数
+			hero[:adlevel] = 0
+			hero[:capacity] = 0
 			hero
 		end
 		#创建主将
@@ -136,7 +139,7 @@ module Model
 		#@return [Hash]
 		def self.getHero(heroId,playerId)
 			heroDao = HeroDao.new
-			heroDao.get(heroid,playerId)
+			heroDao.get(heroId,playerId)
 		end
 		#get battle hero list 
 		#@param [Integer] player id
@@ -336,6 +339,50 @@ module Model
 		#@param[Integer,Integer,Integer]
 		#@return[Integer]
 		def self.advancedHero(battleHeroId,freeHeroId,playerId)
+			commonDao = CommonDao.new
+			heroDao = HeroDao.new
+			metaDao = MetaDao.instance
+			#上阵的英雄列表
+			battleHeroIdList = heroDao.getBattleHeroIdList(playerId)
+			#空闲的英雄列表
+			heroIdList = heroDao.getHeroIdList(playerId)
+			if battleHeroIdList.include?(battleHeroId) && heroIdList.include?(freeHeroId)
+				battleHero = heroDao.get(battleHeroId,playerId)
+				freeHero = heroDao.get(freeHeroId,playerId)
+				if battleHero and freeHero
+					if battleHero[:templeteHeroId] == freeHero[:templeteHeroId]
+						if battleHero[:adlevel] < metaDao.getMaxHeroAdvancedLevel
+							heroAdancedMetaData = metaDao.getAdancedHeroLevelMetaData(battleHero[:adlevel] + 1)
+							#增加相当属性
+							GameLogger.debug("Model::Hero.advancedHero battle hero templete id:#{battleHero[:templeteHeroId]}")
+							metaHero = metaDao.getHeroMetaData(battleHero[:templeteHeroId])
+							startGrowth = heroAdancedMetaData.send("a#{metaHero.gStart.to_i}StarGrowth").to_i
+							battleHero[:attack] = battleHero[:attack] + startGrowth
+							battleHero[:defend] = battleHero[:defend] + startGrowth
+							battleHero[:intelegence] = battleHero[:intelegence] + startGrowth
+							battleHero[:blood] = battleHero[:blood] + startGrowth
+							starCapacity = heroAdancedMetaData.send("a#{metaHero.gStart.to_i}StarPotential").to_i
+							battleHero[:capacity] = battleHero[:capacity] + starCapacity
+							battleHero[:adlevel] = battleHero[:adlevel] + 1
+							heroIdList.delete(freeHero[:heroId])
+							#更新相关的redis数据
+							battleHeroKey = Const::Rediskeys.getHeroKey(battleHero[:heroId],playerId)
+							freeHeroKey = Const::Rediskeys.getHeroKey(freeHero[:heroId],playerId)
+							heroIdListKey = Const::Rediskeys.getHeroListKey(playerId)
+							commonDao.update({battleHeroKey => battleHero, freeHeroKey => nil,heroIdListKey => heroIdList})
+							{:retcode => Const::ErrorCode::Ok,:hero => battleHero}
+						else
+							{:retcode => Const::ErrorCode::Fail}
+						end
+					else
+						{:retcode => Const::ErrorCode::Fail}
+					end
+				else
+					{:retcode => Const::ErrorCode::Fail}
+				end
+			else
+				{:retcode => Const::ErrorCode::Fail}
+			end
 		end
 	end # class
 end # model definition
