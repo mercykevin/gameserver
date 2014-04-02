@@ -29,16 +29,15 @@ class MetaDao
 		#装备
 		when 'Equipment'
 			@equipmentMap = {}
-			initMetaData(csvfile, @equipmentMap ,"equipmentMap")
-		#宝物
-		when 'Prop'	
-			@propMap = {}
-			initMetaData(csvfile,@propMap,"propMap")
+			initMetaData(csvfile, @equipmentMap ,"equipmentID")
 		#兵法
 		when 'Book'
 			@bookMap = {}
-			initMetaData(csvfile,@bookMap,"bookMap")
-			
+			initMetaData(csvfile,@bookMap,"bookID")
+		#宝物
+		when 'Prop'	
+			@propMap = {}
+			initMetaData(csvfile,@propMap,"propID")
 		else
 
 
@@ -107,11 +106,34 @@ class MetaDao
 	#
 	#道具信息
 	#
-	def getItemMetaData(key)
-		@itemMap[key.to_s]
-	end
-	def getItemList()
-		@itemMap
+	def getTempItem(iid)
+		tempItem = @propMap[iid.to_s]
+		 
+		if tempItem
+			return tempItem 
+		end
+		
+		tempItem = @equipmentMap[iid.to_s]
+		if tempItem
+			return tempItem 
+		end
+
+		tempItem = @bookMap[iid.to_s]
+		if tempItem
+			return tempItem 
+		end
+
+		tempItem = @propMap[iid.to_s]
+		if tempItem
+			return tempItem 
+		end
+
+		if ! tempItem
+			GameLogger.debug("MetaDao.getTempItem method params iid:#{iid} => tempItem is not exists !")
+		end
+
+		tempItem
+		
 	end
 
 

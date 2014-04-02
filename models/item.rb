@@ -1,42 +1,141 @@
 module Model
 	class Item
-		def self.get(itemId,playerId)
-			itemData = RedisClient.get(::Const::Rediskeys.getItemKey(itemId,playerId))
-			if itemData and not itemData.empty?
-				JSON.parse(itemData)
+		# 获取装备
+		def self.getEquip(playerId,equipId)
+			equipKey = Const::Rediskeys.getEquipKey(playerId,equipId)
+			equipData = RedisClient.get(equipKey)
+			if equipData and not equipData.empty?
+				JSON.parse(equipData, {:symbolize_names => true}) 
 			end
 		end
 
-		def self.addItem(itemTempleteId,count,isOn,playerId)
-			item = {}
-			item[:itemId] = RedisClient.incr(::Const::Rediskeys.getItemIdAutoIncKey(playerId))
-			item[:itemTempleteId] = itemTempleteId
-			item[:count] = count
-			player = ::Model::Player.get(playerId)
-			player["itemList"] << itemId
 
+		# 添加装备
+		def self.addEquip(playerId,iid,count)
+			
+			metaDao = MetaDao.instance
+			tempItem = metaDao.getTempItem(iid)
+
+			#不存在的 iid
+			if ! tempItem
+				GameLogger.debug("Model::Item.addEquip method params iid:#{iid} => tempItem is not exists !")
+				return {:retcode => Const::ErrorCode::IllegeParam}
+			end
+
+			#TODO 其他条件验证
+			equip = initEquip(playerId,tempItem,count)
+			
+			#道具的 key
+			equipKey = Const::Rediskeys.getEquipKey(playerId,equip[:id])
 			commonDao = CommonDao.new
-			commonDao.update(Const::Rediskeys.getItemKey(item[:itemId],playerId),item.to_json)
+			commonDao.update(equipKey => equip)
+
 		end
 
+		#初始化装备信息
+		def self.initEquip(playerId,tempItem,count)
+			equip = {}
+			equip[:id] = RedisClient.incr(Const::Rediskeys.getEquipIdAutoIncKey())
+			equip[:iid] = tempItem.equipmentID
+			equip[:star] = tempItem.eStar
+			equip[:level] = tempItem.elevel
+			equip[:type] = tempItem.eType.to_i
+			equip[:attack] = tempItem.eATK.to_f
+			equip[:defence] = tempItem.eDEF.to_f
+			equip[:brain] = tempItem.eINT.to_f
+			equip[:blood] = tempItem.eHP.to_f
+			# 其他属性量表读取，加成量表读取计算
+			# equip[:attackUp] = tempitem.eATKUP
+			# equip[:defenceUp] = tempitem.eDEFUP
+			# equip[:brainUp] = tempitem.eINTUP
+			# equip[:bloodUp] = tempitem.eHPUP
+			# equip[:defenceUp] = tempitem.eDEFUP
+			equip
+		end
 
 		#未装备列表
-		def self.getItemUnusedList(playerId)
+		def self.getEquipUnusedList(playerId)
 			itemDao = ItemDao.new
-			itemDao.getItemUnusedList(playerId)
+			itemDao.getEquipUnusedList(playerId)
 		end
 
 		#已装备列表
-		def self.getItemUsedList(playerId,sort)
+		def self.getEquipUsedList(playerId,sort)
 			itemDao = ItemDao.new
-			itemDao.getItemUsedList(playerId)
+			itemDao.getEquipUsedList(playerId,sort)
 		end
 
+
+
+		# 获取装备
+		def self.getProp(playerId,iid)
+			propKey = Const::Rediskeys.getPropKey(playerId,iid)
+			propData = RedisClient.get(propKey)
+			if propData and not propData.empty?
+				JSON.parse(propData, {:symbolize_names => true}) 
+			end
+		end
+
+		# 添加宝物
+		def self.addProp(playerId,iid,count)
+			metaDao = MetaDao.instance
+			itemDao = ItemDao.new
+			#不存在的 iid
+			tempItem = metaDao.getTempItem(iid)
+			if ! tempItem
+				GameLogger.debug("Model::Item.addProp method params iid:#{iid} => tempItem is not exists !")
+				return {:retcode => Const::ErrorCode::IllegeParam}
+			end
+			#数量非法 TODO
+			if ! ( count && count.is_a?(Integer) )
+				GameLogger.debug("Model::Item.addProp method params count:#{count} => count is illege !")
+				return {:retcode => Const::ErrorCode::IllegeParam}
+			end
+
+			propData = itemDao.getPropData(playerId,iid)
+			propKey = Const::Rediskeys.getPropKey(playerId,iid)
+			commonDao = CommonDao.new
+			#有该宝物，数量累加
+			if propData
+				#修改宝物数量
+				propData[:count] = propData[:count].to_i + count
+				commonDao.update(propKey => propData)
+			else
+				#添加宝物
+				item = {}
+				item[:iid] = iid
+				item[:count] = count
+				item[:type] = tempItem.pType.to_i
+				commonDao.update(propKey => item)
+			end
+
+			#添加到宝物列表
+			#TODO 存在不处理，不存在添加
+
+			
+		end
+
+
+		#使用宝物
+		def self.useProp(playerId,iid,count)
+		end
+
+		#消耗装备
+		def self.costEquip(playerId,iid,count)
+		end
+
+
+		
 		#宝物
-		def self.getPropList()
+		def self.getPropList(playerId)
 			itemDao = ItemDao.new
 			itemDao.getPropList(playerId)
 		end
 
+
+
+		
+
 	end
+
 end

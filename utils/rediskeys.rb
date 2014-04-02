@@ -59,18 +59,33 @@ module Const
 		end
 
 
-		#-----------------------------------------------道具/卡牌（武器防具道具兵法宝物）
-		# 道具自增长id
-		def self.getItemIdAutoIncKey()
-			"item_id_inc"
+
+		#
+		# 分了两类，1：武器装备防具坐骑兵法。2：宝物
+		#
+		# ---------------------------------------------装备
+		#
+		# 装备类	自增长id
+		def self.getEquipIdAutoIncKey()
+			"equip_id_inc"
 		end
-		# 未装备key 
-		def self.getItemUnusedIdListKey(playerId)
-			"player:[#{playerId}]unusedList]"
+		# 装备(武器防具坐骑道具兵法) key是id
+  		def self.getEquipKey(playerId,equipId)
+			"player:[#{playerId}]equipId:[#{equipId}]"
+		end
+
+		# 未装备id列表（武器防具坐骑道具兵法） key 
+		def self.getEquipUnusedIdListKey(playerId)
+			"player:[#{playerId}]equipUnusedList]"
 		end		
-		# 已装备id列表  {武器防具坐骑道具兵法宝物} key
-		def self.getItemUsedIdListKey(sort,playerId)
-			"player:[#{playerId}]sort:[#{sort}]usedList"
+		# 已装备id列表  {武器防具坐骑道具兵法} key
+		def self.getEquipUsedIdListKey(playerId,sort)
+			"player:[#{playerId}]sort:[#{sort}]equipUsedList"
+		end
+		#---------------------------------------------宝物
+		# 宝物 key 是 iid
+		def self.getPropKey(playerId,propIid)
+			"player:[#{playerId}]propIid:[#{propIid}]"
 		end
 		# 宝物id列表 key
 		def self.getPropListKey(playerId)
