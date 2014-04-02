@@ -14,8 +14,29 @@ module Model
 			item[:count] = count
 			player = ::Model::Player.get(playerId)
 			player["itemList"] << itemId
-			RedisClient.set(::Const::Rediskeys.getItemKey(item[:itemId],playerId),item.to_json)
-			::Model::Player.update(player)
+
+			commonDao = CommonDao.new
+			commonDao.update(Const::Rediskeys.getItemKey(item[:itemId],playerId),item.to_json)
 		end
+
+
+		#未装备列表
+		def self.getItemUnusedList(playerId)
+			itemDao = ItemDao.new
+			itemDao.getItemUnusedList(playerId)
+		end
+
+		#已装备列表
+		def self.getItemUsedList(playerId,sort)
+			itemDao = ItemDao.new
+			itemDao.getItemUsedList(playerId)
+		end
+
+		#宝物
+		def self.getPropList()
+			itemDao = ItemDao.new
+			itemDao.getPropList(playerId)
+		end
+
 	end
 end

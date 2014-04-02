@@ -32,7 +32,7 @@ module Const
 		#英雄key
 		def self.getHeroKey(heroId,playerId)
 			"player:[#{playerId}]hero:[#{heroId}]"
-		end
+		end	
 		#所有英雄的id列表
 		def self.getHeroListKey(playerId)
 			"player:[#{playerId}]herolist"
@@ -44,14 +44,6 @@ module Const
 		#英雄自增长id
 		def self.getHeroIdAutoIncKey()
 			"hero_id_inc"
-		end
-		#道具key
-		def self.getItemKey(itemId,playerId)
-			"player:[#{playerId}]item[#{itemId}]"
-		end
-		#道具自增长id
-		def self.getItemIdAutoIncKey()
-			"item_id_inc"
 		end
 		#游戏公告
 		def self.getNoticeListKey()
@@ -65,5 +57,25 @@ module Const
 		def self.getSessionKey(sessionId)
 			"gamesession:[#{sessionId}]"
 		end
+
+
+		#-----------------------------------------------道具/卡牌（武器防具道具兵法宝物）
+		# 道具自增长id
+		def self.getItemIdAutoIncKey()
+			"item_id_inc"
+		end
+		# 未装备key 
+		def self.getItemUnusedIdListKey(playerId)
+			"player:[#{playerId}]unusedList]"
+		end		
+		# 已装备id列表  {武器防具坐骑道具兵法宝物} key
+		def self.getItemUsedIdListKey(sort,playerId)
+			"player:[#{playerId}]sort:[#{sort}]usedList"
+		end
+		# 宝物id列表 key
+		def self.getPropListKey(playerId)
+			"player:[#{playerId}]propIdList"
+		end
+
 	end
 end

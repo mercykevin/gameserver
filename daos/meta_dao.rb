@@ -26,13 +26,29 @@ class MetaDao
 		when 'CharacterLevel'
 			@playerLevelMetaMap = {}
 			initMetaData(csvfile, @playerLevelMetaMap ,"characterLevel")
+		#装备
+		when 'Equipment'
+			@equipmentMap = {}
+			initMetaData(csvfile, @equipmentMap ,"equipmentMap")
+		#宝物
+		when 'Prop'	
+			@propMap = {}
+			initMetaData(csvfile,@propMap,"propMap")
+		#兵法
+		when 'Book'
+			@bookMap = {}
+			initMetaData(csvfile,@bookMap,"bookMap")
+			
 		else
+
 
 		end
 	end
 	# read character name from csv file for generate random name
 	# @param [String] csvfile , the path of csv file
 	# @return nothing
+	##
+	
 	def initPlayerNameMetaData(csvfile)
 		@playerFirstName = []
 		@playerSecondNameMale = []
@@ -87,4 +103,16 @@ class MetaDao
 	def getPlayerLevelMetaData(key)
 		@playerLevelMetaMap[key.to_s]
 	end
+
+	#
+	#道具信息
+	#
+	def getItemMetaData(key)
+		@itemMap[key.to_s]
+	end
+	def getItemList()
+		@itemMap
+	end
+
+
 end
