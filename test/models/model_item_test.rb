@@ -51,7 +51,7 @@ class HeroTest < Minitest::Test
 		count = 1
 		iid = 400001
 		Model::Item.addItem(playerId,iid,count)
-		equipData = Model::Item.getEquip(playerId,id)
+		equipData = Model::Item.getEquipData(playerId,id)
 		puts "获取装备	#{equipData}"
 		puts "获取装备iid	#{equipData[:iid]}"
 		puts "获取装备star	#{equipData[:star]}"
@@ -64,31 +64,25 @@ class HeroTest < Minitest::Test
 		count = 1111
 		Model::Item.addItem(playerId,iid,count)
 		puts "添加宝物"
-		propData = Model::Item.getProp(playerId,iid)	
+		propData = Model::Item.getPropData(playerId,iid)	
 		puts "宝物数量	#{propData[:count]}"
 	end
 
 
-	# def test_getPropList
-	# 	playerId = 1
-	# 	iid = 400001
-	# 	count = 100
-	# 	Model::Item.addItem(playerId,iid,count)
+	def test_getPropList
+		playerId = 1
+		iid = 400001
+		count = 100
+		Model::Item.addItem(playerId,iid,count)
 
-	# 	propList = Model::Item.getPropList(1)  
-	# 	puts "宝物列表	#{propList.to_json}"
-	# end
+		propList = Model::Item.getPropList(1)  
+		puts "宝物列表	#{propList.to_json}"
+	end
 
-	# def test_getEquipUnusedList
-	# 	itemList = Model::Item.getEquipUnusedList(1,1)  
-	# 	itemList.to_json
-	# end
-
-	# def test_getEquipUsedList
-	# 	itemList = Model::Item.getEquipUsedList(1)  
-	# 	itemList.to_json
-	# end
-
+	def test_getEquipUnusedList
+		itemList = Model::Item.getEquipUnusedList(1,1)  
+		itemList.to_json
+	end
 
 
 end
