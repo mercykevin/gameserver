@@ -73,7 +73,6 @@ module Const
   		def self.getEquipKey(playerId,equipId)
 			"player:[#{playerId}]equipId:[#{equipId}]"
 		end
-
 		# 未装备id列表（武器防具坐骑道具兵法） key 
 		def self.getEquipUnusedIdListKey(playerId)
 			"player:[#{playerId}]equipUnusedList]"
@@ -88,7 +87,7 @@ module Const
 			"player:[#{playerId}]propIid:[#{propIid}]"
 		end
 		# 宝物id列表 key
-		def self.getPropListKey(playerId)
+		def self.getPropIdListKey(playerId)
 			"player:[#{playerId}]propIdList"
 		end
 

@@ -32,7 +32,7 @@ class MetaDao
 		when 'GenneralAdvanced'
 			@heroAdancedLevelMetaMap = {}
 			initMetaData(csvfile, @heroAdancedLevelMetaMap ,"advancedTime")
-		#装备
+		#装备-武器防具坐骑
 		when 'Equipment'
 			@equipmentMap = {}
 			initMetaData(csvfile, @equipmentMap ,"equipmentID")

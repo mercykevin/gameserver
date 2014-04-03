@@ -32,6 +32,7 @@ module Model
 
 		end
 
+
 		#初始化装备信息
 		def self.initEquip(playerId,tempItem,count)
 			equip = {}
@@ -44,6 +45,8 @@ module Model
 			equip[:defence] = tempItem.eDEF.to_f
 			equip[:brain] = tempItem.eINT.to_f
 			equip[:blood] = tempItem.eHP.to_f
+			equip[:createdAt] = Time.now.to_f
+			equip[:updatedAt] = Time.now.to_f
 			# 其他属性量表读取，加成量表读取计算
 			# equip[:attackUp] = tempitem.eATKUP
 			# equip[:defenceUp] = tempitem.eDEFUP
@@ -99,20 +102,27 @@ module Model
 			if propData
 				#修改宝物数量
 				propData[:count] = propData[:count].to_i + count
+				propData[:updatedAt] = Time.now.to_i
 				commonDao.update(propKey => propData)
 			else
 				#添加宝物
-				item = {}
-				item[:iid] = iid
-				item[:count] = count
-				item[:type] = tempItem.pType.to_i
-				commonDao.update(propKey => item)
+				propData = {}
+				propData[:iid] = iid
+				propData[:count] = count
+				propData[:type] = tempItem.pType.to_i
+				propData[:createdAt] = Time.now.to_i
+				propData[:updatedAt] = Time.now.to_i
+				commonDao.update(propKey => propData)
 			end
 
 			#添加到宝物列表
-			#TODO 存在不处理，不存在添加
+			propIdList = itemDao.getPropIdList(playerId)
+			if ! propIdList.include?(iid)
+				propIdList << iid
+			end
 
-			
+			propIdListKey = Const::Rediskeys.getPropIdListKey(playerId)
+			commonDao.update(propIdListKey => propIdList)
 		end
 
 
@@ -132,9 +142,6 @@ module Model
 			itemDao.getPropList(playerId)
 		end
 
-
-
-		
 
 	end
 
