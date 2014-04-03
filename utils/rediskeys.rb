@@ -73,13 +73,13 @@ module Const
   		def self.getEquipKey(playerId,equipId)
 			"player:[#{playerId}]equipId:[#{equipId}]"
 		end
-		# 未装备id列表（武器防具坐骑道具兵法） key 
-		def self.getEquipUnusedIdListKey(playerId)
-			"player:[#{playerId}]equipUnusedList]"
-		end		
 		# 已装备id列表  {武器防具坐骑道具兵法} key
-		def self.getEquipUsedIdListKey(playerId,sort)
-			"player:[#{playerId}]sort:[#{sort}]equipUsedList"
+		def self.getEquipUsedIdListKey(playerId)
+			"player:[#{playerId}]equipUsedList]"
+		end		
+		# 未装备id列表（武器防具坐骑道具兵法） key 未装备的分类
+		def self.getEquipUnusedIdListKey(playerId,sort)
+			"player:[#{playerId}]sort:[#{sort}]equipUsnuedList"
 		end
 		#---------------------------------------------宝物
 		# 宝物 key 是 iid

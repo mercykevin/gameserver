@@ -134,27 +134,25 @@ class MetaDao
 	#道具信息
 	#
 	def getTempItem(iid)
-		tempItem = @propMap[iid.to_s]
-		 
-		if tempItem
-			return tempItem 
-		end
-		
+
+		#武器防具坐骑
 		tempItem = @equipmentMap[iid.to_s]
 		if tempItem
 			return tempItem 
 		end
-
+		#兵法
 		tempItem = @bookMap[iid.to_s]
 		if tempItem
+			tempItem.eType = Const::ItemTypeBook
 			return tempItem 
 		end
-
+		#宝物
 		tempItem = @propMap[iid.to_s]
 		if tempItem
+			tempItem.eType = Const::ItemTypeProp
 			return tempItem 
 		end
-
+		#不存在
 		if ! tempItem
 			GameLogger.debug("MetaDao.getTempItem method params iid:#{iid} => tempItem is not exists !")
 		end
