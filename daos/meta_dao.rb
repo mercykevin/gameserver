@@ -134,7 +134,6 @@ class MetaDao
 	#道具信息
 	#
 	def getTempItem(iid)
-
 		#武器防具坐骑
 		tempItem = @equipmentMap[iid.to_s]
 		if tempItem
