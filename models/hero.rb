@@ -97,12 +97,16 @@ module Model
 			hero[:attack] = templeteHero.gInitialATK.to_f
 			hero[:defend] = templeteHero.gInitialDEF.to_f
 			hero[:intelegence] = 0
-			hero[:blood] = templeteHero.gInitialHP.to_f 
+			hero[:blood] = templeteHero.gInitialHP.to_f
+			#经验 
 			hero[:exp] = 0
+			#星级
 			hero[:star] = templeteHero.gStart.to_i
+			#级别
 			hero[:level] = 1
 			#英雄阶数
 			hero[:adlevel] = 0
+			#潜力
 			hero[:capacity] = 0
 			hero
 		end
