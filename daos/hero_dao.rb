@@ -147,4 +147,17 @@ class HeroDao
 	#@return[Hash] 返回情义
 	def handleHeroFriendShip(heroList,playerId)
 	end
+	#取英雄培养信息
+	#@param[Integer,Integer,Integer]
+	#@return[Hash]
+	def getHeroBringupInfo(heroId,bringType,playerId)
+		bringupInfoKey = Const::Rediskeys.getHeroBringupInfoKey(heroId, bringType ,playerId)
+		bringUpInfo = RedisClient.get(bringupInfoKey)
+		if bringUpInfo
+			JSON.parse(bringUpInfo, {:symbolize_names => true})
+		else
+			nil
+		end
+	end
+	
 end

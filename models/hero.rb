@@ -392,7 +392,7 @@ module Model
 		#@param[Integer,Integer, Integer] 英雄Id, 角色Id
 		#@return [Hash]
 		def self.preBringupBattleHero(heroId, bringupType, playerId)
-			commonDao = CommonDao.new
+			sessionDao = SessionDao.new
 			heroDao = HeroDao.new
 			metaDao = MetaDao.instance
 			#上阵的英雄列表
@@ -450,14 +450,53 @@ module Model
 				propsChange[i] = value * times
 			end
 			GameLogger.debug("Model::Hero.bringupBattleHero propsChange:#{propsChange.to_json}")
+			bringupInfoKey = Const::Rediskeys.getHeroBringupInfoKey(heroId, bringupType ,playerId)
+			bringupInfo = {}
+			bringupInfo[:heroId] = heroId
+			bringupInfo[:bringupType] = bringupType
+			bringupInfo[:bringupDrugCount] = bringupDrugCount
+			bringupInfo[:bringupGold] = bringupGold
+			bringupInfo[:propschange] = propsChange
+			#将这个数据设置到临时session中
+			sessionDao.setAttributes({bringupInfoKey => bringupInfo})
 			{:retcode => Const::ErrorCode::Ok, :propschange => propsChange}
 		end
 		# 英雄培养确认
-		#
-		#
+		# @param[Integer,Integer, Integer] 英雄Id, 培养类型, 角色Id
+		# @return [Hash]
 		def self.bringupBattleHero(heroId, bringupType, playerId)
-			
+			sessionDao = SessionDao.new
+			commonDao = CommonDao.new
+			heroDao = HeroDao.new
+			metaDao = MetaDao.instance
+			bringupInfo = heroDao.getHeroBringupInfo(heroId, bringupType, playerId)
+			if bringupInfo
+				#上阵的英雄列表
+				battleHeroIdList = heroDao.getBattleHeroIdList(playerId)
+				#不在上阵列表中
+				if not battleHeroIdList.include?(heroId)
+					return {:retcode => Const::ErrorCode::Fail}
+				end
+				#英雄不存在
+				battleHero = heroDao.get(heroId,playerId)
+				if not battleHero
+					return {:retcode => Const::ErrorCode::Fail}
+				end
+				#更新培养信息
+				battleHeroKey = Const::Rediskeys.getHeroKey(heroId,playerId)
+				battleHero[:attack] = battleHero[:attack] + bringupInfo[:propschange][0]
+				battleHero[:defend] = battleHero[:defend] + bringupInfo[:propschange][1]
+				battleHero[:intelegence] = battleHero[:intelegence] + bringupInfo[:propschange][2]
+				battleHero[:blood] = battleHero[:blood] + bringupInfo[:propschange][3]
+				bringupInfoKey = Const::Rediskeys.getHeroBringupInfoKey(heroId, bringupType ,playerId)
+				#更新英雄信息
+				commonDao.update({ battleHeroKey=> battleHero })
+				#删除session中的临时数据
+				sessionDao.setAttributes({ bringupInfoKey => nil })
+				{:retcode => Const::ErrorCode::Ok}
+			else
+				{:retcode => Const::ErrorCode::Fail}
+			end
 		end
-
 	end # class
 end # model definition

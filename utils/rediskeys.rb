@@ -57,8 +57,10 @@ module Const
 		def self.getSessionKey(sessionId)
 			"gamesession:[#{sessionId}]"
 		end
-
-
+		#取bringup的信息，中间值，确认培养完后，要删除
+		def self.getHeroBringupInfoKey(heroId, bringType, playerId)
+			"player:[#{playerId}]hero:[#{heroId}]bringtype:[#{bringType}]"
+		end
 
 		#
 		# 分了两类，1：武器装备防具坐骑兵法。2：宝物

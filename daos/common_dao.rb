@@ -13,7 +13,7 @@ class CommonDao
 						end
 					end
 				end
-				if multiret == nil || multiret.empty? || multiret[0] != 'OK'
+				if multiret == nil || multiret.empty?
 					#抛出乐观锁异常
 					raise RedisStaleObjectStateException
 				end

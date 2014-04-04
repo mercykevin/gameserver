@@ -16,6 +16,6 @@ get '/example.json' do
 end
 
 get '/abc' do
-	Model::Hero.cdef
+	"你好，伟哥"
 end
 

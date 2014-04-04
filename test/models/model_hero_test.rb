@@ -132,8 +132,8 @@ class HeroTest < Minitest::Test
 	def test_pre_bringup_hero
 		player = Model::Player.register("bringup_hero","image")[:player]
 		heroMain  = Model::Hero.registerMainHero("11001",player)[:hero]
-		ret = Model::Hero.preBringupBattleHero(heroMain[:heroId], player[:playerId], Const::HeroBringUpNormal)
-		Model::Hero.preBringupBattleHero(heroMain[:heroId], player[:playerId], Const::HeroBringUpAdvancedTen)
+		Model::Hero.preBringupBattleHero(heroMain[:heroId], Const::HeroBringUpNormal, player[:playerId])
+		ret = Model::Hero.bringupBattleHero(heroMain[:heroId], Const::HeroBringUpNormal, player[:playerId])
+		assert_equal(Const::ErrorCode::Ok,ret[:retcode])
 	end
-
 end
