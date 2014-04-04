@@ -98,4 +98,12 @@ class ItemDao
 
 	end
 
+	#验证装备id是否存在
+	#@param [Integer,Integer]
+	#@return [Boolean]
+	def exist?(playerId , heroId)
+		equipKey = Const::Rediskeys.getEquipKey(playerId , heroId)
+		RedisClient.exists(equipKey)
+	end
+
 end

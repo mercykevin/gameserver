@@ -44,8 +44,15 @@ class MetaDao
 		when 'Prop'	
 			@propMap = {}
 			initMetaData(csvfile,@propMap,"propID")
+		#VIP表
+		when 'Vip'
+			@vipMap = {}
+			initMetaData(csvfile,@vipMap,"vipLevel")
+		#强化表
+		when 'Strengthen'
+			@strengthenMap = {}
+			initStrengthenMapMetaData(csvfile,@strengthenMap)
 		else
-
 
 		end
 	end
@@ -69,6 +76,29 @@ class MetaDao
 				end
 			end
 		end
+	end
+
+	# 初始化强化量表 key = level+"_"+star
+	# @param [String,Hash] csvfile , the path of csv file metamap ,the Hash data store meta data
+	# @return nothing
+	def initStrengthenMapMetaData(csvfile,metamap )
+		@equipMaxLevel = 0 
+		allRows = CSV.read(csvfile,{:col_sep=>";"})
+		if allRows and not allRows.empty?
+			title = allRows[1]
+			allRows.each_with_index do |row,i|
+				if i > 1
+					metaData = Model::MetaData.new(title,row)
+					level = metaData.send("equipmentLevel")
+					star = metaData.send("eStarLevel")
+					key = level + "_" + star
+					metamap[key] = metaData
+					#装备的最大等级
+					@equipMaxLevel = level.to_i unless @equipMaxLevel > level.to_i
+				end
+			end
+		end
+
 	end
 	# read meta data from csvfile
 	# @param [String,Hash] csvfile , the path of csv file metamap ,the Hash data store meta data
@@ -160,6 +190,21 @@ class MetaDao
 		tempItem
 		
 	end
+
+	# 获取强化配置
+	# @param [Integer,Integer] 
+	# @return 
+	def getStrengthenMetaData(level,star)
+		key = level.to_s + "_" + star.to_s
+		@strengthenMap[key]
+	end
+
+	#装备的最大等级
+	#@return [Integer]
+	def getEquipMaxLevel
+		@equipMaxLevel
+	end
+
 
 
 end

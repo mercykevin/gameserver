@@ -5,8 +5,14 @@ module Const
 		#操作失败
 		Fail = 0
 
-		#非法的参数
-		IllegeParam = 100
+		#-------------------------------通用
+
+		#银币不足
+		SilverIsNotEnough = 10000
+		#钻石不足，请充值
+		DiamondIsNotEnough = 10010
+
+		#-------------------------------
 
 		#玩家信息不存在
 		PlayerIsNotExist = 1000001
@@ -27,7 +33,12 @@ module Const
 		#钻石数不够，不能招募
 		HeroRecuritDimondNotEnough = 9000007
 
-
+		#---------------------------------强化
+		
+		#装备不存在
+		StrengthenEquipIsNotExist = 2000000
+		#装备已达最高级
+		StrengthenEquipIsTheHighestLevel = 2000001
 
 	end
 end
