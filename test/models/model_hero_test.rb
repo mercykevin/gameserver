@@ -128,4 +128,12 @@ class HeroTest < Minitest::Test
 		assert_equal(true ,advancedHeroMain[:capacity] > heroMain[:capacity])
 	end
 
+
+	def test_pre_bringup_hero
+		player = Model::Player.register("bringup_hero","image")[:player]
+		heroMain  = Model::Hero.registerMainHero("11001",player)[:hero]
+		ret = Model::Hero.preBringupBattleHero(heroMain[:heroId], player[:playerId], Const::HeroBringUpNormal)
+		Model::Hero.preBringupBattleHero(heroMain[:heroId], player[:playerId], Const::HeroBringUpAdvancedTen)
+	end
+
 end

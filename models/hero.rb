@@ -389,13 +389,16 @@ module Model
 			end
 		end
 		#英雄培养
-		#@param[Integer,Integer] 英雄Id, 角色Id
+		#@param[Integer,Integer, Integer] 英雄Id, 角色Id
 		#@return [Hash]
-		def bringupBattleHero(heroId,playerId,bringupType)
+		def self.preBringupBattleHero(heroId, bringupType, playerId)
+			commonDao = CommonDao.new
+			heroDao = HeroDao.new
+			metaDao = MetaDao.instance
 			#上阵的英雄列表
 			battleHeroIdList = heroDao.getBattleHeroIdList(playerId)
 			#不在上阵列表中
-			if not battleHeroIdList.include?(battleHeroId)
+			if not battleHeroIdList.include?(heroId)
 				return {:retcode => Const::ErrorCode::Fail}
 			end
 			#英雄不存在
@@ -403,16 +406,57 @@ module Model
 			if not battleHero
 				return {:retcode => Const::ErrorCode::Fail}
 			end
+			#培养丹的数量
 			bringupDrugCount = 5
+			#所需金币数
 			bringupGold = 0
+			#培养配表
+			bringupMetaData = metaDao.getHeroBringupMetaData(bringupType)
+			#属性增减
+			propsChange = Array.new(4, 0)
+			#属性概率
+			heroPropRates = [bringupMetaData.cATKProbability.to_i,bringupMetaData.cDEFProbability.to_i,
+				bringupMetaData.cINTProbability.to_i,bringupMetaData.cHPProbability.to_i]
+			#随机到一个增值索引
+			addIndex = Utils::Random.randomIndex(heroPropRates)
+			propsChange[addIndex] = bringupMetaData.cAttributeIncrease.to_i
+			#将那个权重置为0
+			heroPropRates[addIndex] = 0
+			GameLogger.debug("Model::Hero.bringupBattleHero addIndex:#{addIndex}")
+			#随机减值的索引
+			reduceIndex = Utils::Random.randomIndex(heroPropRates)
+			GameLogger.debug("Model::Hero.bringupBattleHero reduceIndex:#{reduceIndex}")
+			#需要减值的属性
+			propsChange[reduceIndex] = - bringupMetaData.cAttributeReduce.to_i
+			#潜力消耗
+			potentialConsumption = bringupMetaData.cPotentialConsumption.to_i
+			times = 1
 			case bringupType
 			when Const::HeroBringUpNormal
-
+				bringupDrugCount = 5
 			when Const::HeroBringUpNormalTen
+				bringupDrugCount = bringupDrugCount * 10
+				times = 10
 			when Const::HeroBringUpAdvanced
+				bringupGold = 1
 			when Const::HeroBringUpAdvancedTen
+				bringupDrugCount = bringupDrugCount * 10
+				bringupGold = 10
+				times = 10
 			else
 			end
+			potentialConsumption = potentialConsumption * times
+			propsChange.each_with_index do |value,i|
+				propsChange[i] = value * times
+			end
+			GameLogger.debug("Model::Hero.bringupBattleHero propsChange:#{propsChange.to_json}")
+			{:retcode => Const::ErrorCode::Fail, :propschange => propsChange}
 		end
+		# 
+		#
+		#
+		def self.bringupBattleHero(heroId, bringupType, playerId)
+		end
+
 	end # class
 end # model definition

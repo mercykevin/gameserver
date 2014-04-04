@@ -52,6 +52,7 @@ class MetaDao
 			@propMap = {}
 			initMetaData(csvfile,@propMap,"propID")
 		when 'CultureValue'
+			initHeroBringupMetaData(csvfile)
 		#VIP表
 		when 'Vip'
 			@vipMap = {}
@@ -225,7 +226,23 @@ class MetaDao
 	def getEquipMaxLevel
 		@equipMaxLevel
 	end
-
+	#根据类型获取培养参数
+	#@param[Integer]
+	#@return metadata
+	def getHeroBringupMetaData(bringtype)
+		heroBringUpList = nil
+		if bringtype == Const::HeroBringUpNormal or bringtype == Const::HeroBringUpNormalTen
+			heroBringUpList = @bringUpMap["1"]
+		else
+			heroBringUpList = @bringUpMap["2"]
+		end
+		rates = []
+		heroBringUpList.each do |bringUpMeta|
+			rates << bringUpMeta.cRuleProbability.to_i
+		end
+		index = Utils::Random.randomIndex(rates)
+		heroBringUpList[index]
+	end
 
 
 end
