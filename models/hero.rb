@@ -450,12 +450,13 @@ module Model
 				propsChange[i] = value * times
 			end
 			GameLogger.debug("Model::Hero.bringupBattleHero propsChange:#{propsChange.to_json}")
-			{:retcode => Const::ErrorCode::Fail, :propschange => propsChange}
+			{:retcode => Const::ErrorCode::Ok, :propschange => propsChange}
 		end
-		# 
+		# 英雄培养确认
 		#
 		#
 		def self.bringupBattleHero(heroId, bringupType, playerId)
+			
 		end
 
 	end # class
