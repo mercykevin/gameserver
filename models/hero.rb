@@ -388,5 +388,31 @@ module Model
 				{:retcode => Const::ErrorCode::Fail}
 			end
 		end
+		#英雄培养
+		#@param[Integer,Integer] 英雄Id, 角色Id
+		#@return [Hash]
+		def bringupBattleHero(heroId,playerId,bringupType)
+			#上阵的英雄列表
+			battleHeroIdList = heroDao.getBattleHeroIdList(playerId)
+			#不在上阵列表中
+			if not battleHeroIdList.include?(battleHeroId)
+				return {:retcode => Const::ErrorCode::Fail}
+			end
+			#英雄不存在
+			battleHero = heroDao.get(heroId,playerId)
+			if not battleHero
+				return {:retcode => Const::ErrorCode::Fail}
+			end
+			bringupDrugCount = 5
+			bringupGold = 0
+			case bringupType
+			when Const::HeroBringUpNormal
+
+			when Const::HeroBringUpNormalTen
+			when Const::HeroBringUpAdvanced
+			when Const::HeroBringUpAdvancedTen
+			else
+			end
+		end
 	end # class
 end # model definition
