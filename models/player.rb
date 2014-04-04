@@ -85,5 +85,15 @@ module Model
 			sessionDao = SessionDao.new
 			sessionDao.setPlayerIdBySession(sessionId,playerId)
 		end
+
+		#银币消耗 ，没有保存
+		#@param [Hash , Integer , Integer] palyer，siliver(+/-)，function(如：强化功能，FunctionConst::EquipStrengthen)
+		#@return [Hash] player
+		def self.addSiliver(player , siliver , function)
+			player[:siliver] = player[:siliver].to_i + siliver
+			GameLogger.info("Model::Player.addSiliver : playerId:#{player[:playerId]} siliver:#{siliver} function:#{function} ! " ) 
+			player
+		end
+
 	end #class Player
 end # End Moudle

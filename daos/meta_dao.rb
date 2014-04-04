@@ -113,12 +113,10 @@ class MetaDao
 			allRows.each_with_index do |row,i|
 				if i > 1
 					metaData = Model::MetaData.new(title,row)
-					level = metaData.send("equipmentLevel")
-					star = metaData.send("eStarLevel")
-					key = level + "_" + star
-					metamap[key] = metaData
 					#装备的最大等级
-					@equipMaxLevel = level.to_i unless @equipMaxLevel > level.to_i
+					@equipMaxLevel = metaData.equipmentLevel.to_i unless @equipMaxLevel > metaData.eStarLevel.to_i
+					key = metaData.equipmentLevel + "_" + metaData.eStarLevel
+					metamap[key] = metaData
 				end
 			end
 		end
@@ -208,9 +206,7 @@ class MetaDao
 		if ! tempItem
 			GameLogger.debug("MetaDao.getTempItem method params iid:#{iid} => tempItem is not exists !")
 		end
-
 		tempItem
-		
 	end
 
 	# 获取强化配置
@@ -226,6 +222,13 @@ class MetaDao
 	def getEquipMaxLevel
 		@equipMaxLevel
 	end
+
+
+	#vip meta data
+	def getVipMetaData(vip)
+		@vipMap[vip.to_s]
+	end
+
 	#根据类型获取培养参数
 	#@param[Integer]
 	#@return metadata

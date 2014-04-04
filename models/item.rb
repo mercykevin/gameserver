@@ -8,11 +8,9 @@ module Model
 		#@param [Integer,Integer,Integer] playerId,iid,count 
 		#@return [Hash]
 		def self.addItem(playerId,iid,count)
-			
 			metaDao = MetaDao.instance
 			tempItem = metaDao.getTempItem(iid)
 			commonDao = CommonDao.new
-			
 			#不存在的 iid
 			if ! tempItem
 				GameLogger.debug("Model::Item.addItem method params iid:#{iid} => tempItem is not exists !")
@@ -23,11 +21,8 @@ module Model
 				GameLogger.debug("Model::Item.addItem method params count:#{count} => count is illege !")
 				return {:retcode => Const::ErrorCode::Fail}
 			end
-
 			retHash = addItemNoSave(playerId,iid,count)
-
 			commonDao.update(retHash)
-
 			{:retcode => Const::ErrorCode::Ok }
 		end
 
@@ -67,9 +62,7 @@ module Model
 				#key
 				propKey = Const::Rediskeys.getPropKey(playerId,tempItem.propID)
 				propIdListKey = Const::Rediskeys.getPropIdListKey(playerId)
-
 				return { propIdListKey => propIdList , propKey => propData }
-
 			elsif
 				#所有添加的道具
 				equipHash = {}
@@ -95,26 +88,21 @@ module Model
 						equip[:type] = tempItem.eType.to_i
 						equip[:attack] = tempItem.eATK.to_i
 						equip[:defence] = tempItem.eDEF.to_i
-						equip[:brain] = tempItem.eINT.to_i
 						equip[:blood] = tempItem.eHP.to_i
 						equip[:createdAt] = Time.now.to_i
 						equip[:updatedAt] = Time.now.to_i
 					end
-
 					#道具的 key
 					equipKey = Const::Rediskeys.getEquipKey(playerId,equip[:id])
 					equipHash[equipKey] = equip 
 					#装备列表
 					equipIdList << equip[:id]
 				end
-				
 				#未装备列表key
 				equipIdListKey = Const::Rediskeys.getEquipUnusedIdListKey(playerId , tempItem.eType)
 				equipHash[equipIdListKey] = equipIdList
 				equipHash
-
 			end
-			
 		end
 
 		#根据类型获取未上阵的装备列表
@@ -165,8 +153,8 @@ module Model
 		end
 
 		#强化装备
-		#@param [Integer,Integer] playerId,id 装备id
-		#@return
+		#@param [Hash,Integer] playerId,id 装备id
+		#@return [Hash]
 		def self.strengthenEquip(player,id)
 			playerId = player[:playerId]
 			itemDao = ItemDao.new
@@ -175,63 +163,86 @@ module Model
 			if not exists
 				return {:retcode => Const::ErrorCode::StrengthenEquipIsNotExist}
 			end
-
 			metaDao = MetaDao.instance
 			equipData = itemDao.getEquipData(playerId,id)
-			#不在强化表配置内，已是最高级
+			#已是最高级
 			maxLevel = metaDao.getEquipMaxLevel
 			if  equipData[:level] >= maxLevel
 				return {:retcode => Const::ErrorCode::StrengthenEquipIsTheHighestLevel}
 			end
-
+			beforeLevel = equipData[:level]
 			equipTemp = metaDao.getTempItem(equipData[:iid])
 			#银币消耗
-			strengthenTemp = metaDao.getStrengthenMetaData(equipData[:level] , equipData[:star])
-			silverCost = 0
+			strengthenTemp = metaDao.getStrengthenMetaData(beforeLevel , equipData[:star])
+			siliverCost = 0
 			case equipTemp.eType.to_i
 			when Const::ItemTypeWeapon
-				silverCost = strengthenTemp.eWeaponSpend.to_i
+				siliverCost = strengthenTemp.eWeaponSpend.to_i
 			when Const::ItemTypeShield
-				silverCost = strengthenTemp.eArmorSpend.to_i
+				siliverCost = strengthenTemp.eArmorSpend.to_i
 			when Const::ItemTypeHorse
-				silverCost = strengthenTemp.eHorseSpend.to_i
+				siliverCost = strengthenTemp.eHorseSpend.to_i
 			else
 				GameLogger.debug("Model::Item.strengthen method params id:#{id} ,iid:#{equipTemp.iid} ,type:#{equipTemp.eType} , it's not a equipment !")
 				return {:retcode => Const::ErrorCode::Fail}
 			end
-
 			#银币不足
-			if player[:silver].to_i < silverCost
-				return {:retcode => Const::ErrorCode::SilverIsNotEnough}
+			if player[:siliver].to_i < siliverCost
+				return {:retcode => Const::ErrorCode::siliverIsNotEnough}
 			end
 			#消耗银币
-			player[:silver] = player[:silver].to_i - silverCost
+			#player[:siliver] = player[:siliver].to_i - siliverCost
+			player = Model::Player.addSiliver(player , - siliverCost , FunctionConst::EquipStrengthen)
+			#处理强化后的升级
+			vipMetaData = metaDao.getVipMetaData(player[:vip])
+			rates = vipMetaData.vCritProbability.split(",")
+			levelUp = Utils::Random::randomIndex(rates) + 1		
+			equipData[:level] = beforeLevel + levelUp
+			equipData[:updatedAt] = Time.now.to_i
 			#处理强化效果
 			case equipTemp.eType.to_i
 			when Const::ItemTypeWeapon
-				equipData[:attack] = equipTemp.eATK.to_i + (equipData[:level] - 1) * equipTemp.eATKUP.to_i
+				equipData[:attack] = equipTemp.eATK.to_i + (equipData[:level]  - 1) * equipTemp.eATKUP.to_i
 			when Const::ItemTypeShield
-				equipData[:attack] = equipTemp.eDEF.to_i + (equipData[:level] - 1) * equipTemp.eDEFUP.to_i
+				equipData[:defence] = equipTemp.eDEF.to_i + (equipData[:level]  - 1) * equipTemp.eDEFUP.to_i
 			when Const::ItemTypeHorse
-				equipData[:attack] = equipTemp.eHP.to_i + (equipData[:level] - 1) * equipTemp.eHPUP.to_i
+				equipData[:blood] = equipTemp.eHP.to_i + (equipData[:level]  - 1) * equipTemp.eHPUP.to_i
 			else
-				GameLogger.debug("Model::Item.strengthen method params id:#{id} ,iid:#{equipTemp.iid} ,type:#{equipTemp.eType} , it's not a equipment !")
 				return {:retcode => Const::ErrorCode::Fail}
 			end
-			#处理强化后的升级
-			maxLevel
-			#TODO
-			
 			#保存
 			commonDao = CommonDao.new
 			playerKey = Const::Rediskeys.getPlayerKey(playerId)
 			equipKey = Const::Rediskeys.getEquipKey(playerId,equipData[:id])
-
 			commonDao.update(playerKey => player , equipKey => equipData)
+			GameLogger.debug("Model::Item.strengthen  playerId:#{playerId} , equipId:#{id} , equipIid:#{equipData[:iid]} , before level #{beforeLevel} after level  #{equipData[:level]}! ")
+			{equipKey => equipData }
+		end
 
-			{playerKey => player , equipKey => equipData}
+		#强化进阶
+		#@param [Hash,Integer] playerId,id 兵法id
+		#@return [Hash]
+		def self.advanceBook(player , id)
+			# playerId = player[:playerId]
+			# itemDao = ItemDao.new
+			# exists = itemDao.exist?(playerId,id)
+			# #装备存在
+			# if not exists
+			# 	return {:retcode => Const::ErrorCode::StrengthenEquipIsNotExist}
+			# end
+			# metaDao = MetaDao.instance
+			# equipData = itemDao.getEquipData(playerId,id)
+			# #已是最高级
+			# maxLevel = metaDao.getEquipMaxLevel
+			# if  equipData[:level] >= maxLevel
+			# 	return {:retcode => Const::ErrorCode::StrengthenEquipIsTheHighestLevel}
+			# end
+			# GameLogger.debug("Model::Item.advance  playerId:#{playerId} , bookId:#{id} , equipIid:#{equipData[:iid]} , before level #{beforeLevel} after level  #{equipData[:level]}! ")
 
 		end
+
+
+
 
 	end
 
