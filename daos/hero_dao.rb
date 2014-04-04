@@ -109,7 +109,7 @@ class HeroDao
 		RedisClient.incr(Const::Rediskeys.getHeroIdAutoIncKey)
 	end
 	# 英雄招募的相关信息.
-	# 
+	# @param [Integer] 角色id
   	# @return [Hash] recruiteinfo
 	def getHeroRecruiteInfo(playerId)
 		key = Const::Rediskeys.getHeroRecruiteKey(playerId)
@@ -121,6 +121,8 @@ class HeroDao
 		end
 	end
 	#处理英雄升级
+	#@param[Integer,Integer]
+	#@return
 	def handleHeroLevelUp(hero,addexp)
 		metaDao = MetaDao.instance
 		hero[:exp] = hero[:exp] + addexp
@@ -139,5 +141,10 @@ class HeroDao
 				end
 			end
 		end
+	end
+	#处理英雄情义
+	#@param[Array,Integer] 英雄列表
+	#@return[Hash] 返回情义
+	def handleHeroFriendShip(heroList,playerId)
 	end
 end

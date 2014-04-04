@@ -104,6 +104,10 @@ end
 #英雄培养
 post '/hero/bringup' do
 	player = request[:player]
+	heroId = request[:req_parames][:heroid]
+	bringType = request[:req_parames][:bringtype]
+	ret = Model::Hero.bringupBattleHero(heroId, bringType, player[:playerId])
+	ret.to_json
 end
 
 

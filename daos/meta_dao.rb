@@ -12,23 +12,30 @@ class MetaDao
 		end
 		basename = File.basename(csvfile, ".csv")
 		case basename
+		#处理角色名，用来随机用
 		when 'CharacterName'
 			initPlayerNameMetaData(csvfile)
+		#英雄配表
 		when 'Generals'
 			@heroMetaMap = {}
 			initMetaData(csvfile,@heroMetaMap,"generalID")
+		#招募配表
 		when 'Recruit'
 			@recuriteMetaMap = {}
 			initMetaData(csvfile,@recuriteMetaMap,"recruitName")
+		#情义
 		when 'Fate'
 			@fateMetaMap = {}
 			initMetaData(csvfile,@fateMetaMap,"fateID")
+		#角色级别与经验值
 		when 'CharacterLevel'
 			@playerLevelMetaMap = {}
 			initMetaData(csvfile, @playerLevelMetaMap ,"characterLevel")
+		#英雄级别与经验值配表
 		when 'GeneralLevel'
 			@heroLevelMetaMap = {}
 			initMetaData(csvfile, @heroLevelMetaMap ,"levelGeneral")
+		#英雄进阶
 		when 'GenneralAdvanced'
 			@heroAdancedLevelMetaMap = {}
 			initMetaData(csvfile, @heroAdancedLevelMetaMap ,"advancedTime")
@@ -44,6 +51,8 @@ class MetaDao
 		when 'Prop'	
 			@propMap = {}
 			initMetaData(csvfile,@propMap,"propID")
+		when 'CultureValue'
+			initHeroBringupMetaData(csvfile)
 		#VIP表
 		when 'Vip'
 			@vipMap = {}
@@ -53,14 +62,11 @@ class MetaDao
 			@strengthenMap = {}
 			initStrengthenMapMetaData(csvfile,@strengthenMap)
 		else
-
 		end
 	end
 	# read character name from csv file for generate random name
 	# @param [String] csvfile , the path of csv file
 	# @return nothing
-	##
-	
 	def initPlayerNameMetaData(csvfile)
 		@playerFirstName = []
 		@playerSecondNameMale = []
@@ -77,7 +83,25 @@ class MetaDao
 			end
 		end
 	end
-
+	#初始化成长表
+	#@param [String] csv file 
+	#@return
+	def initHeroBringupMetaData(csvfile)
+		@bringUpMap = {}
+		allRows = CSV.read(csvfile,{:col_sep=>";"})
+		if allRows and not allRows.empty?
+			title = allRows[1]
+			allRows.each_with_index do |row,i|
+				if i > 1
+					metaData = Model::MetaData.new(title,row)
+					if not @bringUpMap.key?(metaData.cultureType)
+						@bringUpMap[metaData.cultureType] = []
+					end
+					@bringUpMap[metaData.cultureType] << metaData
+				end
+			end
+		end
+	end
 	# 初始化强化量表 key = level+"_"+star
 	# @param [String,Hash] csvfile , the path of csv file metamap ,the Hash data store meta data
 	# @return nothing
@@ -199,11 +223,29 @@ class MetaDao
 		@equipMaxLevel
 	end
 
+
 	#vip meta data
 	def getVipMetaData(vip)
 		@vipMap[vip.to_s]
 	end
 
+	#根据类型获取培养参数
+	#@param[Integer]
+	#@return metadata
+	def getHeroBringupMetaData(bringtype)
+		heroBringUpList = nil
+		if bringtype == Const::HeroBringUpNormal or bringtype == Const::HeroBringUpNormalTen
+			heroBringUpList = @bringUpMap["1"]
+		else
+			heroBringUpList = @bringUpMap["2"]
+		end
+		rates = []
+		heroBringUpList.each do |bringUpMeta|
+			rates << bringUpMeta.cRuleProbability.to_i
+		end
+		index = Utils::Random.randomIndex(rates)
+		heroBringUpList[index]
+	end
 
 
 end
