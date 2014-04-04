@@ -1,7 +1,10 @@
 class ItemDao
 
 	#====================================宝物
-	#所有的宝物id列表
+
+	#获取所有宝物iid列表
+	#@param [Integer] playerId
+	#@return [Array] 宝物的iid列表
 	def getPropIdList(playerId)
 		#宝物id列表 key
 		propIdListKey = Const::Rediskeys.getPropIdListKey(playerId)
@@ -12,9 +15,10 @@ class ItemDao
 			[]
 		end
 	end
-	#取宝物列表
-	#@param [Integer]
-	#@return [Array] prop list
+
+	#取所有宝物列表
+	#@param [Integer] playerId
+	#@return [Array] 宝物列表
 	def getPropList(playerId)
 		propList = []
 		propIdList = getPropIdList(playerId)
@@ -32,8 +36,8 @@ class ItemDao
 	end
 
 	#获取宝物信息
-	#@param [Integer]
-	#@return [Array] prop list
+	#@param [Integer , Integer] playerId，iid
+	#@return [Array] 宝物信息
 	def getPropData(playerId,iid)
 		propKey = Const::Rediskeys.getPropKey(playerId,iid)
 		propData = RedisClient.get(propKey)
@@ -44,37 +48,12 @@ class ItemDao
 		end
 	end
 
-	#======================================已装备（武器防具坐骑兵法）
-	#所有的已装备id列表
-	def getEquipUsedIdList(playerId)
-		equipIdListKey = Const::Rediskeys.getEquipUsedIdListKey(playerId)
-		equipIdList = RedisClient.get(equipIdListKey)
-		if equipIdList
-			JSON.parse(equipIdList, {:symbolize_names => true})
-		else
-			[]
-		end
-	end
-	#已装备列表
-	def getEquipUsedList(playerId)
-		equipList = []
-		equipIdList = getEquipUsedIdList(playerId)
-		if equipIdList and equipIdList.length > 0
-			equipIdListKey = []
-			equipIdList.each do |equipId|
-				equipIdListKey << Const::Rediskeys.getEquipKey(playerId,equipId)
-			end
-			jsonEquipList = RedisClient.mget(equipIdListKey)
-			jsonEquipList.each do |item|
-				equipList << JSON.parse(item , {:symbolize_names => true})
-			end
-		end
 
-		equipList 
-	end
+	#======================================未上阵装备
 
-	#======================================未装备
-	#所有的未装备id列表
+	#根据类型得到未上阵id列表
+	#param [Iteger,Integer] playerId,sort(武器:1,防具:2,坐骑:3,兵法:4)
+	#@return [Array] 装备id列表
 	def getEquipUnusedIdList(playerId,sort)
 		equipIdListKey = Const::Rediskeys.getEquipUnusedIdListKey(playerId,sort)
 		equipIdList = RedisClient.get(equipIdListKey)
@@ -85,6 +64,9 @@ class ItemDao
 		end
 	end
 
+	#根据类型得到未上阵的装备列表
+	#@param [Integer,Integer] playerId ,sort 
+	#@return [Array] 未上阵列表
 	def getEquipUnusedList(playerId,sort)
 		equipList = []
 		equipIdList = getEquipUnusedIdList(playerId,sort)
@@ -102,13 +84,18 @@ class ItemDao
 		equipList 
 	end
 
-	#获取宝物信息
-	#@param [Integer]
-	#@return [Array] prop list
+	#获取装备
+	#@param [Integer,Integer] playerId ,id (装备id) 
+	#@return [Hash] 得到装备信息
 	def getEquipData(playerId,id)
 		equipKey = Const::Rediskeys.getEquipKey(playerId,id)
-		RedisClient.get(equipKey)
-	end
+		equipData = RedisClient.get(equipKey)
+		if equipData and not equipData.empty?
+			JSON.parse(equipData, {:symbolize_names => true}) 
+		else
+			nil
+		end
 
+	end
 
 end
