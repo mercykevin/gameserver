@@ -89,16 +89,13 @@ class MetaDao
 			allRows.each_with_index do |row,i|
 				if i > 1
 					metaData = Model::MetaData.new(title,row)
-					level = metaData.send("equipmentLevel")
-					star = metaData.send("eStarLevel")
-					key = level + "_" + star
-					metamap[key] = metaData
 					#装备的最大等级
-					@equipMaxLevel = level.to_i unless @equipMaxLevel > level.to_i
+					@equipMaxLevel = metaData.equipmentLevel.to_i unless @equipMaxLevel > metaData.eStarLevel.to_i
+					key = metaData.equipmentLevel + "_" + metaData.eStarLevel
+					metamap[key] = metaData
 				end
 			end
 		end
-
 	end
 	# read meta data from csvfile
 	# @param [String,Hash] csvfile , the path of csv file metamap ,the Hash data store meta data
@@ -185,9 +182,7 @@ class MetaDao
 		if ! tempItem
 			GameLogger.debug("MetaDao.getTempItem method params iid:#{iid} => tempItem is not exists !")
 		end
-
 		tempItem
-		
 	end
 
 	# 获取强化配置
@@ -202,6 +197,11 @@ class MetaDao
 	#@return [Integer]
 	def getEquipMaxLevel
 		@equipMaxLevel
+	end
+
+	#vip meta data
+	def getVipMetaData(vip)
+		@vipMap[vip.to_s]
 	end
 
 
