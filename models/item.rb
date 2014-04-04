@@ -191,7 +191,8 @@ module Model
 				return {:retcode => Const::ErrorCode::siliverIsNotEnough}
 			end
 			#消耗银币
-			player[:siliver] = player[:siliver].to_i - siliverCost
+			#player[:siliver] = player[:siliver].to_i - siliverCost
+			player = Model::Player.addSiliver(player , - siliverCost , FunctionConst::EquipStrengthen)
 			#处理强化后的升级
 			vipMetaData = metaDao.getVipMetaData(player[:vip])
 			rates = vipMetaData.vCritProbability.split(",")
@@ -221,7 +222,7 @@ module Model
 		#强化进阶
 		#@param [Hash,Integer] playerId,id 兵法id
 		#@return [Hash]
-		def self.advance(player , id)
+		def self.advanceBook(player , id)
 			# playerId = player[:playerId]
 			# itemDao = ItemDao.new
 			# exists = itemDao.exist?(playerId,id)
