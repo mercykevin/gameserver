@@ -65,7 +65,7 @@ module Model
 				return { propIdListKey => propIdList , propKey => propData }
 			elsif
 				#所有添加的道具
-				equipHash = {}
+				equipHash = Hash.new
 				#添加到未装备列表 ，类型
 				equipIdList = itemDao.getEquipUnusedIdList(playerId , tempItem.eType)
 				for i in 1..count do
