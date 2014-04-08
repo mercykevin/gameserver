@@ -13,10 +13,12 @@ end
 
 before do
 	response['X-UA-Compatible'] = "IE=edge,chrome=1"
-	session_id = request.cookies["game_session_id"]
+	session_id = cookies[:game_session_id]
 	if not session_id
 		session_id = SecureRandom.hex
-		response.set_cookie("game_session_id", :value => session_id)
+		response.set_cookie("game_session_id", { :value => session_id,
+                      :path => "/" })
+		logger << "before do:cookie is not exist so genearte cookie:#{session_id} \n"
 	end
 	request[:game_session_id] = session_id
 	player = Model::Player.getBySession(session_id)
