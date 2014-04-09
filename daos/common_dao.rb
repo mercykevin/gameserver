@@ -1,5 +1,7 @@
 class CommonDao
 	#更新redis，带watch和事务功能
+	#@param [Hash]
+	#@return [Array]
 	def update(entities)
 		if entities and not entities.empty?
 			# use block for thread safe

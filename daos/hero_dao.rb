@@ -142,6 +142,19 @@ class HeroDao
 			end
 		end
 	end
+	
+	#取英雄培养信息
+	#@param[Integer,Integer,Integer]
+	#@return[Hash]
+	def getHeroBringupInfo(heroId,bringType,playerId)
+		bringupInfoKey = Const::Rediskeys.getHeroBringupInfoKey(heroId, bringType ,playerId)
+		bringUpInfo = RedisClient.get(bringupInfoKey)
+		if bringUpInfo
+			JSON.parse(bringUpInfo, {:symbolize_names => true})
+		else
+			nil
+		end
+	end
 	#处理英雄情义
 	#@param[Array,Integer] 英雄列表
 	#@return[Hash] 返回情义
