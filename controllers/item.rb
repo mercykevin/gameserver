@@ -29,7 +29,8 @@ post '/item/book/advance/pre' do
 end
 
 #兵法进阶
-#返回进阶后的兵法信息
+#返回进阶后的兵法信息，是否成功
+#进阶失败的获得的碎片就补给前端了，夺宝列表会重新获取数据
 post '/item/book/advance' do
 	requestParams = request[:req_parames]
 	player = request[:player]

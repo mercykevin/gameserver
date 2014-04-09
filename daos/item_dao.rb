@@ -130,5 +130,21 @@ class ItemDao
 		equipKey = Const::Rediskeys.getEquipKey(playerId , heroId)
 	end
 
+	#兵法碎片
+	def getBookFragmentData(playerId, bookIid)
+		bookFragmentKey = Const::Rediskeys.getBookFragmentKey(playerId,bookIid)
+		formateDataByKey(bookFragmentKey)
+	end
+	
+	def formateDataByKey(key)
+		data = RedisClient.get(key)
+		if data and not data.empty?
+			JSON.parse(data, {:symbolize_names => true}) 
+		else
+			nil
+		end
+	end
+
+
 
 end

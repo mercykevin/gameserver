@@ -27,5 +27,11 @@ module Const
 	#宝物
 	ItemTypeProp = 5
 
+	#------------------进阶结果 可通用
+	#进阶成功
+	BookAdvanceSuccess = "success"
+	#进阶失败
+	BookAdvanceFail = "fail"
+
 
 end

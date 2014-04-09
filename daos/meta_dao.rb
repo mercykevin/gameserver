@@ -311,6 +311,14 @@ class MetaDao
 		@flagMap[key.to_s].value
 	end
 
+	#兵法碎片
+	#@param [Integer] 兵法碎片
+	#@return [Hash] 
+	def getBookFragmentMetaData(bookIid)
+		@bookFragment[bookIid.to_s]
+	end
+
+
 
 	#根据类型获取培养参数
 	#@param[Integer]
