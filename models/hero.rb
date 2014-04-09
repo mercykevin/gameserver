@@ -493,7 +493,7 @@ module Model
 				commonDao.update({ battleHeroKey=> battleHero })
 				#删除session中的临时数据
 				sessionDao.setAttributes({ bringupInfoKey => nil })
-				{:retcode => Const::ErrorCode::Ok}
+				{:retcode => Const::ErrorCode::Ok,:hero => battleHero}
 			else
 				{:retcode => Const::ErrorCode::Fail}
 			end
