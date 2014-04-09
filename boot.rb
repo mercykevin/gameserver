@@ -9,6 +9,7 @@ require 'bundler/setup' if File.exists?(ENV['BUNDLE_GEMFILE'])
 Bundler.require(:default, ENV['RACK_ENV'])
 
 require 'sinatra'
+require 'sinatra/cookies'
 require 'sinatra/reloader' if development?
 
 if development?

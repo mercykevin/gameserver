@@ -14,17 +14,18 @@ class RandomTest < Minitest::Test
 	# end
 
 
-	def test_random
-		for i in 0..20 do 
+	# def test_random
+	# 	for i in 0..20 do 
 		
-			index =  Utils::Random::randomIndex([1,2,3,4,5] )
-			puts "随机索引	#{index}" 
-			num =  Utils::Random::randomValue([10,1,3,3,10] , [10,20,30,40,50])
-			puts "随机数值 	#{num}" 
-			num =  Utils::Random::randomValue([10,1,3,3,10,5] , [10,20,30,40,50])
+	# 		index =  Utils::Random::randomIndex([1,2,3,4,5] )
+	# 		puts "随机索引	#{index}" 
+	# 		num =  Utils::Random::randomValue([10,1,3,3,10] , [10,20,30,40,50])
+	# 		puts "随机数值 	#{num}" 
+	# 		num =  Utils::Random::randomValue([10,1,3,3,10,5] , [10,20,30,40,50])
 			
-		end
-	end
+	# 	end
+	# end
+
 
 
 end

@@ -80,14 +80,13 @@ class ItemDao
 				equipList << JSON.parse(equip , {:symbolize_names => true})
 			end
 		end
-
 		equipList 
 	end
 
-	#获取装备
+	#获取装备信息，包括武器防具坐骑兵法
 	#@param [Integer,Integer] playerId ,id (装备id) 
 	#@return [Hash] 得到装备信息
-	def getEquipData(playerId,id)
+	def getEquipAllData(playerId,id)
 		equipKey = Const::Rediskeys.getEquipKey(playerId,id)
 		equipData = RedisClient.get(equipKey)
 		if equipData and not equipData.empty?
@@ -95,7 +94,6 @@ class ItemDao
 		else
 			nil
 		end
-
 	end
 
 	#验证装备id是否存在
@@ -105,5 +103,32 @@ class ItemDao
 		equipKey = Const::Rediskeys.getEquipKey(playerId , heroId)
 		RedisClient.exists(equipKey)
 	end
+
+	#获取武器防具坐骑
+	def getEquipmentData(playerId,id)
+		equipData = getEquipAllData(playerId,id)
+		type = equipData[:type] 
+		if equipData and ( type == Const::ItemTypeWeapon or type == Const::ItemTypeShield or type == Const::ItemTypeHorse)
+			return equipData
+		else
+			nil
+		end
+	end
+
+	#获取兵法信息
+	def getBookData(playerId,id)
+		bookData = getEquipAllData(playerId,id)
+		if bookData and bookData[:type] == Const::ItemTypeBook
+			return bookData
+		else
+			nil
+		end
+	end
+
+	#所有的兵法
+	def getBookList(playerId)
+		equipKey = Const::Rediskeys.getEquipKey(playerId , heroId)
+	end
+
 
 end

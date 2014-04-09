@@ -26,8 +26,10 @@ module Model
 			{:retcode => Const::ErrorCode::Ok }
 		end
 
-
-		#添加道具（武器防具坐骑兵法宝物），没有保存
+		#
+		#添加道具 , 没有保存
+		#1：武器防具坐骑兵法
+		#2：宝物
 		#@param [Integer,Integer,Integer] playerId,iid,count 
 		#@return [Hash]
 		def self.addItemNoSave(playerId , iid , count)
@@ -76,6 +78,16 @@ module Model
 						equip[:iid] = tempItem.bookID.to_i
 						equip[:star] = tempItem.bStar.to_i
 						equip[:level] = tempItem.bLevel.to_i
+						equip[:type] = tempItem.eType.to_i
+						#提升攻击比例
+						equip[:attack] = tempItem.bATKProportion.to_f / 100
+						equip[:defence] = tempItem.bDEFProportion.to_f / 100
+						#智力
+						equip[:init] = tempItem.bINTProportion.to_f / 100
+						#伤害
+						equip[:blood] = tempItem.bHurt.to_i
+						#5个兵法进阶失败的次数
+						equip[:failTimes] = 0
 						equip[:createdAt] = Time.now.to_i
 						equip[:updatedAt] = Time.now.to_i
 					#装备类	
@@ -88,6 +100,7 @@ module Model
 						equip[:type] = tempItem.eType.to_i
 						equip[:attack] = tempItem.eATK.to_i
 						equip[:defence] = tempItem.eDEF.to_i
+						#init 智力 TODO
 						equip[:blood] = tempItem.eHP.to_i
 						equip[:createdAt] = Time.now.to_i
 						equip[:updatedAt] = Time.now.to_i
@@ -121,12 +134,25 @@ module Model
 			itemDao.getPropList(playerId)
 		end
 
-		#获取装备详细
+		#获取装备详细 （武器防具坐骑兵法）
 		#@param [Integer] playerId,id
 		#@return [Hash]
-		def self.getEquipData(playerId,id)
+		def self.getEquipAllData(playerId,id)
 			itemDao = ItemDao.new
-			itemDao.getEquipData(playerId,id)
+			itemDao.getEquipAllData(playerId,id)
+		end
+
+
+		#获取装备信息 武器防具坐骑
+		def self.getEquipmentData(playerId,id)
+			itemDao = ItemDao.new
+			itemDao.getEquipmentData(playerId,id)
+		end
+
+		#获取兵法信息
+		def self.getBookData(playerId,id)
+			itemDao = ItemDao.new
+			itemDao.getBookData(playerId,id)
 		end
 
 		#获取宝物详细
@@ -136,7 +162,6 @@ module Model
 			itemDao = ItemDao.new
 			itemDao.getPropData(playerId,iid)
 		end
-
 
 		#使用宝物 
 		#@param [Integer,Integer,Integer] playerId,id,sort (1,2:批量)
@@ -158,23 +183,22 @@ module Model
 		def self.strengthenEquip(player,id)
 			playerId = player[:playerId]
 			itemDao = ItemDao.new
-			exists = itemDao.exist?(playerId,id)
-			#装备存在
-			if not exists
-				return {:retcode => Const::ErrorCode::StrengthenEquipIsNotExist}
-			end
 			metaDao = MetaDao.instance
-			equipData = itemDao.getEquipData(playerId,id)
+			equipData = itemDao.getEquipmentData(playerId,id)
+			#装备不存在
+			if not equipData
+				return {:retcode => Const::ErrorCode::EquipmentIsNotExist}
+			end
 			#已是最高级
 			maxLevel = metaDao.getEquipMaxLevel
 			if  equipData[:level] >= maxLevel
-				return {:retcode => Const::ErrorCode::StrengthenEquipIsTheHighestLevel}
+				return {:retcode => Const::ErrorCode::LevelIsTheHighest}
 			end
 			beforeLevel = equipData[:level]
-			equipTemp = metaDao.getTempItem(equipData[:iid])
 			#银币消耗
 			strengthenTemp = metaDao.getStrengthenMetaData(beforeLevel , equipData[:star])
 			siliverCost = 0
+			equipTemp = metaDao.getEquipMetaData(equipData[:iid])
 			case equipTemp.eType.to_i
 			when Const::ItemTypeWeapon
 				siliverCost = strengthenTemp.eWeaponSpend.to_i
@@ -199,50 +223,182 @@ module Model
 			levelUp = Utils::Random::randomIndex(rates) + 1		
 			equipData[:level] = beforeLevel + levelUp
 			equipData[:updatedAt] = Time.now.to_i
-			#处理强化效果
-			case equipTemp.eType.to_i
-			when Const::ItemTypeWeapon
-				equipData[:attack] = equipTemp.eATK.to_i + (equipData[:level]  - 1) * equipTemp.eATKUP.to_i
-			when Const::ItemTypeShield
-				equipData[:defence] = equipTemp.eDEF.to_i + (equipData[:level]  - 1) * equipTemp.eDEFUP.to_i
-			when Const::ItemTypeHorse
-				equipData[:blood] = equipTemp.eHP.to_i + (equipData[:level]  - 1) * equipTemp.eHPUP.to_i
-			else
-				return {:retcode => Const::ErrorCode::Fail}
-			end
+			# #处理强化效果	-	效果可以提供公式来计算，这样就量表更新了就会生效
+			# case equipTemp.eType.to_i
+			# when Const::ItemTypeWeapon
+			# 	equipData[:attack] = equipTemp.eATK.to_i + (equipData[:level]  - 1) * equipTemp.eATKUP.to_i
+			# when Const::ItemTypeShield
+			# 	equipData[:defence] = equipTemp.eDEF.to_i + (equipData[:level]  - 1) * equipTemp.eDEFUP.to_i
+			# when Const::ItemTypeHorse
+			# 	equipData[:blood] = equipTemp.eHP.to_i + (equipData[:level]  - 1) * equipTemp.eHPUP.to_i
+			# else
+			# 	return {:retcode => Const::ErrorCode::Fail}
+			# end
 			#保存
 			commonDao = CommonDao.new
 			playerKey = Const::Rediskeys.getPlayerKey(playerId)
 			equipKey = Const::Rediskeys.getEquipKey(playerId,equipData[:id])
 			commonDao.update(playerKey => player , equipKey => equipData)
 			GameLogger.debug("Model::Item.strengthen  playerId:#{playerId} , equipId:#{id} , equipIid:#{equipData[:iid]} , before level #{beforeLevel} after level  #{equipData[:level]}! ")
-			{equipKey => equipData }
+			{:retcode => Const::ErrorCode::Ok,:equipdata => equipData }
 		end
 
-		#强化进阶
-		#@param [Hash,Integer] playerId,id 兵法id
+
+		#重置兵法进阶失败次数 除了 bookId
+		#@param [Integer] bookId
+		#@return
+		def self.resetBookAdvanceFailTimes(bookId)
+			GameLogger.info("Model::Item.resetBookAdvanceFailTimes reset all book advance fail times ! ")
+			#TODO 要取出所有兵法
+		end
+
+
+		#兵法进阶
+		#  	进阶成功就清掉所有兵法的失败次数
+		# 	进阶失败并且是5本书，累计失败次数,清掉其他所有兵法的失败次数
+		#@param [Hash,Integer,Array] playerId,id 兵法id ,兵法列表
 		#@return [Hash]
-		def self.advanceBook(player , id)
-			# playerId = player[:playerId]
-			# itemDao = ItemDao.new
-			# exists = itemDao.exist?(playerId,id)
-			# #装备存在
-			# if not exists
-			# 	return {:retcode => Const::ErrorCode::StrengthenEquipIsNotExist}
-			# end
-			# metaDao = MetaDao.instance
-			# equipData = itemDao.getEquipData(playerId,id)
-			# #已是最高级
-			# maxLevel = metaDao.getEquipMaxLevel
-			# if  equipData[:level] >= maxLevel
-			# 	return {:retcode => Const::ErrorCode::StrengthenEquipIsTheHighestLevel}
-			# end
-			# GameLogger.debug("Model::Item.advance  playerId:#{playerId} , bookId:#{id} , equipIid:#{equipData[:iid]} , before level #{beforeLevel} after level  #{equipData[:level]}! ")
-
+		def self.advanceBook(player , id, bookIds)
+			playerId = player[:playerId]
+			bookPreData = {}
+			begin
+				bookPreData = preAdvanceBook(player, id ,bookIds)
+			rescue
+				retcode = "#{$!}"
+				GameLogger.debug("Model::Item.advanceBook  playerId:#{playerId} , bookId:#{id} , bookIid:#{bookPreData[:bookData][:iid]} , preAdvanceBook retcode:#{retcode}! ")
+				return {:retcode => retcode}
+			ensure
+				#finally
+			end
+			#成功率 千分比
+			rate = bookPreData[:successrate] 
+			siliverCost = bookPreData[:siliver]
+			bookData = bookPreData[:bookdata]
+			bookIdArr = bookPreData[:bookIdArr]
+			#进阶成功
+			advSucc = rand(1000) < rate
+			if advSucc
+				bookData[:level] += 1
+				bookData[:failTimes] = 0
+			else
+				#失败，超过5本书，记录失败次数
+				bookCount = metaDao.getFlagValue(FlagConstKey::BookAdvanceUpSuccRateMaxBookCount).to_i
+				if bookIdArr.length >= bookCount
+					bookData[:failTimes] += 1
+				else
+					bookData[:failTimes] = 0
+				end
+			end
+			#所有兵法的进阶的失败次数重置
+			resetBookAdvanceFailTimes(id)
+			GameLogger.info("Model::Item.advanceBook  playerId:#{playerId} , bookId:#{id} , bookIid:#{bookData[:iid]} ，advance if success '#{advSucc}', after level:#{bookData[:level]}! ")
+			#消耗银币
+			player = Model::Player.addSiliver(player , - siliverCost , FunctionConst::BookAdvance)
+			playerKey = Const::Rediskeys.getPlayerKey(playerId)
+			bookKey = Const::Rediskeys.getEquipKey(playerId,id)
+			commonDao = CommonDao.new
+			commonDao.update(playerKey => player , bookKey => bookData)
+ 			{:retcode => Const::ErrorCode::Ok , :bookdata => bookData }
 		end
 
 
+		#兵法进阶预览借口
+		#@param [Hash,Integer,Array] playerId,id 兵法id ,兵法列表
+		#@return [Hash] successRate:成功率（如50）
+		def self.preAdvanceBookService(player , id , bookIds)
+			playerId = player[:playerId]
+			result = {}
+			begin
+				result = preAdvanceBook(player, id ,bookIds)
+			rescue
+				retcode = $!
+				GameLogger.info("Model::Item.preAdvanceBookService playerId:#{playerId} , bookId:#{id} , bookIds:#{bookIds} error:#{retcode}")
+				# puts $@  
+				return {:retcode => "#{retcode}" }
+			ensure
+				#finally
+			end
+			puts "result:#{result}"
+			#千分比 转化成 百分比数值 小数四舍五入
+			rate = (result[:successrate].to_i / 10 ).round()
+			result[:successrate] = rate
+			result.delete(:bookdata)
+			result.delete(:bookIdArr)
+			#返回概率，消耗银币数量
+			result
+		end
 
+		#兵法进阶预览
+		#@param [Hash,Integer,Array] playerId,id 兵法id ,兵法列表
+		#@return [Hash] successRate:成功率（如50）
+		def self.preAdvanceBook(player , id , bookIds)
+			playerId = player[:playerId]
+			itemDao = ItemDao.new
+			#没有选择兵法来祭祀
+			if bookIds and bookIds.to_s.empty?
+				raise Const::ErrorCode::BookAdvancedNoBooksChoosed.to_s
+			end
+			#银币不足
+			metaDao = MetaDao.instance
+			bookData = itemDao.getBookData(playerId,id)
+			#兵法不存在
+			if not bookData
+				raise  Const::ErrorCode::BookAdvancedNoTargetBook.to_s
+			end
+			bookTemp = metaDao.getBookMetaData(bookData[:iid])
+			#已是最高级
+			maxLevel = metaDao.getBookMaxLevel
+			if  bookData[:level] >= maxLevel
+				raise Const::ErrorCode::LevelIsTheHighest.to_s
+			end
+			#进阶配置
+			bookAdvanceTemp = metaDao.getBookAdvancedMetaData(bookData[:level],bookData[:star])
+			#银币不足
+			if player[:siliver] < bookAdvanceTemp.bSpendMoney.to_i
+				raise Const::ErrorCode::SilverIsNotEnough.to_s
+			end
+			#选择的兵法验证
+			rateSumUp = 0
+			bookIdArr = bookIds.split(",")
+			#自己进阶自己
+			if bookIdArr.include?(id.to_s)
+				GameLogger.debug("Model::Item.preAdvanceBook playerId:#{playerId} , book id:#{id} bookIds:'#{bookIds}', cannont advance book use itself book !")
+				raise Const::ErrorCode::Fail.to_s
+			end
+			bookIdArr.each do |bookId| 
+				useBookData = itemDao.getBookData(playerId,bookId)
+				#兵法不存在 , 兵法已上阵 (上阵兵法将从装备列表中移除!)
+				if not useBookData
+					GameLogger.debug("Model::Item.advance playerId:#{playerId} , book id:#{bookId} is not exist !")
+					raise Const::ErrorCode::BookIsNotExist.to_s
+				end
+				useBookTemp = metaDao.getBookMetaData(bookData[:iid])
+				#自带兵书不能祭祀 TODO
+				isSelfBook = metaDao.getSelfBookList.include?(useBookTemp.bookID.to_i)
+				if isSelfBook
+					raise Const::ErrorCode::BookIsHeroSelf.to_s
+				end
+				#进阶配置
+				upBookAdvanceTemp = metaDao.getBookAdvancedMetaData(useBookData[:level],useBookData[:star])
+				#每个兵法提升的成功率
+ 				rateSumUp += upBookAdvanceTemp.bSuccessrateUP.to_f
+			end
+			#得到千分比 成功率 如50%0，这里得到 50 ，因为5本书失败后提升概率为千分比
+			rate = ( rateSumUp / bookAdvanceTemp.bNeedSuccessrate.to_i * 1000).to_i
+			if rate > 1000
+				rate = 1000
+			end
+			bookCount = metaDao.getFlagValue(FlagConstKey::BookAdvanceUpSuccRateMaxBookCount).to_i
+			#5本书的话，根据失败次数提升成功率
+			if bookIdArr.length >= bookCount
+				rate += bookAdvanceTemp.bFailureIncrease.to_i * bookData[:failTimes]
+			end
+			GameLogger.debug("Model::Item.preAdvanceBook  playerId:#{playerId} , bookId:#{id} , bookIid:#{bookData[:iid]} ,use bookIds:#{bookIds} , advance success rate:'#{rate}%。' )")
+ 			#成功率，千分比，contrller转换为百分比给前端
+ 			{:successrate => rate , :siliver => bookAdvanceTemp.bSpendMoney.to_i , :bookdata => bookData , :bookIdArr => bookIdArr}
+		end
+
+		#上阵兵法 TODO ，兵法记录在武将身上，上阵后从兵法列表中删掉该兵法
 
 	end
 
