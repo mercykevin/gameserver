@@ -5,7 +5,7 @@ module Model
 		#@return [Hash]
 		def self.recuritHero(player,recuritetype)
 			#TODO random templete hero id
-			templeteHeroId = 11001
+			templeteHeroId = 300001
 			metaDao = MetaDao.instance
 			commonDao = CommonDao.new
 			heroDao = HeroDao.new
