@@ -18,14 +18,23 @@ post '/item/equip/strengthen' do
 	itemList.to_json
 end
 
+#兵法进阶预览
+#返回概率 值（前端显示直接加个%即可） 和 银币消耗
+post '/item/book/advance/pre' do
+	requestParams = request[:req_parames]
+	player = request[:player]
+	id = requestParams[:id]
+	result = Model::Item.preAdvance(player[:playerId],id)
+	result.to_json
+end
+
 #兵法进阶
 #返回进阶后的兵法信息
-#
 post '/item/book/advance' do
 	requestParams = request[:req_parames]
 	player = request[:player]
 	id = requestParams[:id]
-	itemList = Model::Item.advance(player[:playerId],id)
+	result = Model::Item.advance(player[:playerId],id)
 	itemList.to_json
 end
 

@@ -148,5 +148,4 @@ class HeroDao
 	def handleHeroFriendShip(heroList,playerId)
 	end
 
-	def 
 end

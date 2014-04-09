@@ -19,6 +19,14 @@ class MetaDao
 		when 'Generals'
 			@heroMetaMap = {}
 			initMetaData(csvfile,@heroMetaMap,"generalID")
+			#自有兵法列表
+			@selfBookList = []
+			@heroMetaMap.each_value do |hero| 
+				selfBook = hero.gInitialWarcraft.to_i
+				if selfBook > 0 and not @selfBookList.include?(selfBook)
+					@selfBookList << selfBook
+				end
+			end #generalID 
 		#招募配表
 		when 'Recruit'
 			@recuriteMetaMap = {}
@@ -61,6 +69,18 @@ class MetaDao
 		when 'Strengthen'
 			@strengthenMap = {}
 			initStrengthenMapMetaData(csvfile,@strengthenMap)
+		#进阶表
+		when 'BookAdvanced'
+			@bookAdvancedMap = {}
+			initBookAdvancedMapMetaData(csvfile,@bookAdvancedMap)
+		#兵法碎片
+		when 'BookFragment'
+			@bookFragment = {}
+			initMetaData(csvfile,@bookFragment,"fragmentID")
+		#flag ， 游戏配置，标记 等表
+		when 'Flag'
+			@flagMap = {}
+			initMetaData(csvfile,@flagMap,"name")
 		else
 		end
 	end
@@ -121,6 +141,34 @@ class MetaDao
 			end
 		end
 	end
+
+	# 初始化兵法进阶量表 key = level+"_"+star
+	# @param [String,Hash] csvfile , the path of csv file metamap ,the Hash data store meta data
+	# @return nothing
+	def initBookAdvancedMapMetaData(csvfile,metamap )
+		@bookMaxLevel = 0 
+		allRows = CSV.read(csvfile,{:col_sep=>";"})
+		if allRows and not allRows.empty?
+			title = allRows[1]
+			allRows.each_with_index do |row,i|
+				if i > 1
+					metaData = Model::MetaData.new(title,row)
+					key = metaData.bLevel + "_" + metaData.bookStar
+					metamap[key] = metaData
+					#装备的最大等级
+					level = metaData.bLevel.to_i
+					if @bookMaxLevel < level 
+						@bookMaxLevel = level 
+					end
+				end
+			end
+			#最大等级
+			@bookMaxLevel = @bookMaxLevel + 1
+			puts @bookMaxLevel
+		end
+	end
+
+
 	# read meta data from csvfile
 	# @param [String,Hash] csvfile , the path of csv file metamap ,the Hash data store meta data
 	# @return nothing
@@ -209,8 +257,17 @@ class MetaDao
 		tempItem
 	end
 
+	#武器防具坐骑
+	def getEquipMetaData(iid)
+		return @equipmentMap[iid.to_s]
+	end
+	#兵法
+	def getBookMetaData(iid)
+		return @bookMap[iid.to_s]
+	end
+
 	# 获取强化配置
-	# @param [Integer,Integer] 
+	# @param [Integer,Integer] level , star
 	# @return 
 	def getStrengthenMetaData(level,star)
 		key = level.to_s + "_" + star.to_s
@@ -228,6 +285,32 @@ class MetaDao
 	def getVipMetaData(vip)
 		@vipMap[vip.to_s]
 	end
+
+	# 获取进阶配置
+	# @param [Integer,Integer] level , star
+	# @return 
+	def getBookAdvancedMetaData(level,star)
+		key = level.to_s + "_" + star.to_s
+		@bookAdvancedMap[key]
+	end
+
+
+	#兵法最高等级
+	#@return [Integer]
+	def getBookMaxLevel
+		@bookMaxLevel
+	end
+
+	#自有兵法列表
+	def getSelfBookList
+		@selfBookList
+	end
+
+	#获取flag表里的游戏配置
+	def getFlagValue(key)
+		@flagMap[key.to_s].value
+	end
+
 
 	#根据类型获取培养参数
 	#@param[Integer]

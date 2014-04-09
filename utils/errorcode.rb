@@ -11,7 +11,9 @@ module Const
 		SilverIsNotEnough = 10000
 		#钻石不足，请充值
 		DiamondIsNotEnough = 10010
-
+		#已达最高级:兵法，装备.... (大部分，前端都会处理，比如按钮灰掉)
+		LevelIsTheHighest = 10020
+		
 		#-------------------------------
 
 		#玩家信息不存在
@@ -33,12 +35,21 @@ module Const
 		#钻石数不够，不能招募
 		HeroRecuritDimondNotEnough = 9000007
 
-		#---------------------------------强化
-		
+		#---------------------------------道具通用
 		#装备不存在
-		StrengthenEquipIsNotExist = 2000000
-		#装备已达最高级
-		StrengthenEquipIsTheHighestLevel = 2000001
+		EquipmentIsNotExist = 2000000
+		#兵法不存在
+		BookIsNotExist = 2000050
+
+		#---------------------------------进阶
+		#请选择要进阶的兵法
+		BookAdvancedNoTargetBook = 2000100
+		#请选择被祭祀兵法
+		BookAdvancedNoBooksChoosed = 2000101
+		#兵法已上阵,不能祭祀
+		BookHasToBattle = 2000102
+		#自有兵法不能祭祀
+		BookIsHeroSelf = 2000103
 
 	end
 end
