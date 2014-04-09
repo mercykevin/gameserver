@@ -474,7 +474,28 @@ module Model
  			{:successrate => rate , :siliver => bookAdvanceTemp.bSpendMoney.to_i , :bookdata => bookData , :bookIdArr => bookIdArr}
 		end
 
+
 		#上阵兵法 TODO ，兵法记录在武将身上，上阵后从兵法列表中删掉该兵法
+
+
+		#测试用，添加道具
+		def self.addItem4Test(playerId)
+
+			iid = 400001
+			count = 5
+			addItem(playerId,iid,count)
+			
+			#兵法
+			iid = 500001
+			count = 4
+			addItem(playerId,iid,count)
+
+			#物品
+			iid = 200000
+			count = 3
+			addItem(playerId,iid,count)
+
+		end
 
 	end
 
