@@ -38,9 +38,9 @@ module Model
 			tempItem = metaDao.getTempItem(iid)
 			GameLogger.info("Model::Item.addItemNoSave method params playerId:#{playerId} , count:#{count} ,itemType:#{tempItem.eType} .")
 			#宝物类
+			itemHash = Hash.new
 			if tempItem.eType == Const::ItemTypeProp
 				propData = itemDao.getPropData(playerId,tempItem.propID)
-				
 				#有该宝物，数量累加
 				if propData
 					#修改宝物数量
@@ -56,18 +56,10 @@ module Model
 					propData[:createdAt] = Time.now.to_i
 					propData[:updatedAt] = Time.now.to_i
 				end
-				#添加到宝物列表
-				propIdList = itemDao.getPropIdList(playerId)
-				if ! propIdList.include?(tempItem.propID)
-					propIdList << tempItem.propID
-				end
 				#key
-				propKey = Const::Rediskeys.getPropKey(playerId,tempItem.propID)
-				propIdListKey = Const::Rediskeys.getPropIdListKey(playerId)
-				return { propIdListKey => propIdList , propKey => propData }
+				propKey = Const::Rediskeys.getItemKey(playerId,tempItem.eType,tempItem.propID) 
+				itemHash[propKey] = propData 
 			elsif
-				#所有添加的道具
-				equipHash = Hash.new
 				#添加到未装备列表 ，类型
 				equipIdList = itemDao.getEquipUnusedIdList(playerId , tempItem.eType)
 				for i in 1..count do
@@ -87,6 +79,7 @@ module Model
 					else
 						equip = {}
 						equip[:id] = RedisClient.incr(Const::Rediskeys.getEquipIdAutoIncKey())
+
 						equip[:iid] = tempItem.equipmentID.to_i
 						equip[:star] = tempItem.eStar.to_i
 						equip[:level] = tempItem.elevel.to_i
@@ -99,16 +92,16 @@ module Model
 						equip[:updatedAt] = Time.now.to_i
 					end
 					#道具的 key
-					equipKey = Const::Rediskeys.getEquipKey(playerId,equip[:id])
-					equipHash[equipKey] = equip 
+					equipKey = Const::Rediskeys.getItemKey(playerId, tempItem.eType  , equip[:id])
+					itemHash[equipKey] = equip 
 					#装备列表
 					equipIdList << equip[:id]
 				end
 				#未装备列表key
 				equipIdListKey = Const::Rediskeys.getEquipUnusedIdListKey(playerId , tempItem.eType)
-				equipHash[equipIdListKey] = equipIdList
-				equipHash
+				itemHash[equipIdListKey] = equipIdList
 			end
+			itemHash
 		end
 
 		#根据类型获取未上阵的装备列表
@@ -130,17 +123,11 @@ module Model
 		#获取装备详细 （武器防具坐骑兵法）
 		#@param [Integer] playerId,id
 		#@return [Hash]
-		def self.getEquipAllData(playerId,id)
-			itemDao = ItemDao.new
-			itemDao.getEquipAllData(playerId,id)
-		end
-
-
-		#获取装备信息 武器防具坐骑
 		def self.getEquipmentData(playerId,id)
 			itemDao = ItemDao.new
 			itemDao.getEquipmentData(playerId,id)
 		end
+
 
 		#获取兵法信息
 		def self.getBookData(playerId,id)
@@ -219,7 +206,7 @@ module Model
 			#保存
 			commonDao = CommonDao.new
 			playerKey = Const::Rediskeys.getPlayerKey(playerId)
-			equipKey = Const::Rediskeys.getEquipKey(playerId,equipData[:id])
+			equipKey = Const::Rediskeys.getItemKey(playerId,equipTemp.eType,equipData[:id])
 			commonDao.update(playerKey => player , equipKey => equipData)
 			GameLogger.debug("Model::Item.strengthen  playerId:#{playerId} , equipId:#{id} , equipIid:#{equipData[:iid]} , before level #{beforeLevel} after level  #{equipData[:level]}! ")
 			{:retcode => Const::ErrorCode::Ok,:equipdata => equipData }
@@ -277,9 +264,20 @@ module Model
 		#重置兵法进阶失败次数 除了 bookId
 		#@param [Integer] bookId
 		#@return
-		def self.resetBookAdvanceFailTimes(bookId)
-			GameLogger.info("Model::Item.resetBookAdvanceFailTimes reset all book advance fail times ! ")
-			#TODO 要取出所有兵法
+		def self.resetBookAdvanceFailTimes(playerId,bookId)
+			bookDataHash = {}
+			itemDao = ItemDao.new
+			#取出所有兵法
+			bookList  = itemDao.getBookUnEquipedList(playerId)
+			bookList.each do |book| 
+				if book[:id] != bookId and book[:failTimes] > 0
+					book[:failTimes]= 0
+					bookKey = Const::Rediskeys.getItemKey(playerId,Const::ItemTypeBook,id)
+					bookDataHash[bookKey] = book
+				end
+			end
+			GameLogger.info("Model::Item.resetBookAdvanceFailTimes reset book advance fail times effect record count '#{bookDataHash.size}'! ")
+			bookDataHash
 		end
 
 
@@ -297,7 +295,7 @@ module Model
 				bookPreData = preAdvanceBook(player, id ,bookIds)
 			rescue
 				retcode = "#{$!}"
-				GameLogger.debug("Model::Item.advanceBook  playerId:#{playerId} , bookId:#{id} , bookIid:#{bookPreData[:bookData][:iid]} , preAdvanceBook retcode:#{retcode}! ")
+				GameLogger.debug("Model::Item.advanceBook  playerId:#{playerId} , bookId:#{id} , preAdvanceBook retcode:#{retcode}! ")
 				return {:retcode => retcode}
 			ensure
 				#finally
@@ -338,20 +336,24 @@ module Model
 				end
 			end
 			#所有兵法的进阶的失败次数重置
-			resetBookAdvanceFailTimes(id)
+			bookDataHash = resetBookAdvanceFailTimes(playerId,id)
 			#消耗银币
 			player = Model::Player.addSiliver(player , - siliverCost , FunctionConst::BookAdvance)
 			playerKey = Const::Rediskeys.getPlayerKey(playerId)
-			bookKey = Const::Rediskeys.getEquipKey(playerId,id)
+			bookKey = Const::Rediskeys.getItemKey(playerId , bookData[:type],id)
 			commonDao = CommonDao.new
 			#成功
 			if advSucc
-				commonDao.update(playerKey => player , bookKey => bookData)
+				bookDataHash[playerKey] = player 
+				bookDataHash[bookKey] = bookData 
+				commonDao.update(bookDataHash)
 				GameLogger.info("Model::Item.advanceBook  playerId:#{playerId} , bookId:#{id} , bookIid:#{bookData[:iid]} ，advance success ! after level:#{bookData[:level]}! ")
 				return {:retcode => Const::ErrorCode::Ok , :result => Const::BookAdvanceSuccess , :bookdata => bookData }
 			else
 				bookFragmentKey = Const::Rediskeys.getBookFragmentKey(playerId,bookFragmentData[:iid])	
-				commonDao.update(playerKey => player , bookFragmentKey => bookFragmentData)
+				bookDataHash[playerKey] = player 
+				bookDataHash[bookFragmentKey] = bookFragmentData 
+				commonDao.update(bookDataHash)
 				GameLogger.info("Model::Item.advanceBook  playerId:#{playerId} , bookId:#{id} , bookIid:#{bookData[:iid]} ，advance fail ! award book fragment iid:#{bookFragmentData[:iid]}  ")
  				return {:retcode => Const::ErrorCode::Ok , :result => Const::BookAdvanceFail }
  			end
