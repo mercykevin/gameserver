@@ -81,6 +81,11 @@ class MetaDao
 		when 'Flag'
 			@flagMap = {}
 			initMetaData(csvfile,@flagMap,"name")
+		when 'Battle'
+			initBattle(csvfile)
+		when 'NPC'
+			@npcMetaMap = {}
+			initMetaData(csvfile, @npcMetaMap, "npcID")
 		else
 		end
 	end
@@ -181,6 +186,27 @@ class MetaDao
 					metaData = Model::MetaData.new(title,row)
 					key = metaData.send(keyfield)
 					metamap[key] = metaData
+				end
+			end
+		end
+	end
+	# 初始化战役表
+	# @param [file]
+	# @return nothing
+	def initBattle(csvfile)
+		@battleMetaMap = {}
+		@subBattleMetaMap = {}
+		allRows = CSV.read(csvfile,{:col_sep=>";"})
+		if allRows and not allRows.empty?
+			title = allRows[1]
+			allRows.each_with_index do |row,i|
+				if i > 1
+					metaData = Model::MetaData.new(title,row)
+					if not @battleMetaMap.key?(metaData.bName)
+						@battleMetaMap[metaData.bName] = []
+					end
+					@battleMetaMap[metaData.bName] << metaData
+					@subBattleMetaMap[metaData.battleID] = metaData
 				end
 			end
 		end
@@ -329,6 +355,21 @@ class MetaDao
 		index = Utils::Random.randomIndex(rates)
 		heroBringUpList[index]
 	end
+	# 根据战役名称获得战役列表
+	# @param [String]
+	# @return [Array]
+	def getSubBattleListByName(battleName)
+		@battleMetaMap[battleName.to_s]
+	end
+	#取游戏列表
+	# @param
+	# @return 
+	def getBattleList()
+		@battleMetaMap.keys()
+	end
 
+	def getSubBattleMetaData(subBattleId)
+		@subBattleMetaMap[subBattleId.to_s]
+	end
 
 end

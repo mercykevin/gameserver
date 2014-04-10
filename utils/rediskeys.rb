@@ -88,6 +88,9 @@ module Const
 		def self.getPropIdListKey(playerId)
 			"player:[#{playerId}]propIdList"
 		end
-
+		#取战役列表
+		def self.getBattleListKey(battleName,playerId)
+			"player:[#{playerId}]battlename:[#{battleName}]"
+		end
 	end
 end

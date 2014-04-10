@@ -35,6 +35,7 @@ post '/hero/register' do
 	requestParams = request[:req_parames]
 	player = request[:player]
 	templetHeroId = requestParams[:metaheroid]
+	templetHeroId = 300001
 	ret = Model::Hero.registerMainHero(templetHeroId, player)
 	ret.to_json
 end
