@@ -372,7 +372,7 @@ class MetaDao
 	#取游戏大类列表
 	# @param
 	# @return 
-	def getBattleList()
+	def getBattleList
 		battleList = []
 		battleIdList = @battleMetaMap.keys()
 		battleIdList.each do |battleId|
@@ -381,6 +381,12 @@ class MetaDao
 			battleList << battle
 		end
 		battleList
+	end
+	# 取大战役的列表
+	# @param
+	# @return [Array]
+	def getBattleIdList
+		@battleMetaMap.keys
 	end
 	#取子游戏信息
 	# @param[Integer]
