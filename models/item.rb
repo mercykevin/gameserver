@@ -79,13 +79,6 @@ module Model
 						equip[:star] = tempItem.bStar.to_i
 						equip[:level] = tempItem.bLevel.to_i
 						equip[:type] = tempItem.eType.to_i
-						#提升攻击比例
-						equip[:attack] = tempItem.bATKProportion.to_f / 100
-						equip[:defence] = tempItem.bDEFProportion.to_f / 100
-						#智力
-						equip[:init] = tempItem.bINTProportion.to_f / 100
-						#伤害
-						equip[:blood] = tempItem.bHurt.to_i
 						#5个兵法进阶失败的次数
 						equip[:failTimes] = 0
 						equip[:createdAt] = Time.now.to_i
@@ -223,17 +216,6 @@ module Model
 			levelUp = Utils::Random::randomIndex(rates) + 1		
 			equipData[:level] = beforeLevel + levelUp
 			equipData[:updatedAt] = Time.now.to_i
-			# #处理强化效果	-	效果可以提供公式来计算，这样就量表更新了就会生效
-			# case equipTemp.eType.to_i
-			# when Const::ItemTypeWeapon
-			# 	equipData[:attack] = equipTemp.eATK.to_i + (equipData[:level]  - 1) * equipTemp.eATKUP.to_i
-			# when Const::ItemTypeShield
-			# 	equipData[:defence] = equipTemp.eDEF.to_i + (equipData[:level]  - 1) * equipTemp.eDEFUP.to_i
-			# when Const::ItemTypeHorse
-			# 	equipData[:blood] = equipTemp.eHP.to_i + (equipData[:level]  - 1) * equipTemp.eHPUP.to_i
-			# else
-			# 	return {:retcode => Const::ErrorCode::Fail}
-			# end
 			#保存
 			commonDao = CommonDao.new
 			playerKey = Const::Rediskeys.getPlayerKey(playerId)
@@ -243,6 +225,54 @@ module Model
 			{:retcode => Const::ErrorCode::Ok,:equipdata => equipData }
 		end
 
+		#返回装备的加成值
+		#@param [Integer , Integer] 装备iid，装备等级
+		#@return [Integer]
+		def self.calcEquipBuff(iid , level)
+			metaDao = MetaDao.instance
+			equipTemp = metaDao.getEquipMetaData(iid)
+			case equipTemp.eType.to_i
+			when Const::ItemTypeWeapon #attack
+				return equipTemp.eATK.to_i + (level - 1) * equipTemp.eATKUP.to_i
+			when Const::ItemTypeShield #defence
+				return equipTemp.eDEF.to_i + (level - 1) * equipTemp.eDEFUP.to_i
+			when Const::ItemTypeHorse #blood
+				return equipTemp.eHP.to_i + (level - 1) * equipTemp.eHPUP.to_i
+			else
+				raise "is not equip : #{Const::ErrorCode::Fail}"
+			end
+		end
+
+		#处理强化效果
+		#伤害：返回加的值
+		#其他加成比率返回 小数
+		#@param [Integer , Integer] 装备iid，装备等级
+		#@return [Float] 返回 加成比率 ， 
+		def self.calcBookBuff(iid , level)
+			metaDao = MetaDao.instance
+			bookTemp = metaDao.getBookMetaData(iid)
+			buff = 0
+			#加伤害 - 伤害 加值
+			if bookTemp.bHurt
+				return bookTemp.bHurt.to_i + (level-1) * bookTemp.bHurtUP.to_i
+			#其他 -加百分比
+			else
+				#加攻击
+				if bookTemp.bATKProportion
+					buff = bookTemp.bATKProportion.to_i + (level-1) * bookTemp.bATKUP.to_i
+				#加防御
+				elsif bookTemp.bDEFProportion 
+					buff = bookTemp.bDEFProportion.to_i + (level-1) * bookTemp.bDEFUP.to_i
+				#加智力
+				elsif bookTemp.bINTProportion
+					buff = bookTemp.bINTProportion.to_i + (level-1) * bookTemp.bINTUP.to_i
+				else
+					raise "is not book : #{Const::ErrorCode::Fail}"
+				end
+				#返回加成比率，小数
+				buff / 100.to_f
+			end
+		end
 
 		#重置兵法进阶失败次数 除了 bookId
 		#@param [Integer] bookId
@@ -259,6 +289,8 @@ module Model
 		#@param [Hash,Integer,Array] playerId,id 兵法id ,兵法列表
 		#@return [Hash]
 		def self.advanceBook(player , id, bookIds)
+			metaDao = MetaDao.instance
+			itemDao = ItemDao.new
 			playerId = player[:playerId]
 			bookPreData = {}
 			begin
@@ -276,6 +308,8 @@ module Model
 			bookData = bookPreData[:bookdata]
 			bookIdArr = bookPreData[:bookIdArr]
 			#进阶成功
+			bookFragmentData = nil
+			bookFragmentKey = nil
 			advSucc = rand(1000) < rate
 			if advSucc
 				bookData[:level] += 1
@@ -288,19 +322,62 @@ module Model
 				else
 					bookData[:failTimes] = 0
 				end
+				#获得碎片
+				randBookId = bookIds[rand(bookIds.length)]
+				useBookData = itemDao.getBookData(playerId,id)
+				useBookTemp = metaDao.getBookMetaData(useBookData[:iid])
+				if useBookTemp.bFragment
+					bookFragArr = useBookTemp.bFragment.split(",")
+					awardBookFragIid = bookFragArr[rand(bookFragArr.length)]
+					bookFragment = metaDao.getBookFragmentMetaData(awardBookFragIid)
+					if bookFragment
+						bookFragmentData = awardBookFragment(playerId,bookFragment.fragmentID)
+					else
+						raise "book iid '#{id}' have no found book fragment iid '#{awardBookFragIid}'"
+					end
+				end
 			end
 			#所有兵法的进阶的失败次数重置
 			resetBookAdvanceFailTimes(id)
-			GameLogger.info("Model::Item.advanceBook  playerId:#{playerId} , bookId:#{id} , bookIid:#{bookData[:iid]} ，advance if success '#{advSucc}', after level:#{bookData[:level]}! ")
 			#消耗银币
 			player = Model::Player.addSiliver(player , - siliverCost , FunctionConst::BookAdvance)
 			playerKey = Const::Rediskeys.getPlayerKey(playerId)
 			bookKey = Const::Rediskeys.getEquipKey(playerId,id)
 			commonDao = CommonDao.new
-			commonDao.update(playerKey => player , bookKey => bookData)
- 			{:retcode => Const::ErrorCode::Ok , :bookdata => bookData }
+			#成功
+			if advSucc
+				commonDao.update(playerKey => player , bookKey => bookData)
+				GameLogger.info("Model::Item.advanceBook  playerId:#{playerId} , bookId:#{id} , bookIid:#{bookData[:iid]} ，advance success ! after level:#{bookData[:level]}! ")
+				return {:retcode => Const::ErrorCode::Ok , :result => Const::BookAdvanceSuccess , :bookdata => bookData }
+			else
+				bookFragmentKey = Const::Rediskeys.getBookFragmentKey(playerId,bookFragmentData[:iid])	
+				commonDao.update(playerKey => player , bookFragmentKey => bookFragmentData)
+				GameLogger.info("Model::Item.advanceBook  playerId:#{playerId} , bookId:#{id} , bookIid:#{bookData[:iid]} ，advance fail ! award book fragment iid:#{bookFragmentData[:iid]}  ")
+ 				return {:retcode => Const::ErrorCode::Ok , :result => Const::BookAdvanceFail }
+ 			end
 		end
 
+		#获得兵法碎片
+		#@param [Integer,Integer] 玩家id，碎片id
+		#@return [Hash]
+		def self.awardBookFragment(playerId,bookFragIid)
+			itemDao = ItemDao.new
+			bookFragmentKey = Const::Rediskeys.getBookFragmentKey(playerId,bookFragIid)
+			bookFragmentData  = itemDao.getBookFragmentData(playerId,bookFragmentKey)
+			if bookFragmentData
+				bookFragmentData[:count] += 1
+				bookFragmentData[:updatedAt] = Time.now.to_i
+			else
+				bookFragmentData = {}
+				bookFragmentData[:id] = RedisClient.incr(Const::Rediskeys.getBookFragmentIdtoIncKey())
+				bookFragmentData[:iid] = bookFragIid
+				bookFragmentData[:count] = 1
+				bookFragmentData[:createdAt] = Time.now.to_i
+				bookFragmentData[:updatedAt] = Time.now.to_i
+			end
+			GameLogger.info("Model::Item.awardBookFragment playerId:#{playerId} ,gain book fragment iid :#{bookFragIid}")
+			bookFragmentData
+		end
 
 		#兵法进阶预览借口
 		#@param [Hash,Integer,Array] playerId,id 兵法id ,兵法列表
@@ -318,7 +395,6 @@ module Model
 			ensure
 				#finally
 			end
-			puts "result:#{result}"
 			#千分比 转化成 百分比数值 小数四舍五入
 			rate = (result[:successrate].to_i / 10 ).round()
 			result[:successrate] = rate
@@ -393,12 +469,33 @@ module Model
 			if bookIdArr.length >= bookCount
 				rate += bookAdvanceTemp.bFailureIncrease.to_i * bookData[:failTimes]
 			end
-			GameLogger.debug("Model::Item.preAdvanceBook  playerId:#{playerId} , bookId:#{id} , bookIid:#{bookData[:iid]} ,use bookIds:#{bookIds} , advance success rate:'#{rate}%。' )")
+			GameLogger.debug("Model::Item.preAdvanceBook  playerId:#{playerId} , bookId:#{id} , bookIid:#{bookData[:iid]} ,use bookIds:#{bookIds} , advance succ_rate:'#{rate}%。' )")
  			#成功率，千分比，contrller转换为百分比给前端
  			{:successrate => rate , :siliver => bookAdvanceTemp.bSpendMoney.to_i , :bookdata => bookData , :bookIdArr => bookIdArr}
 		end
 
+
 		#上阵兵法 TODO ，兵法记录在武将身上，上阵后从兵法列表中删掉该兵法
+
+
+		#测试用，添加道具
+		def self.addItem4Test(playerId)
+
+			iid = 400001
+			count = 5
+			addItem(playerId,iid,count)
+			
+			#兵法
+			iid = 500001
+			count = 4
+			addItem(playerId,iid,count)
+
+			#物品
+			iid = 200000
+			count = 3
+			addItem(playerId,iid,count)
+
+		end
 
 	end
 

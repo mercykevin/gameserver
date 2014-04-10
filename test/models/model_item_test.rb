@@ -91,29 +91,40 @@ class HeroTest < Minitest::Test
 	# end
 
 	#进阶
-	def test_preAdvanceBook
-		equipId  = 1
-		iid = 500002#兵法
-		count = 6
+	# def test_advanceBook
+	# 	equipId  = 1
+	# 	iid = 500001#兵法
+	# 	count = 6
+	# 	player = Model::Player.register("andy","image")[:player]
+	# 	player[:siliver] =100000
+
+	# 	Model::Item.addItem(player[:playerId],iid,count)
+		
+	# 	bookData = Model::Item.getBookData(player[:playerId],equipId)
+	# 	puts "进阶前兵法	#{bookData}"
+
+	# 	ret = Model::Item.preAdvanceBookService(player , 1 , "2")
+	# 	puts "进阶预览：#{ret}"
+
+	# 	ret = Model::Item.advanceBook(player , 1 , "2")
+	# 	puts "进阶返回信息 :#{ret}"
+	# 	bookData = Model::Item.getBookData(player[:playerId],equipId)
+	# 	puts "进阶后player:#{player}"
+	# end
+
+	# def test_calcBuff
+	# 	bookBuff = Model::Item.calcBookBuff(500002 , 2)
+	# 	puts "bookBuff #{bookBuff}"
+	# 	equipBuff = Model::Item.calcEquipBuff(400001 , 2)
+	# 	puts "equipBuff #{equipBuff}"
+	# end
+
+	def test_addItemForTest
 		player = Model::Player.register("andy","image")[:player]
-		player[:siliver] =100000
+
 		
-		Model::Item.addItem(player[:playerId],iid,count)
-		
-		bookData = Model::Item.getBookData(player[:playerId],equipId)
-		puts "进阶前兵法	#{bookData}"
+		Model::Item.addItem4Test(player[:playerId])
 
-		ret = Model::Item.preAdvanceBookService(player , 1 , "2,3,4,5,6")
-		puts "进阶预览：#{ret}"
-
-		ret = Model::Item.advanceBook(player , 1 , "2,3,4,5,6")
-		puts "进阶：#{ret}"
-		bookData = Model::Item.getBookData(player[:playerId],equipId)
-		puts "进阶后兵法	#{bookData}"
-		puts "进阶后player:#{player}"
-	end
-
-	def test_advanceBook
 	end
 
 
