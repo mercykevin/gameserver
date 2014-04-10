@@ -202,11 +202,11 @@ class MetaDao
 			allRows.each_with_index do |row,i|
 				if i > 1
 					metaData = Model::MetaData.new(title,row)
-					if not @battleMetaMap.key?(metaData.bName)
-						@battleMetaMap[metaData.bName] = []
+					if not @battleMetaMap.key?(metaData.battlefirstID)
+						@battleMetaMap[metaData.battlefirstID] = []
 					end
-					@battleMetaMap[metaData.bName] << metaData
-					@subBattleMetaMap[metaData.battleID] = metaData
+					@battleMetaMap[metaData.battlefirstID] << metaData
+					@subBattleMetaMap[metaData.bSubID] = metaData
 				end
 			end
 		end
@@ -363,21 +363,29 @@ class MetaDao
 		index = Utils::Random.randomIndex(rates)
 		heroBringUpList[index]
 	end
-	# 根据战役名称获得战役列表
-	# @param [String]
+	# 根据大战役的id获得战役列表
+	# @param [Integer]
 	# @return [Array]
-	def getSubBattleListByName(battleName)
-		@battleMetaMap[battleName.to_s]
+	def getSubBattleListById(battleId)
+		@battleMetaMap[battleId.to_s]
 	end
-	#取游戏列表
+	#取游戏大类列表
 	# @param
 	# @return 
 	def getBattleList()
-		@battleMetaMap.keys()
+		battleList = []
+		battleIdList = @battleMetaMap.keys()
+		battleIdList.each do |battleId|
+			subMetaBattle = @battleMetaMap[battleId][0]
+			battle = {:battleId => battleId, :battleName => subMetaBattle.bName,:battleDes => subMetaBattle.bDesc}
+			battleList << battle
+		end
+		battleList
 	end
-
+	#取子游戏信息
+	# @param[Integer]
+	# @return [MetaData]
 	def getSubBattleMetaData(subBattleId)
 		@subBattleMetaMap[subBattleId.to_s]
 	end
-
 end

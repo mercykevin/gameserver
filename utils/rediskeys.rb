@@ -89,8 +89,8 @@ module Const
 			"player:[#{playerId}]propIdList"
 		end
 		#取战役列表
-		def self.getBattleListKey(battleName,playerId)
-			"player:[#{playerId}]battlename:[#{battleName}]"
+		def self.getBattleListKey(battleId,playerId)
+			"player:[#{playerId}]battleId:[#{battleId}]"
 		end
 		#----------------------------------------------碎片
 		#碎片自增id

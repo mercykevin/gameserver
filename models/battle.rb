@@ -3,13 +3,15 @@ module Model
 		# 取战役子列表
 		# @param [Integer]
 		# @return [Array]
-		def self.getBattleSubList(battleName, playerId)
+		def self.getSubBattleList(battleId, playerId)
 			metaDao = MetaDao.instance
 			battleDao = BattleDao.new
-			subBattleList = metaDao.getSubBattleListByName(battleName, playerId)
+			#所有子战役的配表信息
+			subBattleList = metaDao.getSubBattleListById(battleId, playerId)
 			subBattleHash = battleDao.getSubBattleInfoHash(battleName, playerId)
 			subBattleList.each do |temp|
 				subBattle = subBattleHash[temp.battleID]
+
 			end
 		end
 		# 推图

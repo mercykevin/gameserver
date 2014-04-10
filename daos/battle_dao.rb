@@ -6,10 +6,10 @@ class BattleDao
 
 	end
 	#取战役信息
-	# @param[String,Integer]
-	# @return [Array]
-	def getSubBattleInfoHash(battleName, playerId)
-		key = Const::Rediskeys.getBattleListKey(battleName, playerId)
+	# @param[Integer,Integer]
+	# @return [Hash]
+	def getSubBattleInfoMap(battleId, playerId)
+		key = Const::Rediskeys.getBattleListKey(battleId, playerId)
 		battleInfo = RedisClient.get(key)
 		if battleInfo
 			JSON.parse(battleInfo, {:symbolize_names => true})
@@ -22,6 +22,5 @@ class BattleDao
   	# @return [Hash]
   	def updateSubBattle(battleId,stars,isWin)
   		metaDao = MetaDao.instance
-  		battleMetaData = metaDao.
   	end
 end
