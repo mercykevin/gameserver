@@ -81,7 +81,7 @@ class MetaDao
 		when 'Flag'
 			@flagMap = {}
 			initMetaData(csvfile,@flagMap,"name")
-		when 'Battle'
+		when 'ZhanYi'
 			initBattle(csvfile)
 		when 'NPC'
 			@npcMetaMap = {}
@@ -209,7 +209,6 @@ class MetaDao
 		allRows = CSV.read(csvfile,{:col_sep=>";"})
 		if allRows and not allRows.empty?
 			title = allRows[1]
-			puts ""
 			allRows.each_with_index do |row,i|
 				if i > 1
 					metaData = Model::MetaData.new(title,row)

@@ -28,7 +28,7 @@ class RandomTest < Minitest::Test
 
 
 	def test_each_key
-		json = "{\"a\":1 , \"b\":2}"
+		json = "{\"item\":{\"10100\":10}}"
 		val = JSON.parse(json)
 		val.each_key do |k|
 			puts "key : #{k}   value : #{val[k]}"

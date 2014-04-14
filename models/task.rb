@@ -45,7 +45,7 @@ module Model
 			#不存在
 			if not taskTemp or taskTemp.empty?
 				GameLogger.warn("Model::Task.getTaskAward playerId:#{playerId} , iid:#{iid}, the task is not exists ! ")
-				return Const::ErrorCode.Fail
+				return Const::ErrorCode::Fail
 			end
 			#已领取
 			awardedList = taskDao.getAwardedList(playerId)
@@ -53,7 +53,7 @@ module Model
 				return Const::ErrorCode.TaskIsAlreadyGetAward
 			end
 		 	#处理奖励
-		 	ret = Model::Reward::processAward(player , taskTemp.bReward)
+		 	ret = Model::Reward::processAward(player , taskTemp.bReward , Const::FunctionConst::TaskGetAward)
 		 	ret
 		end
 
@@ -72,7 +72,7 @@ module Model
 			#战役 npcId
 			when TaskTypeBattle
 				if not param[:npcId]
-					return Const::ErrorCode.Fail
+					return Const::ErrorCode::Fail
 				end
 
 			#武将
