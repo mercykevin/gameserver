@@ -92,6 +92,10 @@ module Const
 		def self.getBattleListKey(battleId,playerId)
 			"player:[#{playerId}]battleId:[#{battleId}]"
 		end
+
+		def self.getBattleIdListKey(playerId)
+			"player:[#{playerId}]battleIdList"
+		end
 		#----------------------------------------------碎片
 		#碎片自增id
 		def self.getBookFragmentIdtoIncKey()

@@ -4,19 +4,38 @@ module Model
 		# @param [Integer]
 		# @return [Array]
 		def self.getSubBattleList(battleId, playerId)
+			subBattleList = []
 			metaDao = MetaDao.instance
 			battleDao = BattleDao.new
 			#所有子战役的配表信息
-			subBattleList = metaDao.getSubBattleListById(battleId)
+			subBattleMetaList = metaDao.getSubBattleListById(battleId)
 			#玩家战役信息
 			subBattleHash = battleDao.getSubBattleInfoMap(battleId, playerId)
 			#遍利配置信息
-			subBattleList.each do |subBattleMetaData|
-				playerBattleInfo = subBattleHash[subBattleMetaData.bSubID]
+			subBattleMetaList.each do |battleMetaData|
+				battleInfo = {}
+				battleInfo[:subbattleid] = battleMetaData.bSubID
+				battleInfo[:npcname] = battleMetaData.bNPCName
+				battleInfo[:npcdes] = battleMetaData.bSubDesc
+				battleInfo[:getheroxp] = battleMetaData.bGEXP
+				battleInfo[:maxtimes] = battleMetaData.bResetTimes
+				battleInfo[:stars] = 0
+				battleInfo[:times] = 0
+				battleInfo[:win] = false
+				#没有打过
+				battleInfo[:turndown] = false
+				playerBattleInfo = subBattleHash[battleMetaData.bSubID.to_sym]
 				if playerBattleInfo
 					#玩的信息存在
+					battleInfo[:stars] = playerBattleInfo[:stars]
+					battleInfo[:times] = playerBattleInfo[:times]
+					battleInfo[:win] = playerBattleInfo[:win]
+					#代表已经打过
+					battleInfo[:turndown] = true
 				end
+				subBattleList << battleInfo
 			end
+			subBattleList
 		end
 		# 推图
 		# @param[String,Integer]
@@ -76,16 +95,20 @@ module Model
 				pveBattleInfo[:win] = true
 				pveBattleInfo[:times] = pveBattleInfo[:times] + 1
 				pveBattleInfo[:time] = Time.now().to_i
+				pveBattleInfo[:stars] = 3
 			else
 				pveBattleInfo = {}
 				pveBattleInfo[:battleId] = metaBattleData.bSubID
 				pveBattleInfo[:win] = false
 				pveBattleInfo[:times] = 1
 				pveBattleInfo[:time] = Time.now().to_i
+				pveBattleInfo[:stars] = 0
 				playerSubBattleMap[metaBattleData.bSubID.to_sym] = pveBattleInfo
 			end
+			#add battleId to list
+			addRet = battleDao.addBattleIdToList(metaBattleData.bSubID,playerId)
 			key = Const::Rediskeys.getBattleListKey(metaBattleData.battlefirstID, playerId)
-			commonDao.update({key => playerSubBattleMap})
+			commonDao.update({key => playerSubBattleMap}.merge(addRet))
 			#返回值
 			{:retcode => Const::ErrorCode::Ok}
 		end
@@ -106,6 +129,18 @@ module Model
 		def self.getBattleList
 			metaDao = MetaDao.instance
 			metaDao.getBattleList
+		end
+		#取玩家打到的最后一场战役id
+		# @param[Integer] playerId
+		# @return[String]
+		def self.getLastBattleId(playerId)
+			battleDao = BattleDao.new
+			list = battleDao.getBattleIdList(playerId)
+			if list.length > 0 
+				list[-1]
+			else
+				nil
+			end
 		end
 	end # end class
 end # end model
