@@ -94,7 +94,7 @@ module Model
 		#@param [Hash , Integer , Integer] palyer，siliver(+/-)，function(如：强化功能，Const::FunctionConst::EquipStrengthen)
 		#@return [Hash] player
 		def self.addSiliver(player , siliver , function)
-			player[:siliver] = player[:siliver].to_i + siliver
+			player[:siliver] = player[:siliver].to_i + siliver.to_i
 			GameLogger.info("Model::Player.addSiliver : playerId:#{player[:playerId]} siliver:#{siliver} function:#{function} ! " ) 
 			player
 		end
@@ -102,7 +102,7 @@ module Model
 		#@param [Hash , Integer , Integer] palyer，siliver(+/-)，function(如：强化功能，Const::FunctionConst::EquipStrengthen)
 		#@return [Hash] player
 		def self.addDiamond(player , diamond , function)
-			player[:diamond] = player[:diamond].to_i + diamond
+			player[:diamond] = player[:diamond].to_i + diamond.to_i
 			GameLogger.info("Model::Player.addDiamond : playerId:#{player[:playerId]} diamond:#{diamond} function:#{function} ! " ) 
 			player
 		end
