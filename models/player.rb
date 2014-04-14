@@ -9,6 +9,8 @@ module Model
 		def self.register(playerName,headImg)
 			playerDao = PlayerDao.new
 			commonDao = CommonDao.new
+			metaDao = MetaDao.instance
+			
 			GameLogger.debug("Model::Player.register playerName:#{playerName}")
 			if playerDao.existByName?(playerName)
 				#用户已经存在
@@ -21,8 +23,8 @@ module Model
 				player[:playerId] = playerId
 				player[:playerName] = playerName
 				player[:level] = 1
-				player[:siliver] = 10000
-				player[:diamond] = 0
+				player[:siliver] = metaDao.getFlagValue("player_init_siliver").to_i
+				player[:diamond] = metaDao.getFlagValue("player_init_diamond").to_i
 				player[:strength] = 0
 				player[:command] = 30
 				player[:books] = 15
@@ -30,6 +32,8 @@ module Model
 				player[:freeheromax] = 50
 				player[:vip] = 0
 				player[:headimg] = headImg
+				#背包格子数量
+				player[:backpackCount] = metaDao.getFlagValue("pack_cell_init_count").to_i
 				#更新player信息到redis中
 				playerDao.create(player)
 				{:retcode => Const::ErrorCode::Ok,:player => player}
@@ -86,14 +90,23 @@ module Model
 			sessionDao.setPlayerIdBySession(sessionId,playerId)
 		end
 
-		#银币消耗 ，没有保存
-		#@param [Hash , Integer , Integer] palyer，siliver(+/-)，function(如：强化功能，FunctionConst::EquipStrengthen)
+		#银币消耗/获得 ，消耗传负数 ，没有保存
+		#@param [Hash , Integer , Integer] palyer，siliver(+/-)，function(如：强化功能，Const::FunctionConst::EquipStrengthen)
 		#@return [Hash] player
 		def self.addSiliver(player , siliver , function)
 			player[:siliver] = player[:siliver].to_i + siliver
 			GameLogger.info("Model::Player.addSiliver : playerId:#{player[:playerId]} siliver:#{siliver} function:#{function} ! " ) 
 			player
 		end
+		#钻石消耗/获得 ，消耗传负数 ，没有保存 
+		#@param [Hash , Integer , Integer] palyer，siliver(+/-)，function(如：强化功能，Const::FunctionConst::EquipStrengthen)
+		#@return [Hash] player
+		def self.addDiamond(player , diamond , function)
+			player[:diamond] = player[:diamond].to_i + diamond
+			GameLogger.info("Model::Player.addDiamond : playerId:#{player[:playerId]} diamond:#{diamond} function:#{function} ! " ) 
+			player
+		end
+
 
 	end #class Player
 end # End Moudle

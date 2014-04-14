@@ -33,5 +33,44 @@ module Const
 	#进阶失败
 	BookAdvanceFail = "fail"
 
+	#------------------任务类型
+	#战役
+	TaskTypeBattle = "campaign"
+	#武将
+	TaskTypeHero = "hero"
+	#强化
+	TaskTypeRefine = "refine"
+	#情谊
+	TaskTypeShip = "skill"
+	#竞技场
+	TaskTypeArena = "arena"
+	#培养
+	TaskTypeTrain = "train"
+	#通天塔相关
+	TaskTypeTower = "tower"
+	#银矿
+	TaskTypeSilver = "silver"
+	#夺宝
+	TaskTypeRob = "rob"
+	#兵法进阶
+	TaskTypeBook = "book"
+
+	#--------任务状态
+	#已完成
+	StatusEnable = "enable"
+	#未完成
+	StatusDisable = "disable"
+
+	#--------奖励类型
+	#钻石
+	RewardTypeDimond = "dimond"
+	#银币
+	RewardTypeSiliver = "siliver"
+	#道具（武器防具坐骑兵法宝物）
+	RewardTypeItem = "item"
+	#武将类
+	RewardTypeHero = "hero"
+	#将魂
+	RewardTypeSoul = "soul"
 
 end

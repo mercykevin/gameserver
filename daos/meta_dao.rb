@@ -86,9 +86,38 @@ class MetaDao
 		when 'NPC'
 			@npcMetaMap = {}
 			initMetaData(csvfile, @npcMetaMap, "npcID")
+		when 'ChengZhangRenWu'
+			initTaskMetaData(csvfile)
 		else
 		end
 	end
+
+
+	#初始化任务量表
+	def initTaskMetaData(csvfile)
+		@fstTaskBySortWithStatus = {}
+		#所有的任务
+		@taskMap = {}
+		#所有的任务类型
+		@taskSort = []
+		allRows = CSV.read(csvfile,{:col_sep=>";"})
+		if allRows and not allRows.empty?
+			title = allRows[1]
+			allRows.each_with_index do |row,i|
+				if i > 1
+					metaData = Model::MetaData.new(title,row)
+					@taskMap[metaData.questID] = metaData
+					#分类
+					if not @taskSort.include?(metaData.qType)
+						@taskSort << metaData.qType
+						@fstTaskBySortWithStatus[metaData.questID] = Const::StatusDisable
+					end
+				end
+			end
+		end
+	end
+
+
 	# read character name from csv file for generate random name
 	# @param [String] csvfile , the path of csv file
 	# @return nothing
@@ -169,7 +198,6 @@ class MetaDao
 			end
 			#最大等级
 			@bookMaxLevel = @bookMaxLevel + 1
-			puts @bookMaxLevel
 		end
 	end
 
@@ -181,6 +209,7 @@ class MetaDao
 		allRows = CSV.read(csvfile,{:col_sep=>";"})
 		if allRows and not allRows.empty?
 			title = allRows[1]
+			puts ""
 			allRows.each_with_index do |row,i|
 				if i > 1
 					metaData = Model::MetaData.new(title,row)
@@ -334,7 +363,7 @@ class MetaDao
 
 	#获取flag表里的游戏配置
 	def getFlagValue(key)
-		@flagMap[key.to_s].value
+		@flagMap[key].value
 	end
 
 	#兵法碎片
@@ -394,4 +423,23 @@ class MetaDao
 	def getSubBattleMetaData(subBattleId)
 		@subBattleMetaMap[subBattleId.to_s]
 	end
+
+	#获取任务配置信息
+	def getTaskMetaData(iid)
+		@taskMap[iid.to_s]
+	end
+
+	#任务类型列表
+	def getTaskTypeList()
+		@taskSort
+	end
+
+	#返回每种类型的任务第一个iid，及其状态
+	#@param 
+	#@return [Hash] iid:status 
+	def getFstTaskBySortWithStatus()
+		@fstTaskBySortWithStatus
+	end
+
+
 end

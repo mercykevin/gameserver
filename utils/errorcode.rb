@@ -13,6 +13,8 @@ module Const
 		DiamondIsNotEnough = 10010
 		#已达最高级:兵法，装备.... (大部分，前端都会处理，比如按钮灰掉)
 		LevelIsTheHighest = 10020
+		#背包已满
+		BackpackIsFull = 10030
 		
 		#-------------------------------
 
@@ -39,7 +41,9 @@ module Const
 		#装备不存在
 		EquipmentIsNotExist = 2000000
 		#兵法不存在
-		BookIsNotExist = 2000050
+		BookIsNotExist = 2000010
+		#背包格子已经到了上限
+		PackCellAlreadyIsMaxCount = 200020
 
 		#---------------------------------进阶
 		#请选择要进阶的兵法
@@ -51,5 +55,8 @@ module Const
 		#自有兵法不能祭祀
 		BookIsHeroSelf = 2000103
 
+		#----------------------------任务
+		#任务已领取
+		TaskIsAlreadyGetAward = 2000110
 	end
 end
