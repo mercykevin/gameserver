@@ -196,7 +196,7 @@ module Model
 			end
 			#消耗银币
 			#player[:siliver] = player[:siliver].to_i - siliverCost
-			player = Model::Player.addSiliver(player , - siliverCost , FunctionConst::EquipStrengthen)
+			player = Model::Player.addSiliver(player , - siliverCost , Const::FunctionConst::EquipStrengthen)
 			#处理强化后的升级
 			vipMetaData = metaDao.getVipMetaData(player[:vip])
 			rates = vipMetaData.vCritProbability.split(",")
@@ -284,7 +284,7 @@ module Model
 		#兵法进阶
 		#  	进阶成功就清掉所有兵法的失败次数
 		# 	进阶失败并且是5本书，累计失败次数,清掉其他所有兵法的失败次数
-		#@param [Hash,Integer,Array] playerId,id 兵法id ,兵法列表
+		#@param [Hash,Integer,String] playerId,id 兵法id ,兵法列表：逗号分隔
 		#@return [Hash]
 		def self.advanceBook(player , id, bookIds)
 			metaDao = MetaDao.instance
@@ -314,7 +314,7 @@ module Model
 				bookData[:failTimes] = 0
 			else
 				#失败，超过5本书，记录失败次数
-				bookCount = metaDao.getFlagValue(FlagConstKey::BookAdvanceUpSuccRateMaxBookCount).to_i
+				bookCount = metaDao.getFlagValue("book_advance_uprate_need_count").to_i
 				if bookIdArr.length >= bookCount
 					bookData[:failTimes] += 1
 				else
@@ -338,7 +338,7 @@ module Model
 			#所有兵法的进阶的失败次数重置
 			bookDataHash = resetBookAdvanceFailTimes(playerId,id)
 			#消耗银币
-			player = Model::Player.addSiliver(player , - siliverCost , FunctionConst::BookAdvance)
+			player = Model::Player.addSiliver(player , - siliverCost , Const::FunctionConst::BookAdvance)
 			playerKey = Const::Rediskeys.getPlayerKey(playerId)
 			bookKey = Const::Rediskeys.getItemKey(playerId , bookData[:type],id)
 			commonDao = CommonDao.new
@@ -399,11 +399,7 @@ module Model
 			end
 			#千分比 转化成 百分比数值 小数四舍五入
 			rate = (result[:successrate].to_i / 10 ).round()
-			result[:successrate] = rate
-			result.delete(:bookdata)
-			result.delete(:bookIdArr)
-			#返回概率，消耗银币数量
-			result
+ 			{:retcode => Const::ErrorCode::Ok ,:successrate => rate , :siliver => result[:siliver]}
 		end
 
 		#兵法进阶预览
@@ -466,7 +462,7 @@ module Model
 			if rate > 1000
 				rate = 1000
 			end
-			bookCount = metaDao.getFlagValue(FlagConstKey::BookAdvanceUpSuccRateMaxBookCount).to_i
+			bookCount = metaDao.getFlagValue("book_advance_uprate_need_count").to_i
 			#5本书的话，根据失败次数提升成功率
 			if bookIdArr.length >= bookCount
 				rate += bookAdvanceTemp.bFailureIncrease.to_i * bookData[:failTimes]
@@ -475,6 +471,41 @@ module Model
  			#成功率，千分比，contrller转换为百分比给前端
  			{:successrate => rate , :siliver => bookAdvanceTemp.bSpendMoney.to_i , :bookdata => bookData , :bookIdArr => bookIdArr}
 		end
+
+		#扩展背包的格子
+		#@param [Integer] 
+		#@return 扩展后的数据，客户端刷新player
+		def self.extendPackCell(player)
+			commonDao = CommonDao.new
+			metaDao = MetaDao.instance
+			playerId = player[:playerId]
+			#格子上限 = initCount + extCount
+			maxCellCount = metaDao.getFlagValue("pack_cell_extadd_max_count").to_i  + metaDao.getFlagValue("pack_cell_extadd_max_count").to_i
+			#背包格子已经到了上限
+			if player[:backpackCount] >= maxCellCount
+				return Const::ErrorCode::PackCellAlreadyIsMaxCount
+			end
+			#每次购买的格子数量
+			buyCount = metaDao.getFlagValue("pack_cell_extadd_each_count").to_i
+			#以防非整数倍，处理一下，实际可以增加的格子数量
+			if player[:backpackCount] + buyCount >= maxCellCount
+				buyCount = maxCellCount - buyCount
+			end
+			#每个格子消耗的元宝数
+			eachGold = metaDao.getFlagValue("pack_cell_extadd_each_gold").to_i
+			goldCost = buyCount * eachGold
+			#钻石不足
+			if player[:diamond] < goldCost
+				return Const::ErrorCode::DiamondIsNotEnough
+			end
+			#开格子
+			player[:backpackCount] += buyCount
+			player = Model::Player.addDiamond(player , - goldCost , Const::FunctionConst::ExtendPackCell)
+			playerKey = Const::Rediskeys.getPlayerKey(playerId)
+			commonDao.update(playerKey => player)
+			{:retcode => Const::ErrorCode::Ok}
+		end
+
 
 
 		#上阵兵法 TODO ，兵法记录在武将身上，上阵后从兵法列表中删掉该兵法

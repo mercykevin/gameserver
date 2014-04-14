@@ -98,7 +98,7 @@ module Model
 				pveBattleInfo[:stars] = 3
 			else
 				pveBattleInfo = {}
-				pveBattleInfo[:battleId] = metaBattleData.bSubID
+				pveBattleInfo[:battleid] = metaBattleData.bSubID
 				pveBattleInfo[:win] = false
 				pveBattleInfo[:times] = 1
 				pveBattleInfo[:time] = Time.now().to_i
@@ -110,7 +110,7 @@ module Model
 			key = Const::Rediskeys.getBattleListKey(metaBattleData.battlefirstID, playerId)
 			commonDao.update({key => playerSubBattleMap}.merge(addRet))
 			#返回值
-			{:retcode => Const::ErrorCode::Ok}
+			{:retcode => Const::ErrorCode::Ok,:battleinfo => pveBattleInfo}
 		end
 		# 验证是否推掉这个图
 		# @param [Hash,MetaData]

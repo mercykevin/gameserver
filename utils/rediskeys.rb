@@ -108,5 +108,19 @@ module Const
 		def self.getBookFragmentKey(playerId,bookFragIid)
 			"player:[#{playerId}]bookFrag:[#{bookFragIid}]"
 		end
+		#--------------------------------------------任务
+		#任务显示列表
+		def self.getTaskDisplayedsKey(playerId)
+			"player:[#{playerId}]taskDisplayeds"
+		end
+		#任务已完成列表
+		def self.getTaskComplatedsKey(playerId)
+			"player:[#{playerId}taskComplateds]"
+		end
+		#已领取的任务iid列表
+		def self.getTaskAwardedKey(playerId)
+			"player:[#{playerId}taskAwardeds]"
+		end
+
 	end
 end

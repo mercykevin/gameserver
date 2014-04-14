@@ -1,0 +1,6 @@
+任务ID;任务标题;任务类型;后续任务;完成条件;进度参考;奖励;任务描述
+questID;qTitle;qType;qFollwoUP;bComplete;bProcess;bReward;qDescription
+800001;狗牢关;campaign;800002;600010;1;200001:5;击败许文强
+800002;废水之战;campaign;800003;600030;1;200001:10;击败冯敬尧
+800003;二星武将;hero;800004;"{""star"":2,""num"":2}";num;"{""siliver"":2000}";获得2个2星武将
+800004;二星武将-2;hero;;"{""star"":2,""num"":4}";num;"{""siliver"":4000}";获得4个2星武将

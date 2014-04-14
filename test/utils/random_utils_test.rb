@@ -27,5 +27,21 @@ class RandomTest < Minitest::Test
 	# end
 
 
+	def test_each_key
+		json = "{\"a\":1 , \"b\":2}"
+		val = JSON.parse(json)
+		val.each_key do |k|
+			puts "key : #{k}   value : #{val[k]}"
+		end
+
+		puts " 转换后 #{val}"
+		puts " keys #{val.keys}"
+		puts " keys #{val.values}"
+
+
+	end
+
+
+
 
 end

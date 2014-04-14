@@ -4,107 +4,107 @@ class HeroTest < Minitest::Test
 
 
 
-	# def test_addItem
+	def test_addItem
 
-	# 	playerId = 1
-	# 	iid = 200000
-	# 	count = 5
-	# 	Model::Item.addItem(playerId,iid,count)
-	# 	puts "添加宝物"
+		playerId = 1
+		iid = 200000
+		count = 5
+		Model::Item.addItem(playerId,iid,count)
+		puts "添加宝物"
  
-	# 	count = 5
-	# 	Model::Item.addItem(playerId,iid,count)
-	# 	puts "追加宝物"
+		count = 5
+		Model::Item.addItem(playerId,iid,count)
+		puts "追加宝物"
 
-	# 	iid = 200001
-	# 	count = 5
-	# 	Model::Item.addItem(playerId,iid,count)
-	# 	puts "第二个宝物"
+		iid = 200001
+		count = 5
+		Model::Item.addItem(playerId,iid,count)
+		puts "第二个宝物"
 
-	# 	count = 2
-	# 	iid = 400001
-	# 	Model::Item.addItem(playerId,iid,count)
-	# 	puts "添加装备	"
+		count = 2
+		iid = 400001
+		Model::Item.addItem(playerId,iid,count)
+		puts "添加装备	"
 
-	# 	count = 5 
-	# 	iid = 500001
-	# 	Model::Item.addItem(playerId,iid,count)
-	# 	puts "添加兵法	"
+		count = 5 
+		iid = 500001
+		Model::Item.addItem(playerId,iid,count)
+		puts "添加兵法	"
 
-	# 	propList = Model::Item.getPropList(1)  
-	# 	puts "宝物列表	#{propList.to_json}"
-
-
-	# 	itemList = Model::Item.getEquipUnusedList(playerId,Const::ItemTypeWeapon)  
-	# 	puts "武器列表 #{itemList}"
-
-	# end
-
-	# def test_getEquip
-	# 	playerId = 1
-	# 	id = 1
-	# 	count = 1
-	# 	iid = 400001
-	# 	Model::Item.addItem(playerId,iid,count)
-	# 	equipData = Model::Item.getEquipmentData(playerId,id)
-
-	# 	puts "获取装备	#{equipData}"
-	# 	puts "获取装备iid	#{equipData[:iid]}"	
-	# 	puts "获取装备star	#{equipData[:star]}"
-	# end
+		propList = Model::Item.getPropList(1)  
+		puts "宝物列表	#{propList.to_json}"
 
 
-	# def test_keys_time
-	# 	a  = Time.now.to_i
-	# 	playerId= 1
-	# 	count = 5
-	# 	iid = 400001
-	# 	puts "开始添加装备。。。"
-	# 	Model::Item.addItem(playerId,iid,count)
-	# 	b  = Time.now.to_i
-	# 	puts "追加装备 耗时	#{a-b}"
+		itemList = Model::Item.getEquipUnusedList(playerId,Const::ItemTypeWeapon)  
+		puts "武器列表 #{itemList}"
 
-	# end
+	end
 
+	def test_getEquip
+		playerId = 1
+		id = 1
+		count = 1
+		iid = 400001
+		Model::Item.addItem(playerId,iid,count)
+		equipData = Model::Item.getEquipmentData(playerId,id)
 
-	# def test_getProp
-	# 	playerId = 100
-	# 	iid = 200000
-	# 	count = 1111
-	# 	Model::Item.addItem(playerId,iid,count)
-	# 	puts "添加宝物"
-	# 	propData = Model::Item.getPropData(playerId,iid)	
-	# 	puts "宝物数量	#{propData[:count]}"
-	# end
+		puts "获取装备	#{equipData}"
+		puts "获取装备iid	#{equipData[:iid]}"	
+		puts "获取装备star	#{equipData[:star]}"
+	end
 
 
-	# def test_getPropList
-	# 	playerId = 1
-	# 	iid = 200001
-	# 	count = 100
-	# 	Model::Item.addItem(playerId,iid,count)
-	# 	propList = Model::Item.getPropList(1)  
-	# 	puts "宝物列表	#{propList.to_json}"
-	# end
+	def test_keys_time
+		a  = Time.now.to_i
+		playerId= 1
+		count = 5
+		iid = 400001
+		puts "开始添加装备。。。"
+		Model::Item.addItem(playerId,iid,count)
+		b  = Time.now.to_i
+		puts "追加装备 耗时	#{a-b}"
+
+	end
+
+
+	def test_getProp
+		playerId = 100
+		iid = 200000
+		count = 1111
+		Model::Item.addItem(playerId,iid,count)
+		puts "添加宝物"
+		propData = Model::Item.getPropData(playerId,iid)	
+		puts "宝物数量	#{propData[:count]}"
+	end
+
+
+	def test_getPropList
+		playerId = 1
+		iid = 200001
+		count = 100
+		Model::Item.addItem(playerId,iid,count)
+		propList = Model::Item.getPropList(1)  
+		puts "宝物列表	#{propList.to_json}"
+	end
 
 
 
 
-	# #强化装备
-	# def test_strengthenEquip
-	# 	equipId  = 1
-	# 	iid = 400001
-	# 	count = 2
-	# 	player = Model::Player.register("andy","image")[:player]
-	# 	player[:siliver] =100000
-	# 	Model::Item.addItem(player[:playerId],iid,count)
-	# 	equipData = Model::Item.getEquipmentData(player[:playerId],equipId)
-	# 	puts "强化前装备	#{equipData}"
-	# 	puts "强化前player	#{player}"
-	# 	ret = Model::Item.strengthenEquip(player,equipId)
-	# 	puts "强化后装备	iid#{iid} , ret: #{ret}"
-	# 	puts "强化后player	#{player}"
-	# end
+	#强化装备
+	def test_strengthenEquip
+		equipId  = 1
+		iid = 400001
+		count = 2
+		player = Model::Player.register("andy","image")[:player]
+		player[:siliver] =100000
+		Model::Item.addItem(player[:playerId],iid,count)
+		equipData = Model::Item.getEquipmentData(player[:playerId],equipId)
+		puts "强化前装备	#{equipData}"
+		puts "强化前player	#{player}"
+		ret = Model::Item.strengthenEquip(player,equipId)
+		puts "强化后装备	iid#{iid} , ret: #{ret}"
+		puts "强化后player	#{player}"
+	end
 
 	#测试的话，单独测试这一个，id是写死的 !
 	def test_advanceBook
@@ -128,16 +128,25 @@ class HeroTest < Minitest::Test
 		puts "进阶后player:#{player}"
 	end
 
-	# def test_calcBuff
-	# 	bookBuff = Model::Item.calcBookBuff(500002 , 2)
-	# 	puts "bookBuff #{bookBuff}"
-	# 	equipBuff = Model::Item.calcEquipBuff(400001 , 2)
-	# 	puts "equipBuff #{equipBuff}"
-	# end
+	def test_calcBuff
+		bookBuff = Model::Item.calcBookBuff(500002 , 2)
+		puts "bookBuff #{bookBuff}"
+		equipBuff = Model::Item.calcEquipBuff(400001 , 2)
+		puts "equipBuff #{equipBuff}"
+	end
 
-	# def test_addItemForTest
-	# 	player = Model::Player.register("andy","image")[:player]
-	# 	Model::Item.addItem4Test(player[:playerId])
-	# end
+	def test_addItemForTest
+		player = Model::Player.register("andy","image")[:player]
+		Model::Item.addItem4Test(player[:playerId])
+	end
+
+
+	def test_extendPackCell
+		player = Model::Player.register("andy","image")[:player]
+		puts "扩展背包前：#{player}"
+		ret = Model::Item.extendPackCell(player) 
+		puts "扩展背包后： ret:#{ret} #{player}"
+	end
+
 
 end

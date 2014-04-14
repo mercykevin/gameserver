@@ -37,7 +37,7 @@ module Utils
 		#@return [Integer] 返回值
 		def self.randomValue(rateArr , valArr)
 			if rateArr.length != valArr.length
-   				raise ExceptionConst::DoNotMatchTheLengthOfTheArray
+   				raise CONST::ExceptionConst::DoNotMatchTheLengthOfTheArray
    			end
 			index = randomIndex(rateArr)
 			valArr[index]
