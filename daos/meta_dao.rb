@@ -13,10 +13,10 @@ class MetaDao
 		basename = File.basename(csvfile, ".csv")
 		case basename
 		#处理角色名，用来随机用
-		when 'CharacterName'
+		when 'JiaoSeMing'
 			initPlayerNameMetaData(csvfile)
 		#英雄配表
-		when 'Generals'
+		when 'WuJiang'
 			@heroMetaMap = {}
 			initMetaData(csvfile,@heroMetaMap,"generalID")
 			#自有兵法列表
@@ -28,53 +28,53 @@ class MetaDao
 				end
 			end #generalID 
 		#招募配表
-		when 'Recruit'
+		when 'ZhaoMu'
 			@recuriteMetaMap = {}
 			initMetaData(csvfile,@recuriteMetaMap,"recruitName")
-		#情义
-		when 'Fate'
+		#情义（命运）
+		when 'MingYun'
 			@fateMetaMap = {}
 			initMetaData(csvfile,@fateMetaMap,"fateID")
 		#角色级别与经验值
-		when 'CharacterLevel'
+		when 'JiaoSeShengJiJingY'
 			@playerLevelMetaMap = {}
 			initMetaData(csvfile, @playerLevelMetaMap ,"characterLevel")
 		#英雄级别与经验值配表
-		when 'GeneralLevel'
+		when 'WuJiangDengJi'
 			@heroLevelMetaMap = {}
 			initMetaData(csvfile, @heroLevelMetaMap ,"levelGeneral")
 		#英雄进阶
-		when 'GenneralAdvanced'
+		when 'WuJiangJinJie'
 			@heroAdancedLevelMetaMap = {}
 			initMetaData(csvfile, @heroAdancedLevelMetaMap ,"advancedTime")
 		#装备-武器防具坐骑
-		when 'Equipment'
+		when 'ZhuangBei'
 			@equipmentMap = {}
 			initMetaData(csvfile, @equipmentMap ,"equipmentID")
 		#兵法
-		when 'Book'
+		when 'BingFa'
 			@bookMap = {}
 			initMetaData(csvfile,@bookMap,"bookID")
 		#宝物
-		when 'Prop'	
+		when 'DaoJu'	
 			@propMap = {}
 			initMetaData(csvfile,@propMap,"propID")
-		when 'CultureValue'
+		when 'PeiYang'
 			initHeroBringupMetaData(csvfile)
 		#VIP表
 		when 'Vip'
 			@vipMap = {}
 			initMetaData(csvfile,@vipMap,"vipLevel")
 		#强化表
-		when 'Strengthen'
+		when 'ZhuangBeiQiangHua'
 			@strengthenMap = {}
 			initStrengthenMapMetaData(csvfile,@strengthenMap)
 		#进阶表
-		when 'BookAdvanced'
+		when 'BingFaJinJie'
 			@bookAdvancedMap = {}
 			initBookAdvancedMapMetaData(csvfile,@bookAdvancedMap)
 		#兵法碎片
-		when 'BookFragment'
+		when 'BingFaSuiPian'
 			@bookFragment = {}
 			initMetaData(csvfile,@bookFragment,"fragmentID")
 		#flag ， 游戏配置，标记 等表
@@ -95,6 +95,8 @@ class MetaDao
 
 	#初始化任务量表
 	def initTaskMetaData(csvfile)
+		#sort:[temp,temp]
+		@taskSortDataMap = {}
 		@fstTaskBySortWithStatus = {}
 		#所有的任务
 		@taskMap = {}
@@ -110,8 +112,15 @@ class MetaDao
 					#分类
 					if not @taskSort.include?(metaData.qType)
 						@taskSort << metaData.qType
-						@fstTaskBySortWithStatus[metaData.questID] = Const::StatusDisable
+						@fstTaskBySortWithStatus[metaData.questID.to_s] = Const::StatusDisable
 					end
+					#任务分类
+					list = @taskSortDataMap[metaData.qType]
+					if list == nil
+						list = Array.new
+					end
+					list << metaData
+					@taskSortDataMap[metaData.qType] = list
 				end
 			end
 		end
@@ -439,6 +448,14 @@ class MetaDao
 	def getFstTaskBySortWithStatus()
 		@fstTaskBySortWithStatus
 	end
+
+	#返回某种类型的所有任务
+	#@param [Integer] sort
+	#@return [Array]
+	def getTaskListBySort(sort)
+		@taskSortDataMap[sort]
+	end
+
 
 
 end

@@ -76,6 +76,8 @@ module Model
 				pveBattleInfo[:win] = true
 				pveBattleInfo[:times] = pveBattleInfo[:times] + 1
 				pveBattleInfo[:time] = Time.now().to_i
+				#触发任务
+				Model::Task.checkTask(player , Cosnt::TaskTypeBattle , {:bsubid => metaBattleData.bSubID})
 			else
 				pveBattleInfo = {}
 				pveBattleInfo[:battleId] = metaBattleData.bSubID

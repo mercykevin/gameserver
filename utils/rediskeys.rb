@@ -111,11 +111,11 @@ module Const
 		end
 		#任务已完成列表
 		def self.getTaskComplatedsKey(playerId)
-			"player:[#{playerId}taskComplateds]"
+			"player:[#{playerId}]taskComplateds"
 		end
 		#已领取的任务iid列表
 		def self.getTaskAwardedKey(playerId)
-			"player:[#{playerId}taskAwardeds]"
+			"player:[#{playerId}]taskAwardeds"
 		end
 
 	end

@@ -1,0 +1,5 @@
+招募名;招募费用;可招募英雄列表;免费招募冷却时间（秒）;每日免费次数
+recruitName;rCost;rSureGenerals;rFreeCooling;rFreeNumber
+普通;10;;36000;5
+高级;100;;86400;1
+英雄令;300;;259200;1

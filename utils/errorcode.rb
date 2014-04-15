@@ -58,5 +58,8 @@ module Const
 		#----------------------------任务
 		#任务已领取
 		TaskIsAlreadyGetAward = 2000110
+		#任务未完成
+		TaskIsNotBeComplated = 2000111
+
 	end
 end
