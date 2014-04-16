@@ -112,21 +112,21 @@ class HeroTest < Minitest::Test
 
 
 
-	# #强化装备
-	# def test_strengthenEquip
-	# 	equipId  = 1
-	# 	iid = 410101
-	# 	count = 2
-	# 	player = Model::Player.register("andy","image")[:player]
-	# 	player[:siliver] =100000
-	# 	Model::Item.addItem(player,iid,count)
-	# 	equipData = Model::Item.getEquipmentData(player[:playerId],equipId)
-	# 	puts "强化前装备	#{equipData}"
-	# 	puts "强化前player	#{player}"
-	# 	ret = Model::Item.strengthenEquip(player,equipId)
-	# 	puts "强化后装备	iid#{iid} , ret: #{ret}"
-	# 	puts "强化后player	#{player}"
-	# end
+	#强化装备
+	def test_strengthenEquip
+		equipId  = 1
+		iid = 410101
+		count = 2
+		player = Model::Player.register("andy","image")[:player]
+		player[:siliver] =100000
+		Model::Item.addItem(player,iid,count)
+		equipData = Model::Item.getEquipmentData(player[:playerId],equipId)
+		puts "强化前装备	#{equipData}"
+		puts "强化前player	#{player}"
+		ret = Model::Item.strengthenEquip(player,equipId)
+		puts "强化后装备	iid#{iid} , ret: #{ret}"
+		puts "强化后player	#{player}"
+	end
 
 	# #测试的话，单独测试这一个，id是写死的 !
 	# def test_advanceBook
@@ -157,18 +157,18 @@ class HeroTest < Minitest::Test
 	# 	puts "equipBuff #{equipBuff}"
 	# end
 
-	def test_addItemForTest
-		player = Model::Player.register("andy","image")[:player]
-		playerId = player[:playerId]
-		Model::Item.addItem4Test(player)
+	# def test_addItemForTest
+	# 	player = Model::Player.register("andy","image")[:player]
+	# 	playerId = player[:playerId]
+	# 	Model::Item.addItem4Test(player)
 
-		itemList = Model::Item.getEquipUnusedList(playerId,Const::ItemTypeWeapon)  
-		puts "装备列表 #{itemList}"
-		itemList = Model::Item.getEquipUnusedList(playerId,Const::ItemTypeShield)  
-		puts "防具 #{itemList}"
-		itemList = Model::Item.getEquipUnusedList(playerId,Const::ItemTypeBook)  
-		puts "兵法 #{itemList}"
-	end
+	# 	itemList = Model::Item.getEquipUnusedList(playerId,Const::ItemTypeWeapon)  
+	# 	puts "装备列表 #{itemList}"
+	# 	itemList = Model::Item.getEquipUnusedList(playerId,Const::ItemTypeShield)  
+	# 	puts "防具 #{itemList}"
+	# 	itemList = Model::Item.getEquipUnusedList(playerId,Const::ItemTypeBook)  
+	# 	puts "兵法 #{itemList}"
+	# end
 
 
 	# def test_extendPackCell

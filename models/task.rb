@@ -138,7 +138,7 @@ module Model
 					needStar = needParam[:star].to_i
 					needCount = needParam[:num].to_i
 					equipCount = Model::Item.getEquipCountByStar(playerId,needStar)
-					puts "----装备类 equipCount:#{equipCount}"
+					# puts "----装备类 equipCount:#{equipCount}"
 					if equipCount >= needCount
 						return taskTemp
 					end
