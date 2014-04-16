@@ -7,7 +7,11 @@ post '/item/unused/list' do
 	itemList.to_json
 end
 
-
+#已装备列表
+post '/item/used/list' do
+	itemList = []
+	itemList.to_json
+end
 
 #装备强化
 #返回强化后的装备信息

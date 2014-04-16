@@ -23,6 +23,8 @@ post '/player/register' do
 	if ret[:retcode] == Const::ErrorCode::Ok
 		#设置登录状态
 		Model::Player.setOnline(request[:game_session_id],player[:playerId])
+		#TODO need remove later,add test item data
+		Model::Item.addItem4Test(player[:playerId])
 	end
 	ret.to_json
 end
