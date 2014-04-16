@@ -45,6 +45,9 @@ module Const
 		#背包格子已经到了上限
 		PackCellAlreadyIsMaxCount = 200020
 
+		#装备等级不能超过君主等级三倍
+		EquipStrengthenLevelCannotOverPlayer = 200025
+
 		#---------------------------------进阶
 		#请选择要进阶的兵法
 		BookAdvancedNoTargetBook = 2000100

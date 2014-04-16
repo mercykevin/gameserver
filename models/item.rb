@@ -87,10 +87,10 @@ module Model
 						equip[:star] = tempItem.eStar.to_i
 						equip[:level] = tempItem.elevel.to_i
 						equip[:type] = tempItem.eType.to_i
-						equip[:attack] = tempItem.eATK.to_i
-						equip[:defence] = tempItem.eDEF.to_i
-						#init 智力 TODO
-						equip[:blood] = tempItem.eHP.to_i
+						# equip[:attack] = tempItem.eATK.to_i
+						# equip[:defence] = tempItem.eDEF.to_i
+						# #init 智力 TODO
+						# equip[:blood] = tempItem.eHP.to_i
 						equip[:createdAt] = Time.now.to_i
 						equip[:updatedAt] = Time.now.to_i
 						#任务-装备数量
@@ -130,20 +130,99 @@ module Model
 			end
 			siliverCost
 		end
-
-
+		#返回装备的加成值
+		#@param [Integer , Integer] 装备iid，装备等级
+		#@return [Integer] 返回装备buff  
+		def self.calcEquipBuff(iid , level)
+			metaDao = MetaDao.instance
+			equipTemp = metaDao.getEquipMetaData(iid)
+			case equipTemp.eType.to_i
+			when Const::ItemTypeWeapon #attack
+				return equipTemp.eATK.to_i + (level - 1) * equipTemp.eATKUP.to_i 
+			when Const::ItemTypeShield #defence
+				return equipTemp.eDEF.to_i + (level - 1) * equipTemp.eDEFUP.to_i 
+			when Const::ItemTypeHorse #blood
+				return equipTemp.eHP.to_i + (level - 1) * equipTemp.eHPUP.to_i 
+			else
+				raise "is not equip : #{Const::ErrorCode::Fail}"
+			end
+		end
+		#处理强化效果
+		#伤害：返回加的值
+		#其他加成比率返回 小数
+		#@param [Integer , Integer] 装备iid，装备等级
+		#@return [Float] 返回 加成比率 ， 
+		def self.calcBookBuff(iid , level)
+			metaDao = MetaDao.instance
+			bookTemp = metaDao.getBookMetaData(iid)
+			buff = 0
+			#加伤害 - 伤害 加值
+			if bookTemp.bHurt
+				return bookTemp.bHurt.to_i + (level-1) * bookTemp.bHurtUP.to_i
+			#其他 -加百分比
+			else
+				#加攻击
+				if bookTemp.bATKProportion
+					buff = bookTemp.bATKProportion.to_i + (level-1) * bookTemp.bATKUP.to_i
+				#加防御
+				elsif bookTemp.bDEFProportion 
+					buff = bookTemp.bDEFProportion.to_i + (level-1) * bookTemp.bDEFUP.to_i
+				#加智力
+				elsif bookTemp.bINTProportion
+					buff = bookTemp.bINTProportion.to_i + (level-1) * bookTemp.bINTUP.to_i
+				end
+				#返回加成比率，小数
+				buff / 100.to_f
+			end
+		end
 		#根据类型获取未上阵的装备列表
 		#@param [Integer,Integer] playerId,sort (武器防具坐骑兵法宝物 = 1,2,3,4,5) 
 		#@return [Array]
 		def self.getEquipUnusedList(playerId,sort)
 			itemDao = ItemDao.new
+			metaDao = MetaDao.instance
 			list = itemDao.getEquipUnusedList(playerId,sort)
-			#装备银币消耗
+			#装备
 			if sort.to_i == Const::ItemTypeWeapon or sort.to_i == Const::ItemTypeShield  or sort.to_i == Const::ItemTypeHorse 
 				list.each do |item|
+					#银币消耗
 					item[:siliverCost] = calcStrengthenSiliverCost(sort,item[:level],item[:star])
+					#装备加成
+					buff = calcEquipBuff(item[:iid] , item[:level])
+					case sort.to_i
+					when Const::ItemTypeWeapon #attack
+					 	item[:attack] = buff
+					when Const::ItemTypeShield #defence
+						item[:defence] = buff
+					when Const::ItemTypeHorse #blood
+						item[:blood] = buff
+					end
+				end
+			#兵法加成
+			elsif Const::ItemTypeBook
+				list.each do |item|
+					#装备加成
+					bookTemp = metaDao.getBookMetaData(item[:iid])
+					buff = 0
+					#加伤害 - 伤害 加值
+					if bookTemp.bHurt
+						item[:hurt] =  bookTemp.bHurt.to_i + (level-1) * bookTemp.bHurtUP.to_i
+					#其他 -加百分比
+					else
+						#加攻击
+						if bookTemp.bATKProportion
+							item[:attack] = bookTemp.bATKProportion.to_i + (level-1) * bookTemp.bATKUP.to_i 
+						#加防御
+						elsif bookTemp.bDEFProportion 
+							item[:defence] = bookTemp.bDEFProportion.to_i + (level-1) * bookTemp.bDEFUP.to_i
+						#加智力
+						elsif bookTemp.bINTProportion
+							item[:init] = bookTemp.bINTProportion.to_i + (level-1) * bookTemp.bINTUP.to_i
+						end
+					end
 				end
 			end
+			
 		end
 		#所有的装备列表，包括上阵未上阵的
 		#@param [Integer]
@@ -210,6 +289,10 @@ module Model
 			if not equipData
 				return {:retcode => Const::ErrorCode::EquipmentIsNotExist}
 			end
+			#不能超过君主等级三倍
+			if equipData[:level] >= player[:level] * metaDao.getFlagValue("level_great_than_player_level_max_rate").to_i
+				return {:retcode => Const::ErrorCode::EquipStrengthenLevelCannotOverPlayer}
+			end
 			#已是最高级
 			maxLevel = metaDao.getEquipMaxLevel
 			if  equipData[:level] >= maxLevel
@@ -241,55 +324,6 @@ module Model
 			nextSiliverCost = calcStrengthenSiliverCost(equipData[:type],equipData[:level],equipData[:star])
 			GameLogger.debug("Model::Item.strengthen  playerId:#{playerId} , equipId:#{id} , equipIid:#{equipData[:iid]} , before level #{beforeLevel} after level  #{equipData[:level]} ! ")
 			{:retcode => Const::ErrorCode::Ok,:equipdata => equipData , :siliverCost => nextSiliverCost}
-		end
-
-		#返回装备的加成值
-		#@param [Integer , Integer] 装备iid，装备等级
-		#@return [Integer]
-		def self.calcEquipBuff(iid , level)
-			metaDao = MetaDao.instance
-			equipTemp = metaDao.getEquipMetaData(iid)
-			case equipTemp.eType.to_i
-			when Const::ItemTypeWeapon #attack
-				return equipTemp.eATK.to_i + (level - 1) * equipTemp.eATKUP.to_i
-			when Const::ItemTypeShield #defence
-				return equipTemp.eDEF.to_i + (level - 1) * equipTemp.eDEFUP.to_i
-			when Const::ItemTypeHorse #blood
-				return equipTemp.eHP.to_i + (level - 1) * equipTemp.eHPUP.to_i
-			else
-				raise "is not equip : #{Const::ErrorCode::Fail}"
-			end
-		end
-
-		#处理强化效果
-		#伤害：返回加的值
-		#其他加成比率返回 小数
-		#@param [Integer , Integer] 装备iid，装备等级
-		#@return [Float] 返回 加成比率 ， 
-		def self.calcBookBuff(iid , level)
-			metaDao = MetaDao.instance
-			bookTemp = metaDao.getBookMetaData(iid)
-			buff = 0
-			#加伤害 - 伤害 加值
-			if bookTemp.bHurt
-				return bookTemp.bHurt.to_i + (level-1) * bookTemp.bHurtUP.to_i
-			#其他 -加百分比
-			else
-				#加攻击
-				if bookTemp.bATKProportion
-					buff = bookTemp.bATKProportion.to_i + (level-1) * bookTemp.bATKUP.to_i
-				#加防御
-				elsif bookTemp.bDEFProportion 
-					buff = bookTemp.bDEFProportion.to_i + (level-1) * bookTemp.bDEFUP.to_i
-				#加智力
-				elsif bookTemp.bINTProportion
-					buff = bookTemp.bINTProportion.to_i + (level-1) * bookTemp.bINTUP.to_i
-				else
-					raise "is not book : #{Const::ErrorCode::Fail}"
-				end
-				#返回加成比率，小数
-				buff / 100.to_f
-			end
 		end
 
 		#重置兵法进阶失败次数 除了 bookId
@@ -576,12 +610,23 @@ module Model
 		#测试用，添加道具
 		def self.addItem4Test(player)
 
-			iid = 400001
+			#武器
+			iid = 410101
 			count = 5
 			addItem(player,iid,count)
-			
+
+			#防具
+			iid = 420802
+			count = 5
+			addItem(player,iid,count)
+
+			#坐骑
+			iid = 430101
+			count = 5
+			addItem(player,iid,count)
+
 			#兵法
-			iid = 500001
+			iid = 500101
 			count = 4
 			addItem(player,iid,count)
 

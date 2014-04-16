@@ -2,7 +2,7 @@
 post '/task/list' do
 	requestParams = request[:req_parames]
 	player = request[:player]
-	itemList = Model::Task.getTaskList(player[:playerId])
+	itemList = Model::Task.getDisplayTaskList(player[:playerId])
 	itemList.to_json
 end
 
