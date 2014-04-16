@@ -177,7 +177,7 @@ class MetaDao
 				if i > 1
 					metaData = Model::MetaData.new(title,row)
 					#装备的最大等级
-					@equipMaxLevel = metaData.equipmentLevel.to_i unless @equipMaxLevel > metaData.eStarLevel.to_i
+					@equipMaxLevel = metaData.equipmentLevel.to_i unless @equipMaxLevel > metaData.equipmentLevel.to_i
 					key = metaData.equipmentLevel + "_" + metaData.eStarLevel
 					metamap[key] = metaData
 				end

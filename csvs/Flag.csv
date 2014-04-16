@@ -2,6 +2,7 @@
 name;value;desc
 player_init_diamond;20000;玩家初始钻石
 player_init_siliver;50000;玩家初始银币
+level_great_than_player_level_max_rate;3;强化等操作不能超过君主等级三倍
 book_advance_uprate_need_count;5;兵法进阶至少需要放满X本书，合成失败后才能在下次增加成功率
 pack_cell_init_count;50;背包格子初始数量
 pack_cell_extadd_max_count;50;背包格子额外增加最大个数，必须是每次增加格子数量的 整数倍
