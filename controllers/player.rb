@@ -24,7 +24,7 @@ post '/player/register' do
 		#设置登录状态
 		Model::Player.setOnline(request[:game_session_id],player[:playerId])
 		#TODO need remove later,add test item data
-		Model::Item.addItem4Test(player[:playerId])
+		Model::Item.addItem4Test(player)
 	end
 	ret.to_json
 end

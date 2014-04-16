@@ -117,7 +117,7 @@ module Model
 		# @return [Bool]
 		def self.checkTurnDownBattle(playerBattleMap, subBattleMeta)
 			if playerBattleMap.key?(subBattleMeta.bSubID.to_sym)
-				battleInfo = playerBattleMap[subBattleMeta.bSubID]
+				battleInfo = playerBattleMap[subBattleMeta.bSubID.to_sym]
 				battleInfo[:win]
 			else
 				false
