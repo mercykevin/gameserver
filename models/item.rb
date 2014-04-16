@@ -145,6 +145,13 @@ module Model
 				end
 			end
 		end
+		#所有的装备列表，包括上阵未上阵的
+		#@param [Integer]
+		#@return [Array]
+		def self.getEquipeAllList(playerId)
+			itemDao = ItemDao.new
+			itemDao.getEquipeAllList(playerId)
+		end
 
 		#获取所有宝物列表
 		#@param [Integer] playerId

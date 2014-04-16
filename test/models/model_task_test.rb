@@ -57,6 +57,25 @@ class TaskTask < Minitest::Test
 		iid = 410104
 		count = 5
 		Model::Item.addItem(player,iid,count)
+
+
+		puts "添加武器"
+		count = 2
+		iid = 400001
+		Model::Item.addItem(player,iid,count)
+
+		puts "添加防具"
+		count = 2
+		iid = 420804
+		Model::Item.addItem(player,iid,count)
+
+		puts "添加坐骑"	
+		count = 2
+		iid = 430101
+		Model::Item.addItem(player,iid,count)
+	
+		itemList = Model::Item.getEquipeAllList(playerId)  
+		puts "装备列表 #{itemList.size} #{itemList}"
 		
 	end
 
