@@ -86,6 +86,11 @@ module Const
 		def self.getPropIdListKey(playerId)
 			"player:\\[#{playerId}\\]itemsort:\\[#{Const::ItemTypeProp}\\]*"
 		end
+
+		#所有的装备（武器防具坐骑） key
+		def self.getEquipKeyAllList(playerId , sort)
+			"player:\\[#{playerId}\\]itemsort:\\[#{sort}\\]*"
+		end
 		#所有的兵书 key
 		def self.getBookKeyAllList(playerId)
 			"player:\\[#{playerId}\\]itemsort:\\[#{Const::ItemTypeBook}\\]*"

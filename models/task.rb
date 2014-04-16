@@ -2,8 +2,11 @@ module Model
 	#任务系统
 	#
 	# 1：显示列表 {iid:status} , {iid:status}
+	#  		{"1":"enable","2":"disable"}
 	# 2：领取任务的时候，从displaylist移除，添加下一个（complatelist有就取出来，没有就根据表添加）
+	#  		[1,2,3,4,5]
 	# 3：触发任务的时候，修改displaylist
+	#  		[1,2,3,4,5]
 	class Task
 
 		#任务列表    排序TODO
@@ -56,7 +59,7 @@ module Model
 			end
 			#已领取
 			awardedList = taskDao.getAwardedList(playerId)
-			if awardedList and awardedList.include?(iid.to_s)
+			if awardedList and awardedList.include?(iid.to_i)
 				return Const::ErrorCode::TaskIsAlreadyGetAward
 			end
 			#是否已完成
@@ -71,6 +74,7 @@ module Model
 		 	if  awardedList == nil
 		 		awardedList = []
 		 	end
+		 	#添加到已领取列表
 		 	awardedList << iid.to_i
 		 	#有下一个任务
 		 	if taskTemp.qFollwoUP  
@@ -78,11 +82,11 @@ module Model
 		 		if nextTaskTemp and not nextTaskTemp.empty?
 		 			#已完成
 		 			complatedList = taskDao.getComplatedList(playerId)
-				 	if complatedList and complatedList.include?(nextTaskTemp.questID)
+				 	if complatedList and complatedList.include?(nextTaskTemp.questID.to_i)
 				 		#添加到显示列表
 				 		displayTaskList[nextTaskTemp.questID] = Const::StatusEnable
 				 		#从已完成列表中移除
-				 		complatedList.delete(nextTaskTemp.questID)
+				 		complatedList.delete(nextTaskTemp.questID.to_i)
 				 		taskComplatedsKey = Const::Rediskeys::getTaskComplatedsKey(playerId)
 				 		ret[taskComplatedsKey] = complatedList
 				 	else
@@ -110,38 +114,64 @@ module Model
 			if  not sortTaskList or sortTaskList.empty?
 				return nil 
 			end
-
+			playerId = player[:playerId]
 			sortTaskList.each do |taskTemp|
 				#条件
 				needParam = JSON.parse(taskTemp.bComplete, {:symbolize_names => true})
-				GameLogger.info("Model::Task.calcIidForCheckStatus  condtion:#{needParam} , param:#{param} !")
+				GameLogger.info("Model::Task.calcIidForCheckStatus  condtion:#{needParam} , param:'#{param}' , type '#{taskTemp.qType}' !")
 				case taskTemp.qType
-				#战役 npcId
+				#战役 {"bsubid":101006}
 				when Const::TaskTypeBattle
 					if  param[:bsubid].to_i == needParam[:bsubid].to_i
 						return taskTemp
 					end
-				#武将数量
+				#武将数量 {"star":2,"num":2}
 				when Const::TaskTypeHero
-					needStar = needParam[:star]
-					needLevel = needParam[:num]
-					#TODO
-					if false
+					needStar = needParam[:star].to_i
+					needCount = needParam[:num].to_i
+					heroCount = Model::Hero.getHeroCountByStar(playerId,needStar)
+					if equipCount >= needCount
 						return taskTemp
 					end
-				#装备数量
+				#装备数量 {"star":2,"num":2}
 				when Const::TaskTypeEquip
-				#并发数量
+					needStar = needParam[:star].to_i
+					needCount = needParam[:num].to_i
+					equipCount = Model::Item.getEquipCountByStar(playerId,needStar)
+					puts "----装备类 equipCount:#{equipCount}"
+					if equipCount >= needCount
+						return taskTemp
+					end
+				#兵法数量 {"star":2,"num":2}
 				when Const::TaskTypeBook
-				#强化
+					needStar = needParam[:star].to_i
+					needCount = needParam[:num].to_i
+					equipCount = Model::Item.getBookCountByStar(playerId,needStar)
+					if equipCount >= needCount
+						return taskTemp
+					end
+				#装备强化 {"star":2,"num":1,"level":15} 强化1件2星装备到15级
 				when Const::TaskTypeRefine 
-				#情谊
+					needStar = needParam[:star].to_i
+					needLevel = needParam[:level].to_i
+					needCount = needParam[:num].to_i
+					
+					equipCount = 0 #TODO 
+					if equipCount >= needCount
+						return taskTemp
+					end
+				#兵法进阶 {"star":3,"level":2,"num":1} 进阶1本3星兵法到2级
+				when Const::TaskTypeBookAdvance 
+					#TODO 
+				
+				#情谊 {"num":1}
 				when Const::TaskTypeShip
+					#TODO
 				#竞技场
 				when Const::TaskTypeArena
 				#竞技场连胜
 				when Const::TaskTypeArenaWin
-				#培养
+				#培养 {"type":1;"num":1}
 				when Const::TaskTypeTrain 
 				#通天塔相关
 				when Const::TaskTypeTower 
@@ -149,9 +179,6 @@ module Model
 				when Const::TaskTypeSilver 
 				#夺宝
 				when Const::TaskTypeRob 
-				#兵法进阶
-				when Const::TaskTypeBookAdvance 
-
 				else
 					GameLogger.error("Model::Task.checkTask method params type:#{type} , type is unhandle !")
 					nil
@@ -166,10 +193,7 @@ module Model
 		def self.checkTask(player , type ,param)
 			taskDao = TaskDao.new
 			commonDao = CommonDao.new
-			if not param or param.empty?
-				GameLogger.info("Model::Task.checkTask type:'#{type}' param is empty !")
-				return 
-			end
+			
 			playerId = player[:playerId]
 			tempTask = calcIidForCheckStatus(player , type , param)
 			#任务不存在
@@ -187,7 +211,7 @@ module Model
 			#已完成
 			displayTaskList = taskDao.getDisplayList(playerId)
 			if displayTaskList and displayTaskList[taskIid] == Const::StatusEnable
-				GameLogger.info("Model::Task.checkTask taskIid:#{taskIid} is already in complatedList !")
+				GameLogger.info("Model::Task.checkTask taskIid:#{taskIid} is already displayTaskList and status is enable !")
 				return 
 			end
 			#显示列表已存在，修改状态

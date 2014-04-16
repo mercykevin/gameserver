@@ -7,7 +7,7 @@ module Model
 		#获得道具，武器防具坐骑兵法宝物
 		#@param [Integer,Integer,Integer] playerId,iid,count 
 		#@return [Hash]
-		def self.addItem(playerId,iid,count)
+		def self.addItem(player,iid,count)
 			metaDao = MetaDao.instance
 			tempItem = metaDao.getTempItem(iid)
 			commonDao = CommonDao.new
@@ -21,7 +21,7 @@ module Model
 				GameLogger.debug("Model::Item.addItem method params count:#{count} => count is illege !")
 				return {:retcode => Const::ErrorCode::Fail}
 			end
-			retHash = addItemNoSave(playerId,iid,count)
+			retHash = addItemNoSave(player,iid,count)
 			commonDao.update(retHash)
 			{:retcode => Const::ErrorCode::Ok }
 		end
@@ -32,10 +32,11 @@ module Model
 		#2：宝物
 		#@param [Integer,Integer,Integer] playerId,iid,count 
 		#@return [Hash]
-		def self.addItemNoSave(playerId , iid , count)
+		def self.addItemNoSave(player , iid , count)
 			itemDao = ItemDao.new
 			metaDao = MetaDao.instance
 			tempItem = metaDao.getTempItem(iid)
+			playerId = player[:playerId]
 			GameLogger.info("Model::Item.addItemNoSave method params playerId:#{playerId} , count:#{count} ,itemType:#{tempItem.eType} .")
 			#宝物类
 			itemHash = Hash.new
@@ -75,6 +76,8 @@ module Model
 						equip[:failTimes] = 0
 						equip[:createdAt] = Time.now.to_i
 						equip[:updatedAt] = Time.now.to_i
+						#任务-兵法数量
+						Model::Task.checkTask(player , Const::TaskTypeBook , nil)
 					#装备类	
 					else
 						equip = {}
@@ -90,6 +93,8 @@ module Model
 						equip[:blood] = tempItem.eHP.to_i
 						equip[:createdAt] = Time.now.to_i
 						equip[:updatedAt] = Time.now.to_i
+						#任务-装备数量
+						Model::Task.checkTask(player , Const::TaskTypeEquip , nil)
 					end
 					#道具的 key
 					equipKey = Const::Rediskeys.getItemKey(playerId, tempItem.eType  , equip[:id])
@@ -104,12 +109,41 @@ module Model
 			itemHash
 		end
 
+		#计算强化银币消耗
+		#@param [Integer,Integer,Integer] 装备类型，等级，星级
+		#@return [Integer] 消耗银币量
+		def self.calcStrengthenSiliverCost(sort,level,star)
+			metaDao = MetaDao.instance
+			#银币消耗
+			strengthenTemp = metaDao.getStrengthenMetaData(level,star)
+			siliverCost = 0
+			case sort.to_i
+			when Const::ItemTypeWeapon
+				siliverCost = strengthenTemp.eWeaponSpend.to_i
+			when Const::ItemTypeShield
+				siliverCost = strengthenTemp.eArmorSpend.to_i
+			when Const::ItemTypeHorse
+				siliverCost = strengthenTemp.eHorseSpend.to_i
+			else
+				GameLogger.debug("Model::Item.strengthen method params id:#{id} ,iid:#{equipTemp.iid} ,type:#{equipTemp.eType} , it's not a equipment !")
+				raise Const::ErrorCode::Fail
+			end
+			siliverCost
+		end
+
+
 		#根据类型获取未上阵的装备列表
 		#@param [Integer,Integer] playerId,sort (武器防具坐骑兵法宝物 = 1,2,3,4,5) 
 		#@return [Array]
 		def self.getEquipUnusedList(playerId,sort)
 			itemDao = ItemDao.new
-			itemDao.getEquipUnusedList(playerId,sort)
+			list = itemDao.getEquipUnusedList(playerId,sort)
+			#装备银币消耗
+			if sort.to_i == Const::ItemTypeWeapon or sort.to_i == Const::ItemTypeShield  or sort.to_i == Const::ItemTypeHorse 
+				list.each do |item|
+					item[:siliverCost] = calcStrengthenSiliverCost(sort,item[:level],item[:star])
+				end
+			end
 		end
 
 		#获取所有宝物列表
@@ -176,20 +210,8 @@ module Model
 			end
 			beforeLevel = equipData[:level]
 			#银币消耗
-			strengthenTemp = metaDao.getStrengthenMetaData(beforeLevel , equipData[:star])
-			siliverCost = 0
 			equipTemp = metaDao.getEquipMetaData(equipData[:iid])
-			case equipTemp.eType.to_i
-			when Const::ItemTypeWeapon
-				siliverCost = strengthenTemp.eWeaponSpend.to_i
-			when Const::ItemTypeShield
-				siliverCost = strengthenTemp.eArmorSpend.to_i
-			when Const::ItemTypeHorse
-				siliverCost = strengthenTemp.eHorseSpend.to_i
-			else
-				GameLogger.debug("Model::Item.strengthen method params id:#{id} ,iid:#{equipTemp.iid} ,type:#{equipTemp.eType} , it's not a equipment !")
-				return {:retcode => Const::ErrorCode::Fail}
-			end
+			siliverCost = calcStrengthenSiliverCost(equipData[:type],beforeLevel,equipData[:star])
 			#银币不足
 			if player[:siliver].to_i < siliverCost
 				return {:retcode => Const::ErrorCode::siliverIsNotEnough}
@@ -208,8 +230,10 @@ module Model
 			playerKey = Const::Rediskeys.getPlayerKey(playerId)
 			equipKey = Const::Rediskeys.getItemKey(playerId,equipTemp.eType,equipData[:id])
 			commonDao.update(playerKey => player , equipKey => equipData)
-			GameLogger.debug("Model::Item.strengthen  playerId:#{playerId} , equipId:#{id} , equipIid:#{equipData[:iid]} , before level #{beforeLevel} after level  #{equipData[:level]}! ")
-			{:retcode => Const::ErrorCode::Ok,:equipdata => equipData }
+			#下次强化消耗
+			nextSiliverCost = calcStrengthenSiliverCost(equipData[:type],equipData[:level],equipData[:star])
+			GameLogger.debug("Model::Item.strengthen  playerId:#{playerId} , equipId:#{id} , equipIid:#{equipData[:iid]} , before level #{beforeLevel} after level  #{equipData[:level]} ! ")
+			{:retcode => Const::ErrorCode::Ok,:equipdata => equipData , :siliverCost => nextSiliverCost}
 		end
 
 		#返回装备的加成值
@@ -268,7 +292,7 @@ module Model
 			bookDataHash = {}
 			itemDao = ItemDao.new
 			#取出所有兵法
-			bookList  = itemDao.getBookUnEquipedList(playerId)
+			bookList  = itemDao.getBookAllList(playerId)
 			bookList.each do |book| 
 				if book[:id] != bookId and book[:failTimes] > 0
 					book[:failTimes]= 0
@@ -508,25 +532,56 @@ module Model
 
 
 
+		#某星级的装备数量 (所有武器防具坐骑)
+		#@param [Integer,Integer] playerId:玩家id，star:装备星级
+		#@return [Integer] 装备数量
+		def self.getEquipCountByStar(playerId,star)
+			itemDao = ItemDao.new
+			equipList = itemDao.getEquipeAllList(playerId)
+			puts "getEquipCountByStar  - equipList - -#{equipList}"
+			count = 0
+			equipList.each do |equip|
+				if equip[:star] == star.to_i
+					count += 1
+				end
+			end 
+			count
+		end
+		#某星级的装备数量 (所有武器防具坐骑)
+		#@param [Integer,Integer] playerId:玩家id，star:装备星级
+		#@return [Integer] 装备数量
+		def self.getBookCountByStar(playerId,star)
+			itemDao = ItemDao.new
+			bookList = itemDao.getBookAllList(playerId)
+			count = 0
+			bookList.each do |book|
+				if book[:star] == star.to_i
+					count += 1
+				end
+			end 
+			count
+		end
+
+
 		#上阵兵法 TODO ，兵法记录在武将身上，上阵后从兵法列表中删掉该兵法
 
 
 		#测试用，添加道具
-		def self.addItem4Test(playerId)
+		def self.addItem4Test(player)
 
 			iid = 400001
 			count = 5
-			addItem(playerId,iid,count)
+			addItem(player,iid,count)
 			
 			#兵法
 			iid = 500001
 			count = 4
-			addItem(playerId,iid,count)
+			addItem(player,iid,count)
 
 			#物品
 			iid = 200000
 			count = 3
-			addItem(playerId,iid,count)
+			addItem(player,iid,count)
 
 		end
 

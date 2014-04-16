@@ -45,9 +45,8 @@ module Model
 				#道具类
 				when Const::RewardTypeItem 
 					awards.each do |itemIidCount|
-						itemRet = Model::Item.addItemNoSave(playerId , itemIidCount[0] , itemIidCount[1])
+						itemRet = Model::Item.addItemNoSave(player , itemIidCount[0] , itemIidCount[1])
 						puts "itemRet - - - - -=== =#{itemRet}"
-
 						#TODO ERROR merge 的有问题
 						puts "before merge  -  -  -  - #{retHash}"
 						itemRet.merge retHash

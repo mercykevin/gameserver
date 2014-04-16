@@ -16,8 +16,8 @@ post '/item/equip/strengthen' do
 	requestParams = request[:req_parames]
 	player = request[:player]
 	id = requestParams[:id]
-	itemList = Model::Item.strengthenEquip(player[:playerId],id)
-	itemList.to_json
+	ret = Model::Item.strengthenEquip(player[:playerId],id)
+	ret.to_json
 end
 
 #兵法进阶预览
