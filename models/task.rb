@@ -204,7 +204,8 @@ module Model
 			taskIid = tempTask.questID
 			#已领取
 			awardedList = taskDao.getAwardedList(playerId)
-			if awardedList and awardedList.key?(taskIid)
+			puts "已经领取的记录 awardList #{awardedList}"
+			if awardedList and awardedList.include?(taskIid)
 				GameLogger.info("Model::Task.checkTask taskIid:#{taskIid} is already in awardedList !")
 				return 
 			end

@@ -125,12 +125,11 @@ class ItemDao
 		weaponKeys = Const::Rediskeys.getEquipKeyAllList(playerId , Const::ItemTypeWeapon)
 		shieldKeys = Const::Rediskeys.getEquipKeyAllList(playerId , Const::ItemTypeShield)
 		horseKeys = Const::Rediskeys.getEquipKeyAllList(playerId , Const::ItemTypeHorse)
-		#TODO 有错误 TODO
-		puts "有错误 TODO"
-		equipKeyList = RedisClient.keys(weaponKeys)
-		# equipKeyList = equipKeyList.push(RedisClient.keys(shieldKeys))
-		# equipKeyList = equipKeyList.push(RedisClient.keys(horseKeys))
-
+		wlist = RedisClient.keys(weaponKeys)
+		slist = RedisClient.keys(shieldKeys)
+		hlist = RedisClient.keys(horseKeys)
+		equipKeyList = wlist | slist | hlist
+		GameLogger.info("Model::Item.getEquipeAllList playerId:'#{playerId}' equipKeyList size '#{equipKeyList.size}' , weapons size '#{wlist.size}' ,shields size '#{slist.size}' ,horses size '#{hlist.size}'!")
 		equipObjList = []
 		if not equipKeyList.empty?
 			equipList = RedisClient.mget(equipKeyList)
