@@ -68,7 +68,15 @@ module Model
 				return Const::ErrorCode::TaskIsNotBeComplated
 			end
 		 	#处理奖励
-		 	ret = Model::Reward::processAward(player , taskTemp.bReward , Const::FunctionConst::TaskGetAward)
+		 	saveHash = {}
+		 	begin
+		 		awardRet = Model::Reward::processAward(player , taskTemp.bReward , Const::FunctionConst::TaskGetAward)
+			rescue
+				retcode = "#{$!}"
+				return {:retcode => retcode}
+			ensure
+				#finally
+			end
 		 	#本任务从显示列表中移除
 		 	displayTaskList.delete(iid.to_s)
 		 	if  awardedList == nil
@@ -88,7 +96,7 @@ module Model
 				 		#从已完成列表中移除
 				 		complatedList.delete(nextTaskTemp.questID.to_i)
 				 		taskComplatedsKey = Const::Rediskeys::getTaskComplatedsKey(playerId)
-				 		ret[taskComplatedsKey] = complatedList
+				 		saveHash[taskComplatedsKey] = complatedList
 				 	else
 				 		#未完成添加到显示列表中
 			 			displayTaskList[nextTaskTemp.questID] = Const::StatusDisable
@@ -98,13 +106,21 @@ module Model
 		 	#保存奖励，修改任务显示列表
 		 	taskDisplayedsKey = Const::Rediskeys::getTaskDisplayedsKey(playerId)
 		 	taskAwardedKey = Const::Rediskeys::getTaskAwardedKey(playerId)
-		 	ret[taskDisplayedsKey] = displayTaskList
-		 	ret[taskAwardedKey] = awardedList
-		 	puts "ret - - - -- #{ret}"
-		 	commonDao.update(ret)
-		 	ret
+		 	saveHash[taskDisplayedsKey] = displayTaskList
+		 	saveHash[taskAwardedKey] = awardedList
+		 	saveHash = saveHash.merge(awardRet)
+		 	puts "saveHash - - - -- #{saveHash}"
+		 	puts "awardRet - - - -- #{awardRet}"
+		 	commonDao.update(saveHash)
+		 	#返回奖励信息
+		 	playerKey = Const::Rediskeys.getPlayerKey(playerId)
+		 	awardRet.delete(playerKey)
+		 	
+		 	awardRet[:awardStr] =  taskTemp.bReward
+
 		end
 
+		#应该是for，可能一次完成多个任务。TODO
 		#计算出触发的任务iid
 		#@param [Hash,Integer,Hash] player , type:任务类型 ,param : 参数 如：{:bsubid => 101006}
 		#@return [Hash] taskTemp 
@@ -138,7 +154,6 @@ module Model
 					needStar = needParam[:star].to_i
 					needCount = needParam[:num].to_i
 					equipCount = Model::Item.getEquipCountByStar(playerId,needStar)
-					# puts "----装备类 equipCount:#{equipCount}"
 					if equipCount >= needCount
 						return taskTemp
 					end
@@ -196,15 +211,15 @@ module Model
 			
 			playerId = player[:playerId]
 			tempTask = calcIidForCheckStatus(player , type , param)
+			puts "完成乐任务.....#{tempTask.to_json}"
+
 			#任务不存在
 			if not tempTask
-				GameLogger.info("Model::Task.checkTask type:'#{type}' param:'#{param}' , tempTask is not exists !")
 				return 
 			end
-			taskIid = tempTask.questID
+			taskIid = tempTask.questID.to_i
 			#已领取
 			awardedList = taskDao.getAwardedList(playerId)
-			puts "已经领取的记录 awardList #{awardedList}"
 			if awardedList and awardedList.include?(taskIid)
 				GameLogger.info("Model::Task.checkTask taskIid:#{taskIid} is already in awardedList !")
 				return 
@@ -216,7 +231,7 @@ module Model
 				return 
 			end
 			#显示列表已存在，修改状态
-			if displayTaskList and displayTaskList.has_key?(taskIid)
+			if displayTaskList and displayTaskList.has_key?(taskIid.to_s)
 				displayTaskList[taskIid.to_s] = Const::StatusEnable
 				taskDisplayedsKey = Const::Rediskeys::getTaskDisplayedsKey(playerId)
 			 	commonDao.update({taskDisplayedsKey => displayTaskList})

@@ -23,10 +23,25 @@ module Model
 			end
 			retHash = addItemNoSave(player,iid,count)
 			commonDao.update(retHash)
+			#保存数据后，验证任务
+			checkGainItemTask(player,tempItem)
 			{:retcode => Const::ErrorCode::Ok }
 		end
-
-		#
+		#获得道具后，验证任务状态
+		#获得的道具配置数据
+		#@param [Hash]
+		#@return 
+		def self.checkGainItemTask(player,tempItem)
+			#任务-兵法数量
+			if tempItem.eType.to_i == Const::ItemTypeProp
+			#兵法
+			elsif tempItem.eType.to_i == Const::ItemTypeBook
+				Model::Task.checkTask(player , Const::TaskTypeBook , nil)
+			#装备
+			else
+				Model::Task.checkTask(player , Const::TaskTypeEquip , nil)	
+			end
+		end
 		#添加道具 , 没有保存
 		#1：武器防具坐骑兵法
 		#2：宝物
@@ -76,8 +91,6 @@ module Model
 						equip[:failTimes] = 0
 						equip[:createdAt] = Time.now.to_i
 						equip[:updatedAt] = Time.now.to_i
-						#任务-兵法数量
-						Model::Task.checkTask(player , Const::TaskTypeBook , nil)
 					#装备类	
 					else
 						equip = {}
@@ -93,8 +106,6 @@ module Model
 						# equip[:blood] = tempItem.eHP.to_i
 						equip[:createdAt] = Time.now.to_i
 						equip[:updatedAt] = Time.now.to_i
-						#任务-装备数量
-						Model::Task.checkTask(player , Const::TaskTypeEquip , nil)
 					end
 					#道具的 key
 					equipKey = Const::Rediskeys.getItemKey(playerId, tempItem.eType  , equip[:id])
@@ -175,7 +186,9 @@ module Model
 				buff / 100.to_f
 			end
 		end
-
+		#追加加成属性
+		#@param [Hash] 装备
+		#@return [Hash] 装备
 		def self.appendEquipBuff(item)
 			type = item[:type]
 			#装备
@@ -420,15 +433,22 @@ module Model
 				bookDataHash[playerKey] = player 
 				bookDataHash[bookKey] = bookData 
 				commonDao.update(bookDataHash)
+				#追加加成
+				bookData = appendEquipBuff(bookData)
 				GameLogger.info("Model::Item.advanceBook  playerId:#{playerId} , bookId:#{id} , bookIid:#{bookData[:iid]} ，advance success ! after level:#{bookData[:level]}! ")
 				return {:retcode => Const::ErrorCode::Ok , :result => Const::BookAdvanceSuccess , :bookdata => bookData }
 			else
-				bookFragmentKey = Const::Rediskeys.getBookFragmentKey(playerId,bookFragmentData[:iid])	
-				bookDataHash[playerKey] = player 
-				bookDataHash[bookFragmentKey] = bookFragmentData 
-				commonDao.update(bookDataHash)
-				GameLogger.info("Model::Item.advanceBook  playerId:#{playerId} , bookId:#{id} , bookIid:#{bookData[:iid]} ，advance fail ! award book fragment iid:#{bookFragmentData[:iid]}  ")
- 				return {:retcode => Const::ErrorCode::Ok , :result => Const::BookAdvanceFail }
+				if bookFragmentData
+					bookFragmentKey = Const::Rediskeys.getBookFragmentKey(playerId,bookFragmentData[:iid])	
+					bookDataHash[playerKey] = player 
+					bookDataHash[bookFragmentKey] = bookFragmentData 
+					commonDao.update(bookDataHash)
+					GameLogger.info("Model::Item.advanceBook  playerId:#{playerId} , bookId:#{id} , bookIid:#{bookData[:iid]} ，advance fail ! award book fragment iid:#{bookFragmentData[:iid]}  ")
+	 				return {:retcode => Const::ErrorCode::Ok , :result => Const::BookAdvanceFail , :debris =>  bookFragmentData[:iid]}
+				else
+					GameLogger.info("Model::Item.advanceBook  playerId:#{playerId} , bookId:#{id} , bookIid:#{bookData[:iid]} ，advance fail ! no book fragment , check csv file !")
+					return {:retcode => Const::ErrorCode::Ok , :result => Const::BookAdvanceFail }
+				end				
  			end
 		end
 
@@ -586,8 +606,7 @@ module Model
 		#@return [Integer] 装备数量
 		def self.getEquipCountByStar(playerId,star)
 			itemDao = ItemDao.new
-			equipList = itemDao.getEquipeAllList(playerId)
-			puts "getEquipCountByStar  - equipList - -#{equipList}"
+			equipList = getEquipeAllList(playerId)
 			count = 0
 			equipList.each do |equip|
 				if equip[:star] == star.to_i
