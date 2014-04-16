@@ -36,6 +36,8 @@ module Model
 				player[:backpackCount] = metaDao.getFlagValue("pack_cell_init_count").to_i
 				#更新player信息到redis中
 				playerDao.create(player)
+				#初始化任务显示列表
+				Model::Task.initDisplayTaskList(player[:playerId])
 				{:retcode => Const::ErrorCode::Ok,:player => player}
 			end
 		end

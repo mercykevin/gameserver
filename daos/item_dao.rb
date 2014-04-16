@@ -118,14 +118,34 @@ class ItemDao
 			nil
 		end
 	end
+	#所有的装备（武器防具坐骑）
+	#包括上阵和为上阵的
+	#@param [Integer] playerId
+	def getEquipeAllList(playerId)
+		weaponKeys = Const::Rediskeys.getEquipKeyAllList(playerId , Const::ItemTypeWeapon)
+		shieldKeys = Const::Rediskeys.getEquipKeyAllList(playerId , Const::ItemTypeShield)
+		horseKeys = Const::Rediskeys.getEquipKeyAllList(playerId , Const::ItemTypeHorse)
+		#TODO 有错误 TODO
+		puts "有错误 TODO"
+		equipKeyList = RedisClient.keys(weaponKeys)
+		# equipKeyList = equipKeyList.push(RedisClient.keys(shieldKeys))
+		# equipKeyList = equipKeyList.push(RedisClient.keys(horseKeys))
 
-	#所有的未装备兵法
-	def getBookUnEquipedList(playerId)
-
+		equipObjList = []
+		if not equipKeyList.empty?
+			equipList = RedisClient.mget(equipKeyList)
+			if equipList
+				equipList.each do |equip|
+					equipObjList << JSON.parse(equip, {:symbolize_names => true}) 
+				end
+			end
+		end
+		equipObjList
 	end
+
 	#所有的兵法
 	#包括上阵和未上阵的
-	def getBookUnEquipedList(playerId)
+	def getBookAllList(playerId)
 		commKey = Const::Rediskeys.getBookKeyAllList(playerId)
 		bookKeyList = RedisClient.keys(commKey)
 		bookObjList = []

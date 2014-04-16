@@ -38,22 +38,30 @@ module Const
 	TaskTypeBattle = "campaign"
 	#武将
 	TaskTypeHero = "hero"
+	#装备数量
+	TaskTypeEquip = "equip"
+	#兵法数量
+	TaskTypeBook = "book"
 	#强化
 	TaskTypeRefine = "refine"
-	#情谊
+	#情谊,命运
 	TaskTypeShip = "skill"
 	#竞技场
 	TaskTypeArena = "arena"
+	#竞技场连胜
+	TaskTypeArenaWin = "arenawin"
 	#培养
 	TaskTypeTrain = "train"
 	#通天塔相关
 	TaskTypeTower = "tower"
+	#towerstar
+	TaskTypeTowerStar = "towerstar"
 	#银矿
 	TaskTypeSilver = "silver"
 	#夺宝
 	TaskTypeRob = "rob"
 	#兵法进阶
-	TaskTypeBook = "book"
+	TaskTypeBookAdvance = "bookadvance"
 
 	#--------任务状态
 	#已完成

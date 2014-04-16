@@ -45,10 +45,12 @@ module Model
 				#道具类
 				when Const::RewardTypeItem 
 					awards.each do |itemIidCount|
-						itemIid = 
-						count = awards[itemIidCount]
-						itemRet = Model::Item.addItemNoSave(playerId , itemIid , count)
-						#retHash.merge(itemRet)
+						itemRet = Model::Item.addItemNoSave(player , itemIidCount[0] , itemIidCount[1])
+						puts "itemRet - - - - -=== =#{itemRet}"
+						#TODO ERROR merge 的有问题
+						puts "before merge  -  -  -  - #{retHash}"
+						itemRet.merge retHash
+						puts "after merge  -  -  -  -  #{retHash}"
 					end
 				#武将类
 				when Const::RewardTypeHero
@@ -60,7 +62,7 @@ module Model
 				puts "retHash - - - - - -#{retHash}"
 			end
 
-			GameLogger.error("Model::Reward.processAward playerId:#{playerId} , awardStrs:#{awardStrs} ,function #{function} !")
+			GameLogger.error("Model::Reward.processAward playerId:#{playerId} , awardStrs:#{awardStrs} ,function '#{function}'' !")
 			retHash 
 		end
 

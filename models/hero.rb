@@ -77,6 +77,8 @@ module Model
 			else
 				commonDao.update({herokey => hero, heroIdListKey => heroIdList, recruiteInfokey => recruiteinfo})
 			end
+			#触发任务-武将数量
+			Model::Task.checkTask(player , Const::TaskTypeHero , nil)
 			#计算剩余时间，返回给前端
 			lefttime = metaData.rFreeCooling.to_i - (Time.now.to_i - recruiteTime)
 			lefttime = 0 unless lefttime >= 0
@@ -497,6 +499,12 @@ module Model
 			else
 				{:retcode => Const::ErrorCode::Fail}
 			end
+		end
+		#根据星级获取武将数了
+		#@param [Integer,Integer] 角色id，星级
+		#@return [Integer] 返回数量
+		def self.getHeroCountByStar(playerId,star)
+			0
 		end
 	end # class
 end # model definition
