@@ -175,6 +175,50 @@ module Model
 				buff / 100.to_f
 			end
 		end
+
+		def self.appendEquipBuff(item)
+			type = item[:type]
+			#装备
+			if type== Const::ItemTypeWeapon or type == Const::ItemTypeShield  or type == Const::ItemTypeHorse 
+				#银币消耗
+				item[:siliverCost] = calcStrengthenSiliverCost(type,item[:level],item[:star])
+				#装备加成
+				buff = calcEquipBuff(item[:iid] , item[:level])
+				case type
+				when Const::ItemTypeWeapon #attack
+				 	item[:attack] = buff
+				when Const::ItemTypeShield #defence
+					item[:defence] = buff
+				when Const::ItemTypeHorse #blood
+					item[:blood] = buff
+				end
+			#兵法加成
+			elsif type == Const::ItemTypeBook
+				metaDao = MetaDao.instance
+				#装备加成
+				bookTemp = metaDao.getBookMetaData(item[:iid])
+				buff = 0
+				#加伤害 - 伤害 加值
+				if bookTemp.bHurt
+					item[:hurt] =  bookTemp.bHurt.to_i + (level-1) * bookTemp.bHurtUP.to_i
+				#其他 -加百分比
+				else
+					#加攻击
+					if bookTemp.bATKProportion
+						item[:attack] = bookTemp.bATKProportion.to_i + (level-1) * bookTemp.bATKUP.to_i 
+					#加防御
+					elsif bookTemp.bDEFProportion 
+						item[:defence] = bookTemp.bDEFProportion.to_i + (level-1) * bookTemp.bDEFUP.to_i
+					#加智力
+					elsif bookTemp.bINTProportion
+						item[:init] = bookTemp.bINTProportion.to_i + (level-1) * bookTemp.bINTUP.to_i
+					end
+				end
+			end
+			item
+		end
+
+
 		#根据类型获取未上阵的装备列表
 		#@param [Integer,Integer] playerId,sort (武器防具坐骑兵法宝物 = 1,2,3,4,5) 
 		#@return [Array]
@@ -182,45 +226,8 @@ module Model
 			itemDao = ItemDao.new
 			metaDao = MetaDao.instance
 			list = itemDao.getEquipUnusedList(playerId,sort)
-			#装备
-			if sort.to_i == Const::ItemTypeWeapon or sort.to_i == Const::ItemTypeShield  or sort.to_i == Const::ItemTypeHorse 
-				list.each do |item|
-					#银币消耗
-					item[:siliverCost] = calcStrengthenSiliverCost(sort,item[:level],item[:star])
-					#装备加成
-					buff = calcEquipBuff(item[:iid] , item[:level])
-					case sort.to_i
-					when Const::ItemTypeWeapon #attack
-					 	item[:attack] = buff
-					when Const::ItemTypeShield #defence
-						item[:defence] = buff
-					when Const::ItemTypeHorse #blood
-						item[:blood] = buff
-					end
-				end
-			#兵法加成
-			elsif Const::ItemTypeBook
-				list.each do |item|
-					#装备加成
-					bookTemp = metaDao.getBookMetaData(item[:iid])
-					buff = 0
-					#加伤害 - 伤害 加值
-					if bookTemp.bHurt
-						item[:hurt] =  bookTemp.bHurt.to_i + (level-1) * bookTemp.bHurtUP.to_i
-					#其他 -加百分比
-					else
-						#加攻击
-						if bookTemp.bATKProportion
-							item[:attack] = bookTemp.bATKProportion.to_i + (level-1) * bookTemp.bATKUP.to_i 
-						#加防御
-						elsif bookTemp.bDEFProportion 
-							item[:defence] = bookTemp.bDEFProportion.to_i + (level-1) * bookTemp.bDEFUP.to_i
-						#加智力
-						elsif bookTemp.bINTProportion
-							item[:init] = bookTemp.bINTProportion.to_i + (level-1) * bookTemp.bINTUP.to_i
-						end
-					end
-				end
+			list.each do |item|
+				appendEquipBuff(item)
 			end
 			
 		end
@@ -322,8 +329,9 @@ module Model
 			commonDao.update(playerKey => player , equipKey => equipData)
 			#下次强化消耗
 			nextSiliverCost = calcStrengthenSiliverCost(equipData[:type],equipData[:level],equipData[:star])
+			equipData = appendEquipBuff(equipData)
 			GameLogger.debug("Model::Item.strengthen  playerId:#{playerId} , equipId:#{id} , equipIid:#{equipData[:iid]} , before level #{beforeLevel} after level  #{equipData[:level]} ! ")
-			{:retcode => Const::ErrorCode::Ok,:equipdata => equipData , :siliverCost => nextSiliverCost}
+			{:retcode => Const::ErrorCode::Ok,:equipdata => equipData }
 		end
 
 		#重置兵法进阶失败次数 除了 bookId
