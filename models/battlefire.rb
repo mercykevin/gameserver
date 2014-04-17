@@ -65,7 +65,7 @@ module Model
 					@defend.delete(@defendOne[:index])
 				end
 				#行动方轮换
-				@actionSide = not @actionSide
+				@actionSide = (not @actionSide)
 			end
 		end
 		# 战斗计算
@@ -123,9 +123,6 @@ module Model
 			end
 			#对应的同排都没的话，开始往外扩散找，找离自己最近的
 			#先往后找
-			findBack = nil
-			
-
 		end
 		#战斗计算
 		def calculateBattle(actionOne,receiveOne)
