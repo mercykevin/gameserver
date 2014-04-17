@@ -657,25 +657,14 @@ module Model
 		#@param [Integer] 
 		#@param [Hash] id,iid
 		def self.autoChooseBooks(playerId)
-			metaDao = MetaDao.instance
-			star2Hash = []
-			star3Hash = []
-			#选择的兵书数量
-			bookMaxCount = metaDao.getFlagValue("book_advance_auto_choose_book_count").to_i
-			bookList = getEquipUnusedList(playerId , Const::ItemTypeBook)
-			bookList.each do |book|
-				if book.star > 3
-					continue
-				end 
-				bookInfo = {:id => book.id , :iid => book.iid}
-				case book.star
-				when 2
-					star2Hash.push(bookInfo)
-				when 3
-					star3Hash.push(bookInfo)
-				else
-				end
-			end
+			# metaDao = MetaDao.instance
+			# #选择的兵书数量
+			# bookMaxCount = metaDao.getFlagValue("book_advance_auto_choose_book_count").to_i
+			# bookList = getEquipUnusedList(playerId , Const::ItemTypeBook)
+			# bookList.each do |book|
+			# 	# bookInfos[:id] = book[:id] 
+			# 	# bookInfos[:iid] = book[:id] 
+			# end
 			{}
 		end
 

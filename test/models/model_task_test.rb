@@ -7,6 +7,13 @@ class TaskTask < Minitest::Test
 	# 	ret = Model::Task::getDisplayTaskList(player[:playerId])
 	# 	puts "获取任务列表: #{ret}"
 	# end
+	def test_test
+		player = Model::Player.register("andy","image")[:player]
+		playerId = player[:playerId]
+		Model::Task.addData4TaskTest(player)
+		list = Model::Task::getDisplayTaskList(player[:playerId])
+		puts "-----test------触发任务后的任务列表：#{list}"
+	end
 
 
 	def test_checkTask
