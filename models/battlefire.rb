@@ -78,7 +78,6 @@ module Model
 				@attackOne = nil
 				@defendOne = nil
 			end
-			reward()
 		end
 		#
 		# 处理战斗奖励
@@ -119,7 +118,6 @@ module Model
 							heroDao.handleHeroLevelUp(hero, metaBattle.bGEXP.to_i)
 							#写到report中
 							@report[:attack][index][:newlevel] = hero[:level]
-							#
 							heroKey = Const::Rediskeys.getHeroKey(hero[:heroId], @attackPlayer[:playerId])
 							ret[heroKey] = hero
 						end
@@ -165,6 +163,10 @@ module Model
 					return v
 				end
 			end 
+		end
+
+		def getPkResult()
+			@result
 		end
 		#选择受伤方
 		def pickReceiveOne(actionIndex, receivers)

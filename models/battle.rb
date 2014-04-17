@@ -90,21 +90,31 @@ module Model
 			end
 			#验证都通过话，打战役
 			battleFire = Model::BattleFire.createPVE(playerId, subBattleId)
-			battleRet = battleFire.pk
-			p battleFire.getReport.to_json
+			#战斗计算
+			battleFire.pk
+			battleRet = battleFire.reward
+			#
 			pveBattleInfo = playerSubBattleMap[metaBattleData.bSubID.to_sym]
 			if pveBattleInfo
-				pveBattleInfo[:win] = true
+				#表示是否推倒过
+				if not pveBattleInfo[:win]
+					#没有推倒过
+					pveBattleInfo[:win] = battleFire.getPkResult()[:win]
+				end
+				#
 				pveBattleInfo[:times] = pveBattleInfo[:times] + 1
 				pveBattleInfo[:time] = Time.now().to_i
-				pveBattleInfo[:stars] = 3
+				#保留最大的星星
+				if battleFire.getPkResult()[:stars] > pveBattleInfo[:stars]
+					pveBattleInfo[:stars] = battleFire.getPkResult()[:stars]
+				end
 			else
 				pveBattleInfo = {}
 				pveBattleInfo[:battleid] = metaBattleData.bSubID
-				pveBattleInfo[:win] = false
+				pveBattleInfo[:win] = battleFire.getPkResult()[:win]
 				pveBattleInfo[:times] = 1
 				pveBattleInfo[:time] = Time.now().to_i
-				pveBattleInfo[:stars] = 0
+				pveBattleInfo[:stars] = battleFire.getPkResult()[:stars]
 				playerSubBattleMap[metaBattleData.bSubID.to_sym] = pveBattleInfo
 			end
 			#add battleId to list
@@ -112,7 +122,10 @@ module Model
 			key = Const::Rediskeys.getBattleListKey(metaBattleData.battlefirstID, playerId)
 			commonDao.update({key => playerSubBattleMap}.merge(addRet).merge(battleRet))
 			#返回值
-			{:retcode => Const::ErrorCode::Ok,:battleinfo => pveBattleInfo}
+			pveBattleInfo[:money] = battleFire.getPkResult()[:money]
+			pveBattleInfo[:heroxp] = battleFire.getPkResult()[:heroxp]
+			pveBattleInfo[:playerxp] = battleFire.getPkResult()[:playerxp]
+			{:retcode => Const::ErrorCode::Ok,:battleinfo => pveBattleInfo, :report=>battleFire.getReport}
 		end
 		# 验证是否推掉这个图
 		# @param [Hash,MetaData]

@@ -12,13 +12,13 @@ require 'sinatra'
 require 'sinatra/cookies'
 require 'sinatra/reloader' if development?
 
-if development?
-	also_reload './lib/*.rb'
-	also_reload './exception/*.rb'
-	also_reload './utils/*.rb'
-	also_reload './daos/*.rb'
-	also_reload './models/*.rb'
-end
+#if development?
+#	also_reload './lib/*.rb'
+#	also_reload './exception/*.rb'
+#	also_reload './utils/*.rb'
+#	also_reload './daos/*.rb'
+#	also_reload './models/*.rb'
+#end
 
 # Set project configuration
 require File.expand_path("../application", __FILE__)
