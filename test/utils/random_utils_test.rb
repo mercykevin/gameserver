@@ -24,19 +24,37 @@ class RandomTest < Minitest::Test
 	# 		num =  Utils::Random::randomValue([10,1,3,3,10,5] , [10,20,30,40,50])
 			
 	# 	end
+	#end
+
+
+	# def test_each_key
+	# 	json = "{\"item\":{\"10100\":10}}"
+	# 	val = JSON.parse(json)
+	# 	val.each_key do |k|
+	# 		puts "key : #{k}   value : #{val[k]}"
+	# 	end
+	# 	puts " 转换后 #{val}"
+	# 	puts " keys #{val.keys}"
+	# 	puts " keys #{val.values}"
 	# end
 
 
-	def test_each_key
-		json = "{\"item\":{\"10100\":10}}"
-		val = JSON.parse(json)
-		val.each_key do |k|
-			puts "key : #{k}   value : #{val[k]}"
-		end
 
-		puts " 转换后 #{val}"
-		puts " keys #{val.keys}"
-		puts " keys #{val.values}"
+	def test_append_id
+
+		equip = {}
+		equip[:id] = 1
+		equip[:level] = 2
+		equip[:star] = 5
+		id = Model::Item.calcEquipSortId(equip)
+		puts "id #{id}"
+
+		equip = {}
+		equip[:id] = 654321456
+		equip[:level] = 149
+		equip[:star] = 6
+		id = Model::Item.calcEquipSortId(equip)
+		puts "id #{id}"
 
 
 	end
