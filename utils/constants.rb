@@ -81,4 +81,11 @@ module Const
 	#将魂
 	RewardTypeSoul = "soul"
 
+	#战斗类型
+	#征讨
+	BattleTypePVE = 1
+	#夺宝
+	BattleTypeDuoBao = 2
+	#国战
+	BattleTypeCountry = 3
 end

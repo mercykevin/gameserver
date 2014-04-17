@@ -46,4 +46,42 @@ class BattleDao
 		key = Const::Rediskeys.getBattleIdListKey(playerId)
 		{key=>battleIdList}
   	end
+
+    # 创建英雄列表从npc配表数据
+    # @param [String] subBattleId
+    # @return [Hash]
+    def generatePVENPC(subBattleId)
+      pvenpc = Hash.new
+      metaDao = MetaDao.instance
+      battleMetaData = metaDao.getSubBattleMetaData(subBattleId)
+      npcList = JSON.parse(battleMetaData.bNPCID)
+      npcList.each_with_index do |npcId, index|
+        npcmetaData = metaDao.getNPC(npcId)
+        npc = {:id=>index, :attack=>npcmetaData.nATK.to_i, :defend=>npcmetaData.nDEF.to_i, 
+                :intelegence=>npcmetaData.nINT.to_i, :blood=>npcmetaData.nHP.to_i, 
+                :level=>1,:name=>npcmetaData.nName, :headpic=>npcmetaData.nIconsID, :isAction=>false, 
+                :index=>index }
+        pvenpc[index] = npc      
+      end
+    end
+
+    # 创建玩家的战斗列表
+    # @param [Integer] playerId
+    # @return [Array]
+    def generatePlayerBattle(playerId)
+      heroBattleHash = Hash.new
+      metaDao = MetaDao.instance
+      heroDao = HeroDao.new
+      heroList = heroDao.getBattleHeroList(playerId)
+      heroList.each_with_index do |hero, index|
+        if Hash == hero.class
+          #存在英雄信息
+          heroMetaData = metaDao.getHeroMetaData(hero[:templeteHeroId])
+          heroBattle = {:id=>hero[:heroId], :attack=>hero[:attack], :defend=>hero[:defend],
+            :intelegence=>hero[:intelegence], :blood=>hero[:blood], :level=>hero[:level], 
+            :name=>heroMetaData.gName, :isAction=>false,:index=>index}
+          heroBattleHash[index] = heroBattle  
+        end
+      end
+    end
 end

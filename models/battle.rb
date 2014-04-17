@@ -142,5 +142,12 @@ module Model
 				nil
 			end
 		end
+		# 双方互打
+		# @param[Array,Array]
+		# @return[Hash]
+		def self.handleFight(attack,defend)
+
+		end
+		
 	end # end class
 end # end model

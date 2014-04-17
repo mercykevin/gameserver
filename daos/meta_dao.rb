@@ -455,7 +455,11 @@ class MetaDao
 	def getTaskListBySort(sort)
 		@taskSortDataMap[sort]
 	end
-
-
+	#返回某个NPC的配置数据
+	#@param [Integer] 
+	#@return [MetaData]
+	def getNPC(npcId)
+		@npcMetaMap[npcId.to_s]
+	end
 
 end
