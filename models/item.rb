@@ -644,28 +644,73 @@ module Model
 			end 
 			count
 		end
-
+		#拼接id
+		def self.calcEquipSortId(equip)
+			levelMaxLen = 3
+			idMaxLen = 9
+			sortId = equip[:star].to_s
+			#level
+			count = levelMaxLen - equip[:level].to_s.length - 1 
+			for i in 0..count
+			  sortId << "0"
+			end
+			sortId << equip[:level].to_s
+			#level
+			count = idMaxLen - equip[:id].to_s.length - 1 
+			for i in 0..count
+			  sortId << "0"
+			end
+			sortId << equip[:id].to_s
+			sortId
+		end
+		#数组排序
+		def self.sortNumArr(arr)
+		  len = arr.length
+		  for i in 0...len-1
+		    for j in 0...len-i-1
+		      if arr[j] > arr[j+1]        
+		        temp = arr[j]
+		        arr[j] = arr[j+1]
+		        arr[j+1] = temp
+		      end
+		    end
+		  end
+		  arr
+		end
 		#排序
 		#@param [Hash,String]
 		#@param [Hash]
-		def self.sortEquipByStar(list , sort)
+		def self.sortEquipByStar(list)
 			# Const::SortAsc
+			equipHash = {}
+			equipIdArr = []
+			list.each do |equip|
+				sortId = calcEquipSortId(equip)
+				equipIdArr.push(sortId.to_i)
+				equipHash[sortId] = equip
+			end
+			#id排序
+			sortIdArr = sortNumArr(equipIdArr)
+			list = []
+			sortIdArr.each do |sId|
+				list << equipHash[sId.to_s]
+			end
+			list
 		end
-
 
 		#一键选择
 		#@param [Integer] 
 		#@param [Hash] id,iid
 		def self.autoChooseBooks(playerId)
-			# metaDao = MetaDao.instance
+			metaDao = MetaDao.instance
 			# #选择的兵书数量
-			# bookMaxCount = metaDao.getFlagValue("book_advance_auto_choose_book_count").to_i
-			# bookList = getEquipUnusedList(playerId , Const::ItemTypeBook)
-			# bookList.each do |book|
-			# 	# bookInfos[:id] = book[:id] 
-			# 	# bookInfos[:iid] = book[:id] 
-			# end
-			{}
+			bookMaxCount = metaDao.getFlagValue("book_advance_auto_choose_book_count").to_i
+			bookList = getEquipUnusedList(playerId , Const::ItemTypeBook)
+			bookList = sortEquipByStar(bookList)
+			if bookList.size < bookMaxCount
+				bookMaxCount = bookList.size
+			end
+			bookList[0,bookMaxCount]
 		end
 
 
