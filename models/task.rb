@@ -115,9 +115,8 @@ module Model
 		 	#返回奖励信息
 		 	playerKey = Const::Rediskeys.getPlayerKey(playerId)
 		 	awardRet.delete(playerKey)
-		 	
 		 	awardRet[:awardStr] =  taskTemp.bReward
-
+		 	awardRet[:retcode] =  Const::ErrorCode::Ok
 		end
 
 		#应该是for，可能一次完成多个任务。TODO
