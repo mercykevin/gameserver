@@ -90,7 +90,8 @@ module Model
 			end
 			#验证都通过话，打战役
 			battleFire = Model::BattleFire.createPVE(playerId, subBattleId)
-			battleFire.pk
+			battleRet = battleFire.pk
+			p battleFire.getReport.to_json
 			pveBattleInfo = playerSubBattleMap[metaBattleData.bSubID.to_sym]
 			if pveBattleInfo
 				pveBattleInfo[:win] = true
@@ -109,7 +110,7 @@ module Model
 			#add battleId to list
 			addRet = battleDao.addBattleIdToList(metaBattleData.bSubID,playerId)
 			key = Const::Rediskeys.getBattleListKey(metaBattleData.battlefirstID, playerId)
-			commonDao.update({key => playerSubBattleMap}.merge(addRet))
+			commonDao.update({key => playerSubBattleMap}.merge(addRet).merge(battleRet))
 			#返回值
 			{:retcode => Const::ErrorCode::Ok,:battleinfo => pveBattleInfo}
 		end

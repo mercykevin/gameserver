@@ -16,14 +16,13 @@ module Model
 			@actionSide = true
 			@attackOne = nil
 			@defendOne = nil
-			#初始化战斗过程
+			#初始化战斗报告
 			@report = {}
 			@report[:attack] = attack.clone
 			@report[:defend] = defend.clone
 			@report[:battleproc] = {}
-			@report[:result] = {}
-			@attackWin = false
-			@stars = 0
+			#战斗结果
+			@result = {}
 		end
 		# 构造pve的battlefire对象
 		# @params[Integer,String]
@@ -33,7 +32,7 @@ module Model
 			attack = battleDao.generatePlayerBattle(playerId)
 			defend = battleDao.generatePVENPC(battleId)
 			player = playerDao.getPlayer(playerId)
-			new(attack, playerId, defend, "NPC", Const::BattleTypePVE, battleId)
+			new(attack, player, defend, "NPC", Const::BattleTypePVE, battleId)
 		end
 		# 构造pvp的battlefire对象
 		# @构造pvp的战役对象
@@ -81,24 +80,64 @@ module Model
 			end
 			reward()
 		end
-
+		#
 		# 处理战斗奖励
 		def reward()
-			if @attack.empty? 
-				@attackWin = false
+			ret = {}
+			metaDao = MetaDao.instance
+			heroDao = HeroDao.new
+			playerDao = PlayerDao.new
+			@result[:stars] = 0
+			@result[:money] = 0
+			@result[:playerxp] = 0
+			@result[:win] = false
+			if @attack.empty?
+				@result[:win] = false 
 			else
-				@attackWin = true
+				@result[:win] = true
 				#处理星级 TODO，要修改
 				if @attack.length == @attackCount
-					@stars = 3
+					@result[:stars] = 3
 				else
-					@stars = 2
+					@result[:stars] = 2
 				end
 			end
-			#处理星级
+			#处理奖励
+			if @battleType == Const::BattleTypePVE
+				metaBattle = metaDao.getSubBattleMetaData(@battleId)
+				metaPlayer = metaDao.getPlayerLevelMetaData(@attackPlayer[:level])
+				if @result[:win]
+					#奖励金币和角色经验
+					@result[:money] = metaBattle.bMoney.to_i
+					@result[:playerxp] = metaPlayer.cBatlleEXP.to_i
+					@result[:heroxp] = {}
+					attackHeroList = Model::Hero.getBattleHeroList(@attackPlayer[:playerId])
+					attackHeroList.each_with_index do |hero, index|
+						if hero.class == Hash
+							@result[:heroxp][index] = metaBattle.bGEXP.to_i
+							#处理英雄升级
+							heroDao.handleHeroLevelUp(hero, metaBattle.bGEXP.to_i)
+							#写到report中
+							@report[:attack][index][:newlevel] = hero[:level]
+							#
+							heroKey = Const::Rediskeys.getHeroKey(hero[:heroId], @attackPlayer[:playerId])
+							ret[heroKey] = hero
+						end
+					end
+				else
+					@result[:money] = metaBattle.bFailureMoney.to_i
+				end
+				@attackPlayer[:siliver] = @attackPlayer[:siliver] + @result[:money]
+				#处理用户升级
+				playerDao.handlePlayerLevelUp(@attackPlayer, @result[:playerxp])
+				playerKey = Const::Rediskeys.getPlayerKey(@attackPlayer[:playerId])
+				ret[playerKey] = @attackPlayer
+			end
+			ret 
 		end
 		#获取战报
 		def getReport()
+			@report[:result] = @result
 			@report
 		end
 		#一回合结束，reset相应的数据
@@ -114,6 +153,9 @@ module Model
 			@actionSide = true
 			#回合数+1
 			@round = @round + 1
+		end
+		def isWin()
+			@result[:win]
 		end
 		#处理行动方的战斗单元
 		def pickActionOne(actions)

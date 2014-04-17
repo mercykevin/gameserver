@@ -282,6 +282,10 @@ class MetaDao
 	def getAllHeroLevelMetaData()
 		@heroLevelMetaMap.values()
 	end
+	#取角色经验的列表
+	def getAllPlayerLevelMetaData()
+		@playerLevelMetaMap.values()
+	end
 	#取最大的进阶级别
 	def getMaxHeroAdvancedLevel()
 		advancedLevels = @heroAdancedLevelMetaMap.values()
@@ -290,6 +294,11 @@ class MetaDao
 	#取进阶配置信息
 	def getAdancedHeroLevelMetaData(key)
 		@heroAdancedLevelMetaMap[key.to_s]
+	end
+
+	#取英雄的最大等级
+	def getMaxPlayerLevel()
+		@playerLevelMetaMap.length()
 	end
 
 	#
@@ -425,7 +434,7 @@ class MetaDao
 	def getBattleIdList
 		@battleMetaMap.keys
 	end
-	#取子游戏信息
+	#取子战役信息
 	# @param[Integer]
 	# @return [MetaData]
 	def getSubBattleMetaData(subBattleId)
