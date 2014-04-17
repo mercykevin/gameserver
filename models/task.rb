@@ -145,7 +145,7 @@ module Model
 					needStar = needParam[:star].to_i
 					needCount = needParam[:num].to_i
 					heroCount = Model::Hero.getHeroCountByStar(playerId,needStar)
-					if equipCount >= needCount
+					if heroCount >= needCount
 						return taskTemp
 					end
 				#装备数量 {"star":2,"num":2}
