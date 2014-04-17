@@ -89,7 +89,8 @@ module Model
 				end
 			end
 			#验证都通过话，打战役
-			#TODO need add fight logic
+			battleFire = Model::BattleFire.createPVE(playerId, subBattleId)
+			battleFire.pk
 			pveBattleInfo = playerSubBattleMap[metaBattleData.bSubID.to_sym]
 			if pveBattleInfo
 				pveBattleInfo[:win] = true
@@ -117,7 +118,7 @@ module Model
 		# @return [Bool]
 		def self.checkTurnDownBattle(playerBattleMap, subBattleMeta)
 			if playerBattleMap.key?(subBattleMeta.bSubID.to_sym)
-				battleInfo = playerBattleMap[subBattleMeta.bSubID]
+				battleInfo = playerBattleMap[subBattleMeta.bSubID.to_sym]
 				battleInfo[:win]
 			else
 				false
@@ -142,5 +143,12 @@ module Model
 				nil
 			end
 		end
+		# 双方互打
+		# @param[Array,Array]
+		# @return[Hash]
+		def self.handleFight(attack,defend)
+
+		end
+		
 	end # end class
 end # end model

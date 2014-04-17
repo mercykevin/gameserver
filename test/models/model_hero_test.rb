@@ -17,7 +17,7 @@ class HeroTest < Minitest::Test
 
 	def test_register_main_hero
 		player = Model::Player.register("kevin_main","image")[:player]
-		hero  = Model::Hero.registerMainHero("300001",player)[:hero]
+		hero  = Model::Hero.registerMainHero("301001",player)[:hero]
 		heroid = hero[:heroId]
 		heroFromRedis = JSON.parse(RedisClient.get(Const::Rediskeys.getHeroKey(heroid,player[:playerId])), {:symbolize_names => true})
 		assert(heroFromRedis,"hero info got from the redis is not exist after register main hero")
@@ -32,7 +32,7 @@ class HeroTest < Minitest::Test
 
 	def test_get_battle_hero_list
 		player = Model::Player.register("kevin_for_main_hero","image")[:player]
-		hero  = Model::Hero.registerMainHero("300001",player)[:hero]
+		hero  = Model::Hero.registerMainHero("301001",player)[:hero]
 		heroList = Model::Hero.getBattleHeroList(player[:playerId])
 		assert(heroList, "battle hero list is not exist ")
 		assert_equal(8 ,heroList.length)
@@ -43,7 +43,7 @@ class HeroTest < Minitest::Test
 
 	def test_replace_hero
 		player = Model::Player.register("kevin_for_replace_hero","image")[:player]
-		heroMain  = Model::Hero.registerMainHero("300001",player)[:hero]
+		heroMain  = Model::Hero.registerMainHero("301001",player)[:hero]
 		heroFree  = Model::Hero.recuritHero(player,"normal")[:hero]
 		ret = Model::Hero.replaceHero(1, heroFree[:heroId], player)
 		assert_equal(Const::ErrorCode::Ok, ret[:retcode])
@@ -65,7 +65,7 @@ class HeroTest < Minitest::Test
 
 	def test_trans_hero
 		player = Model::Player.register("kevin_for_trans_hero","image")[:player]
-		heroMain  = Model::Hero.registerMainHero("300001",player)[:hero]
+		heroMain  = Model::Hero.registerMainHero("301001",player)[:hero]
 		heroFree  = Model::Hero.recuritHero(player,"normal")[:hero]
 		commonDao = CommonDao.new
 		heroDao = HeroDao.new
@@ -82,7 +82,7 @@ class HeroTest < Minitest::Test
 
 	def test_arrange_battle
 		player = Model::Player.register("battle_arrange","image")[:player]
-		heroMain  = Model::Hero.registerMainHero("300001",player)[:hero]
+		heroMain  = Model::Hero.registerMainHero("301001",player)[:hero]
 		heroDao = HeroDao.new
 		heroFree  = Model::Hero.recuritHero(player,"normal")[:hero]
 		#跟空闲位交换
@@ -100,7 +100,7 @@ class HeroTest < Minitest::Test
 
 	def test_arrange_all
 		player = Model::Player.register("battle_arrange_all","image")[:player]
-		heroMain  = Model::Hero.registerMainHero("300001",player)[:hero]
+		heroMain  = Model::Hero.registerMainHero("301001",player)[:hero]
 		heroDao = HeroDao.new
 		heroFree  = Model::Hero.recuritHero(player,"normal")[:hero]
 		battleHeroIdList = heroDao.getBattleHeroIdList(player[:playerId])
@@ -118,7 +118,7 @@ class HeroTest < Minitest::Test
 
 	def test_advanced_hero
 		player = Model::Player.register("advanced_hero","image")[:player]
-		heroMain  = Model::Hero.registerMainHero("300001",player)[:hero]
+		heroMain  = Model::Hero.registerMainHero("301001",player)[:hero]
 		heroFree  = Model::Hero.recuritHero(player,"normal")[:hero]
 		ret = Model::Hero.advancedHero(heroMain[:heroId], heroFree[:heroId], player[:playerId])
 		assert_equal(Const::ErrorCode::Ok,ret[:retcode])
@@ -131,7 +131,7 @@ class HeroTest < Minitest::Test
 
 	def test_pre_bringup_hero
 		player = Model::Player.register("bringup_hero","image")[:player]
-		heroMain  = Model::Hero.registerMainHero("300001",player)[:hero]
+		heroMain  = Model::Hero.registerMainHero("301001",player)[:hero]
 		Model::Hero.preBringupBattleHero(heroMain[:heroId], Const::HeroBringUpNormal, player[:playerId])
 		ret = Model::Hero.bringupBattleHero(heroMain[:heroId], Const::HeroBringUpNormal, player[:playerId])
 		assert_equal(Const::ErrorCode::Ok,ret[:retcode])

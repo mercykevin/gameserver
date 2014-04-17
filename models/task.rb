@@ -19,7 +19,7 @@ module Model
 			commonDao = CommonDao.new
 			#所有本次要显示的idlist
 			displayTaskList = taskDao.getDisplayList(playerId)
-			return {:retcode => Const::ErrorCode::Ok,:taskList => displayTaskList.to_json}
+			return {:retcode => Const::ErrorCode::Ok,:taskList => displayTaskList}
 		end
 
 		#任务列表

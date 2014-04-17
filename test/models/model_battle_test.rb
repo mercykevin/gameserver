@@ -7,7 +7,7 @@ class BattleTest < Minitest::Test
 
 	def test_pve
 		player = Model::Player.register("kevin_main","image")[:player]
-		hero  = Model::Hero.registerMainHero("300001",player)[:hero]
+		hero  = Model::Hero.registerMainHero("301001",player)[:hero]
 		#跳战役打，不能成功
 		ret = Model::Battle.pve(101003,player[:playerId])
 		assert_equal(Const::ErrorCode::Fail,ret[:retcode])
