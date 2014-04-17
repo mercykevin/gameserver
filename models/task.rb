@@ -207,11 +207,8 @@ module Model
 		def self.checkTask(player , type ,param)
 			taskDao = TaskDao.new
 			commonDao = CommonDao.new
-			
 			playerId = player[:playerId]
 			tempTask = calcIidForCheckStatus(player , type , param)
-			puts "完成乐任务.....#{tempTask.to_json}"
-
 			#任务不存在
 			if not tempTask
 				return 
@@ -247,5 +244,13 @@ module Model
 			 	GameLogger.info("Model::Task.checkTask taskIid:#{taskIid} saved into complatedList !")
 			end
 		end
-	end
-end
+		#任务测试
+		def self.addData4TaskTest(player)
+			puts "添加武器，完成2个2星武器的任务."
+			count = 2
+			iid = 410104
+			Model::Item.addItem(player,iid,count)
+		end
+
+	end#class
+end#module

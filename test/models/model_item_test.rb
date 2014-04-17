@@ -146,6 +146,9 @@ class HeroTest < Minitest::Test
 		puts "进阶返回信息 :#{ret}"
 		bookData = Model::Item.getBookData(player[:playerId],equipId)
 		puts "进阶后player:#{player}"
+
+		 list= Model::Item.autoChooseBooks(player[:playerId])
+		 puts "list - - - - - #{list}"
 	end
 
 	# def test_calcBuff
