@@ -89,7 +89,8 @@ module Model
 				end
 			end
 			#验证都通过话，打战役
-			#TODO need add fight logic
+			battleFire = Model::BattleFire.createPVE(playerId, subBattleId)
+			battleFire.pk
 			pveBattleInfo = playerSubBattleMap[metaBattleData.bSubID.to_sym]
 			if pveBattleInfo
 				pveBattleInfo[:win] = true

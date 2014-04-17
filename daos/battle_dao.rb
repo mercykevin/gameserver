@@ -63,6 +63,7 @@ class BattleDao
                 :index=>index }
         pvenpc[index] = npc      
       end
+      pvenpc
     end
 
     # 创建玩家的战斗列表
@@ -79,9 +80,10 @@ class BattleDao
           heroMetaData = metaDao.getHeroMetaData(hero[:templeteHeroId])
           heroBattle = {:id=>hero[:heroId], :attack=>hero[:attack], :defend=>hero[:defend],
             :intelegence=>hero[:intelegence], :blood=>hero[:blood], :level=>hero[:level], 
-            :name=>heroMetaData.gName, :isAction=>false,:index=>index}
+            :name=>heroMetaData.gName, :isAction=>false, :index=>index}
           heroBattleHash[index] = heroBattle  
         end
       end
+      heroBattleHash
     end
 end

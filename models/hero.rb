@@ -5,7 +5,7 @@ module Model
 		#@return [Hash]
 		def self.recuritHero(player,recuritetype)
 			#TODO random templete hero id
-			templeteHeroId = 300001
+			templeteHeroId = 301001
 			metaDao = MetaDao.instance
 			commonDao = CommonDao.new
 			heroDao = HeroDao.new
@@ -78,7 +78,7 @@ module Model
 				commonDao.update({herokey => hero, heroIdListKey => heroIdList, recruiteInfokey => recruiteinfo})
 			end
 			#触发任务-武将数量
-			Model::Task.checkTask(player , Const::TaskTypeHero , nil)
+			#Model::Task.checkTask(player , Const::TaskTypeHero , nil)
 			#计算剩余时间，返回给前端
 			lefttime = metaData.rFreeCooling.to_i - (Time.now.to_i - recruiteTime)
 			lefttime = 0 unless lefttime >= 0
