@@ -12,71 +12,75 @@ class TaskTask < Minitest::Test
 	def test_checkTask
 		player = Model::Player.register("andy","image")[:player]
 		playerId = player[:playerId]
-		ret = Model::Task.checkTask(player , Const::TaskTypeBattle ,{:bsubid => 101006})
-		puts "触发任务：#{ret}"
-		list = Model::Task::getDisplayTaskList(player[:playerId])
-		puts "触发任务后的任务列表：#{list}"
+		# ret = Model::Task.checkTask(player , Const::TaskTypeBattle ,{:bsubid => 101006})
+		# puts "触发任务：#{ret}"
+		# list = Model::Task::getDisplayTaskList(player[:playerId])
+		# puts "触发任务后的任务列表：#{list}"
 
-		puts "第二次触发此任务"
+		# puts "第二次触发此任务"
 
-		ret = Model::Task.checkTask(player , Const::TaskTypeBattle ,{:bsubid => 101006})
-		puts "触发任务：#{ret}"
-		list = Model::Task::getDisplayTaskList(player[:playerId])
-		puts "触发任务后的任务列表：#{list}"
+		# ret = Model::Task.checkTask(player , Const::TaskTypeBattle ,{:bsubid => 101006})
+		# puts "触发任务：#{ret}"
+		# list = Model::Task::getDisplayTaskList(player[:playerId])
+		# puts "触发任务后的任务列表：#{list}"
 
-		puts "---------------第二个任务"
+		# puts "---------------第二个任务"
 		taskDao  = TaskDao.new
-		complatedList = taskDao.getComplatedList(player[:playerId])
-		puts "触发第二个任务前的完成列表：#{complatedList}"
-		ret = Model::Task.checkTask(player , Const::TaskTypeBattle ,{:bsubid => 101107})
-		puts "触发第二个任务：#{ret}"
+		# complatedList = taskDao.getComplatedList(player[:playerId])
+		# puts "触发第二个任务前的完成列表：#{complatedList}"
+		# ret = Model::Task.checkTask(player , Const::TaskTypeBattle ,{:bsubid => 101107})
+		# puts "触发第二个任务：#{ret}"
 
-		list = Model::Task::getDisplayTaskList(player[:playerId])
-		puts "触发任务后的任务列表：#{list}"
-		complatedList = taskDao.getComplatedList(player[:playerId])		
-		puts "触发第二个任务后的完成列表：#{complatedList}"
-		awardedList = taskDao.getAwardedList(player[:playerId])
-		puts "触发第二个任务后的已领取列表：#{awardedList}"
+		# list = Model::Task::getDisplayTaskList(player[:playerId])
+		# puts "触发任务后的任务列表：#{list}"
+		# complatedList = taskDao.getComplatedList(player[:playerId])		
+		# puts "触发第二个任务后的完成列表：#{complatedList}"
+		# awardedList = taskDao.getAwardedList(player[:playerId])
+		# puts "触发第二个任务后的已领取列表：#{awardedList}"
 
 
-		puts "----------------领取任务"
-		ret = Model::Task::getTaskAward(player , 800001)
-		puts "领取任务返回：#{ret}"
-		ret = Model::Task::getTaskAward(player , 800001)
-		puts "第二次领取任务：#{ret}"
-		puts "----领取任务后的三个列表数据----"
-		list = Model::Task::getDisplayTaskList(player[:playerId])
-		puts "触发任务后的任务列表：#{list}"
-		complatedList = taskDao.getComplatedList(player[:playerId])		
-		puts "领取任务任务后的完成列表：#{complatedList}"
-		awardedList = taskDao.getAwardedList(player[:playerId])
-		puts "触发第二个任务后的已领取列表：#{awardedList}"
+		# puts "----------------领取任务"
+		# ret = Model::Task::getTaskAward(player , 800001)
+		# puts "领取任务返回：#{ret}"
+		# ret = Model::Task::getTaskAward(player , 800001)
+		# puts "第二次领取任务：#{ret}"
+		# puts "----领取任务后的三个列表数据----"
+		# list = Model::Task::getDisplayTaskList(player[:playerId])
+		# puts "触发任务后的任务列表：#{list}"
+		# complatedList = taskDao.getComplatedList(player[:playerId])		
+		# puts "领取任务任务后的完成列表：#{complatedList}"
+		# awardedList = taskDao.getAwardedList(player[:playerId])
+		# puts "触发第二个任务后的已领取列表：#{awardedList}"
 
 
 		puts "----------------添加2星装备，测试装备类的任务"
-		iid = 410104
-		count = 5
-		Model::Item.addItem(player,iid,count)
-
 
 		puts "添加武器"
 		count = 2
-		iid = 400001
+		iid = 410104
 		Model::Item.addItem(player,iid,count)
 
-		puts "添加防具"
-		count = 2
-		iid = 420804
-		Model::Item.addItem(player,iid,count)
+		# puts "添加防具"
+		# count = 2
+		# iid = 420804
+		# Model::Item.addItem(player,iid,count)
 
-		puts "添加坐骑"	
-		count = 2
-		iid = 430101
-		Model::Item.addItem(player,iid,count)
+		# puts "添加坐骑"	
+		# count = 2
+		# iid = 430101
+		# Model::Item.addItem(player,iid,count)
 	
 		itemList = Model::Item.getEquipeAllList(playerId)  
-		puts "装备列表 #{itemList.size} #{itemList}"
+		puts "装备列表装备列表 #{itemList.size} #{itemList}"
+		list = Model::Task::getDisplayTaskList(player[:playerId])
+		puts "触发任务后的任务列表：#{list}"
+		complatedList = taskDao.getComplatedList(player[:playerId])		
+		puts "触发任务后的完成列表：#{complatedList}"
+		awardedList = taskDao.getAwardedList(player[:playerId])
+		puts "触发任务后的领取列表：#{awardedList}"
 		
+		ret = Model::Task::getTaskAward(player , 802001)
+		puts "领取任务返回：#{ret}"
 	end
 
 	def test_getTaskAward 

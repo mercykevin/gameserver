@@ -14,16 +14,18 @@ module Model
 		#处理奖励
 		#配置json格式，同一类型的放一起
 		#如：{siliver:100 , gold:500 , item:[{"500001":1},{"400001":2},{"200001":3}] , hero:[{"300001":2},{"400001":10}] ,soul:[{"2000":5}]}
+		#@param [Hash,String,String]
+		#@return [Hash] 
 		def self.processAward(player , awardStrs , function)
 			if not awardStrs or awardStrs.empty?
 				GameLogger.error("Model::Reward.processAward method params awardStrs:#{awardStrs} , awardStrs is empty !")
 				return 
 			end
 			playerId = player[:playerId]
-			#背包已满 TODO
+			#背包已满 
 		 	isFull = validatePackage(playerId , awardStrs)
 		 	if isFull
-		 		return Const::ErrorCode.BackpackIsFull
+		 		raise Const::ErrorCode.BackpackIsFull
 		 	end
 		 	retHash = {}
 		 	#处理奖励
@@ -46,11 +48,7 @@ module Model
 				when Const::RewardTypeItem 
 					awards.each do |itemIidCount|
 						itemRet = Model::Item.addItemNoSave(player , itemIidCount[0] , itemIidCount[1])
-						puts "itemRet - - - - -=== =#{itemRet}"
-						#TODO ERROR merge 的有问题
-						puts "before merge  -  -  -  - #{retHash}"
-						itemRet.merge retHash
-						puts "after merge  -  -  -  -  #{retHash}"
+						retHash = retHash.merge(itemRet)
 					end
 				#武将类
 				when Const::RewardTypeHero
@@ -59,10 +57,8 @@ module Model
 				else
 					GameLogger.error("Model::Reward.processAward awardStrs:#{awardStrs} , unhandle award type '#{rewardType}' !")
 				end
-				puts "retHash - - - - - -#{retHash}"
 			end
-
-			GameLogger.error("Model::Reward.processAward playerId:#{playerId} , awardStrs:#{awardStrs} ,function '#{function}'' !")
+			GameLogger.error("Model::Reward.processAward playerId:#{playerId} , retHash:#{retHash} ,function '#{function}'' !")
 			retHash 
 		end
 

@@ -80,6 +80,9 @@ module Const
 	RewardTypeHero = "hero"
 	#将魂
 	RewardTypeSoul = "soul"
+	#-------排序类型
+	SortDesc = "desc"
+	SortAsc = "asc"
 
 	#战斗类型
 	#征讨
