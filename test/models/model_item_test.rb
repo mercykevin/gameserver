@@ -130,7 +130,7 @@ class HeroTest < Minitest::Test
 	#测试的话，单独测试这一个，id是写死的 !
 	def test_advanceBook
 		equipId  = 1
-		iid = 500101#兵法
+		iid = 500077#兵法
 		count = 6
 		player = Model::Player.register("andy","image")[:player]
 
@@ -142,7 +142,7 @@ class HeroTest < Minitest::Test
 		ret = Model::Item.preAdvanceBookService(player , 1 , "2")
 		puts "进阶预览：#{ret}"
 
-		ret = Model::Item.advanceBook(player , 1 , "2")
+		ret = Model::Item.advanceBook(player , 1 , "2,3")
 		puts "进阶返回信息 :#{ret}"
 		bookData = Model::Item.getBookData(player[:playerId],equipId)
 		puts "进阶后player:#{player}"

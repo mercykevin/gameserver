@@ -8,6 +8,7 @@ post '/item/unused/list' do
 end
 
 #已装备列表
+#返回 装备信息，可激活武将名，谁装备的，不可强化的原因
 post '/item/used/list' do
 	itemList = []
 	itemList.to_json
@@ -23,6 +24,14 @@ post '/item/equip/strengthen' do
 	ret = Model::Item.strengthenEquip(player[:playerId],id)
 	ret.to_json
 end
+
+#兵法进阶，一键选择
+post '/item/book/advance/auto/choose' do
+	player = request[:player]
+	result = Model::Item.autoChooseBooks(player[:playerId])
+	result.to_json
+end
+
 
 #兵法进阶预览
 #返回概率 值（前端显示直接加个%即可） 和 银币消耗

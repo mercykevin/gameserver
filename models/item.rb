@@ -210,6 +210,7 @@ module Model
 				metaDao = MetaDao.instance
 				#装备加成
 				bookTemp = metaDao.getBookMetaData(item[:iid])
+				level = item[:level]
 				buff = 0
 				#加伤害 - 伤害 加值
 				if bookTemp.bHurt
@@ -366,6 +367,17 @@ module Model
 			bookDataHash
 		end
 
+		#删除装备
+		#@param [Hash,Integer,Array]
+		#@return 
+		def self.deleteEqiupList(playerId , sort , equipIdArr)
+			equipList = {}
+			equipIdArr.each do |bId|
+				equipKey = Const::Rediskeys.getItemKey(playerId,sort,bId)
+				equipList[equipKey] = nil
+			end
+			equipList
+		end
 
 		#兵法进阶
 		#  	进阶成功就清掉所有兵法的失败次数
@@ -428,6 +440,9 @@ module Model
 			playerKey = Const::Rediskeys.getPlayerKey(playerId)
 			bookKey = Const::Rediskeys.getItemKey(playerId , bookData[:type],id)
 			commonDao = CommonDao.new
+			#消耗兵法
+			delEquipHash = deleteEqiupList(playerId,Const::ItemTypeBook,bookIdArr)
+			bookDataHash = bookDataHash.merge(delEquipHash)
 			#成功
 			if advSucc
 				bookDataHash[playerKey] = player 
@@ -442,10 +457,10 @@ module Model
 					bookFragmentKey = Const::Rediskeys.getBookFragmentKey(playerId,bookFragmentData[:iid])	
 					bookDataHash[playerKey] = player 
 					bookDataHash[bookFragmentKey] = bookFragmentData 
-					commonDao.update(bookDataHash)
 					GameLogger.info("Model::Item.advanceBook  playerId:#{playerId} , bookId:#{id} , bookIid:#{bookData[:iid]} ，advance fail ! award book fragment iid:#{bookFragmentData[:iid]}  ")
 	 				return {:retcode => Const::ErrorCode::Ok , :result => Const::BookAdvanceFail , :debris =>  bookFragmentData[:iid]}
 				else
+					commonDao.update(bookDataHash)
 					GameLogger.info("Model::Item.advanceBook  playerId:#{playerId} , bookId:#{id} , bookIid:#{bookData[:iid]} ，advance fail ! no book fragment , check csv file !")
 					return {:retcode => Const::ErrorCode::Ok , :result => Const::BookAdvanceFail }
 				end				
@@ -630,6 +645,40 @@ module Model
 			count
 		end
 
+		#排序
+		#@param [Hash,String]
+		#@param [Hash]
+		def self.sortEquipByStar(list , sort)
+			# Const::SortAsc
+		end
+
+
+		#一键选择
+		#@param [Integer] 
+		#@param [Hash] id,iid
+		def self.autoChooseBooks(playerId)
+			metaDao = MetaDao.instance
+			star2Hash = []
+			star3Hash = []
+			#选择的兵书数量
+			bookMaxCount = metaDao.getFlagValue("book_advance_auto_choose_book_count").to_i
+			bookList = getEquipUnusedList(playerId , Const::ItemTypeBook)
+			bookList.each do |book|
+				if book.star > 3
+					continue
+				end 
+				bookInfo = {:id => book.id , :iid => book.iid}
+				case book.star
+				when 2
+					star2Hash.push(bookInfo)
+				when 3
+					star3Hash.push(bookInfo)
+				else
+				end
+			end
+			{}
+		end
+
 
 		#上阵兵法 TODO ，兵法记录在武将身上，上阵后从兵法列表中删掉该兵法
 
@@ -653,7 +702,7 @@ module Model
 			addItem(player,iid,count)
 
 			#兵法
-			iid = 500101
+			iid = 500077
 			count = 4
 			addItem(player,iid,count)
 

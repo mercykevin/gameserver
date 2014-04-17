@@ -17,7 +17,6 @@ module Model
 		#@param [Hash,String,String]
 		#@return [Hash] 
 		def self.processAward(player , awardStrs , function)
-			puts "任务奖励。。。。。任务奖励。。。。。 : #{awardStrs}"
 			if not awardStrs or awardStrs.empty?
 				GameLogger.error("Model::Reward.processAward method params awardStrs:#{awardStrs} , awardStrs is empty !")
 				return 
