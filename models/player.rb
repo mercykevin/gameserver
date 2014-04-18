@@ -33,7 +33,7 @@ module Model
 				player[:vip] = 0
 				player[:headimg] = headImg
 				#背包格子数量
-				player[:backpackCount] = metaDao.getFlagValue("pack_cell_init_count").to_i
+				player[:backpackCount] = initBackpackCount
 				#更新player信息到redis中
 				playerDao.create(player)
 				#初始化任务显示列表
@@ -41,6 +41,19 @@ module Model
 				{:retcode => Const::ErrorCode::Ok,:player => player}
 			end
 		end
+		#返回数组
+		#[武器，防具，坐骑，兵法，宝物]
+		#索引就是对应常量 -1 
+		#@return [Array]
+		def self.initBackpackCount()
+			defaultCount = MetaDao.instance.getFlagValue("pack_cell_init_count").to_i
+			backpackCount = []
+			for i in 1..5 
+				backpackCount.push(defaultCount)
+			end
+			backpackCount			
+		end
+
 		# get player info by player id
   		#
   		# @param [String] playerId 

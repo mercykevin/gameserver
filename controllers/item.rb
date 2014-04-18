@@ -61,7 +61,8 @@ end
 #每次固定增加N个格子
 post '/item/backpack/cell/extend' do
 	player = request[:player]
-	result = Model::Item.extendPackCell(player)
+	sort = requestParams[:sort]
+	result = Model::Item.extendPackCell(player,sort)
 	result.to_json
 end
 

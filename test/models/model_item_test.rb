@@ -172,33 +172,35 @@ class HeroTest < Minitest::Test
 	# end
 
 
-	# def test_extendPackCell
-	# 	player = Model::Player.register("andy","image")[:player]
-	# 	puts "扩展背包前：#{player}"
-	# 	ret = Model::Item.extendPackCell(player) 
-	# 	puts "扩展背包后： ret:#{ret} #{player}"
-	# end
-
-	def test_sort
+	def test_extendPackCell
 		player = Model::Player.register("andy","image")[:player]
-		playerId = player[:playerId]
-		
-		count = 1
-		iid = 500015
-		Model::Item.addItem4Test(player)
-	
-		itemList = Model::Item.getEquipUnusedList(playerId,Const::ItemTypeBook)  
-		puts "排序前兵法 #{itemList}"
-		
-		itemList = Model::Item.sortEquipByStar(itemList)
-
-		puts "排序前兵法 #{itemList}"
-
-
-		list =  Model::Item.autoChooseBooks(playerId)
-		puts "一键选择：#{list.size} #{list}"
-		
+		puts "扩展背包前：#{player}"
+		ret = Model::Item.extendPackCell(player,Const::ItemTypeBook) 
+		ret = Model::Item.extendPackCell(player,Const::ItemTypeBook) 
+		ret = Model::Item.extendPackCell(player,Const::ItemTypeShield) 
+		puts "扩展背包后： ret:#{ret} #{player}"
 	end
+
+	# def test_sort
+	# 	player = Model::Player.register("andy","image")[:player]
+	# 	playerId = player[:playerId]
+		
+	# 	count = 1
+	# 	iid = 500015
+	# 	Model::Item.addItem4Test(player)
+	
+	# 	itemList = Model::Item.getEquipUnusedList(playerId,Const::ItemTypeBook)  
+	# 	puts "排序前兵法 #{itemList}"
+		
+	# 	itemList = Model::Item.sortEquipByStar(itemList)
+
+	# 	puts "排序前兵法 #{itemList}"
+
+
+	# 	list =  Model::Item.autoChooseBooks(playerId)
+	# 	puts "一键选择：#{list.size} #{list}"
+		
+	# end
 
 
 end

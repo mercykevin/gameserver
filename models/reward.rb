@@ -2,18 +2,27 @@ module Model
 	#处理奖励串
 	#不考虑每个格子的上限了
 	class Reward
-
 		#验证背包格子
 		#返回格子是否满  满：true
-		def self.validatePackage(playerId , awardStrs)
+		#@param [Integer,Hash] 玩家id，道具列表 如：{""500001"":1,""410104"":2,""200001"":3} 
+		#@return [Boolean] 是否满 
+		def self.isBackpackFull(playerId , awardStrs)
+			awardStrs = JSON.parse(awardStrs) 
+			if not awardStrs
+				return false
+			end
+			itemCount = []
+			awardStrs.each do |item|
+			
+			end
+
 			if false
 				return Const::ErrorCode::BackpackIsFull
 			end
 		end
-
 		#处理奖励
 		#配置json格式，同一类型的放一起
-		#如：{siliver:100 , gold:500 , item:[{"500001":1},{"400001":2},{"200001":3}] , hero:[{"300001":2},{"400001":10}] ,soul:[{"2000":5}]}
+		#如："{""siliver"":100,""dimond"":500,""item"":{""500001"":1,""410104"":2,""200001"":3} , ""hero"":{""300001"":2,""400001"":10} ,""soul"":{""2000"":5}}"
 		#@param [Hash,String,String]
 		#@return [Hash] 
 		def self.processAward(player , awardStrs , function)
@@ -23,16 +32,14 @@ module Model
 			end
 			playerId = player[:playerId]
 			#背包已满 
-		 	isFull = validatePackage(playerId , awardStrs)
+		 	isFull = isBackpackFull(playerId , awardStrs)
 		 	if isFull
 		 		raise Const::ErrorCode.BackpackIsFull
 		 	end
 		 	retHash = {}
 		 	#处理奖励
-			awardList = JSON.parse(awardStrs, {:symbolize_names => true}) 
-			awardList.each_key do |rewardType|
-				awards = awardList[rewardType]
-				puts "key #{rewardType}  awards:#{awards} #{Const::RewardTypeDimond} #{ rewardType == Const::RewardTypeDimond	}  "
+			awardList = JSON.parse(awardStrs) 
+			awardList.each do |rewardType,awards|
 				case rewardType.to_s
 				#钻石
 				when Const::RewardTypeDimond
@@ -45,9 +52,9 @@ module Model
 					playerKey = Const::Rediskeys.getPlayerKey(playerId)
 					retHash[playerKey] = player
 				#道具类
-				when Const::RewardTypeItem 
-					awards.each do |itemIidCount|
-						itemRet = Model::Item.addItemNoSave(player , itemIidCount[0] , itemIidCount[1])
+				when Const::RewardTypeItem
+					awards.each do |iid,count|
+						itemRet = Model::Item.addItemNoSave(player , iid , count)
 						retHash = retHash.merge(itemRet)
 					end
 				#武将类
@@ -58,7 +65,7 @@ module Model
 					GameLogger.error("Model::Reward.processAward awardStrs:#{awardStrs} , unhandle award type '#{rewardType}' !")
 				end
 			end
-			GameLogger.error("Model::Reward.processAward playerId:#{playerId} , retHash:#{retHash} ,function '#{function}'' !")
+			GameLogger.info("Model::Reward.processAward playerId:#{playerId} , retHash:#{retHash} ,function '#{function}'' !")
 			retHash 
 		end
 

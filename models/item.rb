@@ -42,6 +42,7 @@ module Model
 				Model::Task.checkTask(player , Const::TaskTypeEquip , nil)	
 			end
 		end
+		#搞个队列用来处理 道具类型的任务 check TODO
 		#添加道具 , 没有保存
 		#1：武器防具坐骑兵法
 		#2：宝物
@@ -52,6 +53,10 @@ module Model
 			metaDao = MetaDao.instance
 			tempItem = metaDao.getTempItem(iid)
 			playerId = player[:playerId]
+			if ! tempItem
+				GameLogger.debug("Model::Item.addItem method params iid:#{iid} => tempItem is not exists !")
+				return {:retcode => Const::ErrorCode::Fail}
+			end
 			GameLogger.info("Model::Item.addItemNoSave method params playerId:#{playerId} , count:#{count} ,itemType:#{tempItem.eType} .")
 			#宝物类
 			itemHash = Hash.new
@@ -232,11 +237,23 @@ module Model
 			item
 		end
 
-
+		#验证类型是否合法
+		#@param [Integer]
+		#@return [Boolean]
+		def self.isNotItemSort?(sort)
+			errSort = sort.to_i < Const::ItemTypeWeapon or sort.to_i > Const::ItemTypeProp
+			if  errSort
+				GameLogger.debug("Model::Item.isNotItemSort? sort:#{sort} error item sort !")
+			end
+			errSort
+		end
 		#根据类型获取未上阵的装备列表
 		#@param [Integer,Integer] playerId,sort (武器防具坐骑兵法宝物 = 1,2,3,4,5) 
 		#@return [Array]
 		def self.getEquipUnusedList(playerId,sort)
+			if isNotItemSort?(sort)
+				return {:retcode => Const::ErrorCode::Fail}
+			end
 			itemDao = ItemDao.new
 			metaDao = MetaDao.instance
 			list = itemDao.getEquipUnusedList(playerId,sort)
@@ -576,20 +593,24 @@ module Model
 		#扩展背包的格子
 		#@param [Integer] 
 		#@return 扩展后的数据，客户端刷新player
-		def self.extendPackCell(player)
+		def self.extendPackCell(player,sort)
+			if isNotItemSort?(sort)
+				return {:retcode => Const::ErrorCode::Fail}
+			end
 			commonDao = CommonDao.new
 			metaDao = MetaDao.instance
 			playerId = player[:playerId]
 			#格子上限 = initCount + extCount
 			maxCellCount = metaDao.getFlagValue("pack_cell_extadd_max_count").to_i  + metaDao.getFlagValue("pack_cell_extadd_max_count").to_i
 			#背包格子已经到了上限
-			if player[:backpackCount] >= maxCellCount
+			currCount =  player[:backpackCount][sort-1].to_i
+			if currCount >= maxCellCount
 				return Const::ErrorCode::PackCellAlreadyIsMaxCount
 			end
 			#每次购买的格子数量
 			buyCount = metaDao.getFlagValue("pack_cell_extadd_each_count").to_i
 			#以防非整数倍，处理一下，实际可以增加的格子数量
-			if player[:backpackCount] + buyCount >= maxCellCount
+			if currCount + buyCount >= maxCellCount
 				buyCount = maxCellCount - buyCount
 			end
 			#每个格子消耗的元宝数
@@ -600,14 +621,13 @@ module Model
 				return Const::ErrorCode::DiamondIsNotEnough
 			end
 			#开格子
-			player[:backpackCount] += buyCount
-			player = Model::Player.addDiamond(player , - goldCost , Const::FunctionConst::ExtendPackCell)
+			player[:backpackCount][sort-1] += buyCount
+			Model::Player.addDiamond(player , - goldCost , Const::FunctionConst::ExtendPackCell)
 			playerKey = Const::Rediskeys.getPlayerKey(playerId)
 			commonDao.update(playerKey => player)
+			GameLogger.debug("Model::Item.extendPackCell playerId:#{player[:playerId]} sort:#{sort} ")
 			{:retcode => Const::ErrorCode::Ok}
 		end
-
-
 
 		#某星级的装备数量 (所有武器防具坐骑)
 		#@param [Integer,Integer] playerId:玩家id，star:装备星级
