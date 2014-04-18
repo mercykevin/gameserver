@@ -11,6 +11,6 @@ post '/task/getaward' do
 	requestParams = request[:req_parames]
 	player = request[:player]
 	iid = requestParams[:iid]
-	itemList = Model::Task.getTaskAward(player[:playerId] , iid)
+	itemList = Model::Task.getTaskAward(player , iid)
 	itemList.to_json
 end

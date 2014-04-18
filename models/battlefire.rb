@@ -130,7 +130,7 @@ module Model
 			else
 				#第二排1, 3, 5, 7
 				if receivers[actionIndex - 1]
-					return receivers[:actionIndex - 1]
+					return receivers[actionIndex - 1]
 				else
 					if receivers[actionIndex]
 						return receivers[actionIndex]
