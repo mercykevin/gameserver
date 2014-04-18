@@ -743,6 +743,21 @@ module Model
 			count = 3
 			addItem(player,iid,count)
 
+
+			#添加兵法，可测试一键选择
+			count = 2
+			iid = 500070
+			addItem(player,iid,count)
+			count = 1
+			iid = 500089
+			addItem(player,iid,count)
+			count = 2
+			iid = 500001
+			addItem(player,iid,count)
+			count = 1
+			iid = 500015
+			addItem(player,iid,count)
+
 		end
 
 	end
