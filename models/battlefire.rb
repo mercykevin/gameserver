@@ -16,8 +16,9 @@ module Model
 			@defendOne = nil
 			#初始化战斗报告
 			@report = {}
-			@report[:attack] = attack.clone
-			@report[:defend] = defend.clone
+			#深度拷贝
+			@report[:attack] = Marshal.load(Marshal.dump(attack))
+			@report[:defend] = Marshal.load(Marshal.dump(defend))
 			@report[:battleproc] = {}
 			#战斗结果
 			@result = {}

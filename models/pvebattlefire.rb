@@ -9,7 +9,7 @@ module Model
 			battleDao = BattleDao.new
 			metaDao = MetaDao.instance
 			@battleType = Const::BattleTypePVE
-			@attachHeroList = heroDao.getBattleHeroIdList(playerId)
+			@attachHeroList = heroDao.getBattleHeroList(playerId)
 			player = playerDao.getPlayer(playerId)
 			@metaBattle = metaDao.getSubBattleMetaData(battleId)
 			@battleId = battleId
@@ -24,6 +24,7 @@ module Model
 			needUpdate = {}
 			metaDao = MetaDao.instance
 			playerDao = PlayerDao.new
+			heroDao = HeroDao.new
 			metaBattle = @metaBattle
 			@result[:money] = 0
 			@result[:playerxp] = 0

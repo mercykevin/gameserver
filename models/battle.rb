@@ -126,6 +126,7 @@ module Model
 			pveBattleInfo[:money] = battleFire.getPkResult()[:money]
 			pveBattleInfo[:heroxp] = battleFire.getPkResult()[:heroxp]
 			pveBattleInfo[:playerxp] = battleFire.getPkResult()[:playerxp]
+			p battleFire.getReport
 			{:retcode => Const::ErrorCode::Ok,:battleinfo => pveBattleInfo, :report=>battleFire.getReport}
 		end
 		# 验证是否推掉这个图
