@@ -26,6 +26,6 @@ class BattleTest < Minitest::Test
 		assert_equal(Const::ErrorCode::Ok,ret[:retcode])
 		playerSubBattleMap = battleDao.getSubBattleInfoMap(metaBattleData.battlefirstID, player[:playerId])
 		battleInfo = playerSubBattleMap[101001.to_s.to_sym]
-		assert_equal(true,battleInfo[:win])
+		assert_equal(false,battleInfo[:win])
 	end
 end

@@ -69,11 +69,10 @@ class BattleDao
     # 创建玩家的战斗列表
     # @param [Integer] playerId
     # @return [Array]
-    def generatePlayerBattle(playerId)
+    def generatePlayerBattle(heroList)
       heroBattleHash = Hash.new
       metaDao = MetaDao.instance
       heroDao = HeroDao.new
-      heroList = heroDao.getBattleHeroList(playerId)
       heroList.each_with_index do |hero, index|
         if Hash == hero.class
           #存在英雄信息

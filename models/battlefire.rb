@@ -2,14 +2,12 @@ module Model
 	class BattleFire
 		# 构造函数
 		# @params[Array,Array,Integer,String] 进攻方，防守方 
-		def initialize(attack, attackPlayer, defend, defendPlayer, battleType, battleId)
+		def initialize(attack, attackPlayer, defend, defendPlayer)
 			@attack = attack
 			@attackCount = attack.length
 			@attackPlayer = attackPlayer
 			@defend = defend
 			@defendPlayer = defendPlayer
-			@battleType = battleType
-			@battleId = battleId
 			#战斗回合
 			@round = 1
 			#当前行动方,是否是进功方进攻，如果是false的话，就是防守方行动，打
@@ -24,27 +22,7 @@ module Model
 			#战斗结果
 			@result = {}
 		end
-		# 构造pve的battlefire对象
-		# @params[Integer,String]
-		def self.createPVE(playerId, battleId)
-			battleDao = BattleDao.new
-			playerDao = PlayerDao.new
-			attack = battleDao.generatePlayerBattle(playerId)
-			defend = battleDao.generatePVENPC(battleId)
-			player = playerDao.getPlayer(playerId)
-			new(attack, player, defend, "NPC", Const::BattleTypePVE, battleId)
-		end
-		# 构造pvp的battlefire对象
-		# @构造pvp的战役对象
-		def self.createPVP(attackPlayerId, defendPlayerId, battleType)
-			battleDao = BattleDao.new
-			playerDao = PlayerDao.new
-			attack = battleDao.generatePlayerBattle(attackPlayerId)
-			attackPlayer = playerDao.getPlayer(attackPlayerId)
-			defend = battleDao.generatePlayerBattle(defendPlayerId)
-			defendPlayer = playerDao.getPlayer(defendPlayerId)
-			new(attack, attackPlayer, defend, defendPlayer, battleType, nil)
-		end
+		#
 		# 处理战斗逻辑
 		def pk()
 			while not @attack.empty? and not @defend.empty? do
@@ -79,17 +57,12 @@ module Model
 				@defendOne = nil
 			end
 		end
+		# 处理战斗结果
+		# 星级,奖励相关
 		#
-		# 处理战斗奖励
-		def reward()
-			ret = {}
-			metaDao = MetaDao.instance
-			heroDao = HeroDao.new
-			playerDao = PlayerDao.new
-			@result[:stars] = 0
-			@result[:money] = 0
-			@result[:playerxp] = 0
+		def handleResult()
 			@result[:win] = false
+			@result[:stars] = 0
 			if @attack.empty?
 				@result[:win] = false 
 			else
@@ -101,37 +74,6 @@ module Model
 					@result[:stars] = 2
 				end
 			end
-			#处理奖励
-			if @battleType == Const::BattleTypePVE
-				metaBattle = metaDao.getSubBattleMetaData(@battleId)
-				metaPlayer = metaDao.getPlayerLevelMetaData(@attackPlayer[:level])
-				if @result[:win]
-					#奖励金币和角色经验
-					@result[:money] = metaBattle.bMoney.to_i
-					@result[:playerxp] = metaPlayer.cBatlleEXP.to_i
-					@result[:heroxp] = {}
-					attackHeroList = Model::Hero.getBattleHeroList(@attackPlayer[:playerId])
-					attackHeroList.each_with_index do |hero, index|
-						if hero.class == Hash
-							@result[:heroxp][index] = metaBattle.bGEXP.to_i
-							#处理英雄升级
-							heroDao.handleHeroLevelUp(hero, metaBattle.bGEXP.to_i)
-							#写到report中
-							@report[:attack][index][:newlevel] = hero[:level]
-							heroKey = Const::Rediskeys.getHeroKey(hero[:heroId], @attackPlayer[:playerId])
-							ret[heroKey] = hero
-						end
-					end
-				else
-					@result[:money] = metaBattle.bFailureMoney.to_i
-				end
-				@attackPlayer[:siliver] = @attackPlayer[:siliver] + @result[:money]
-				#处理用户升级
-				playerDao.handlePlayerLevelUp(@attackPlayer, @result[:playerxp])
-				playerKey = Const::Rediskeys.getPlayerKey(@attackPlayer[:playerId])
-				ret[playerKey] = @attackPlayer
-			end
-			ret 
 		end
 		#获取战报
 		def getReport()
@@ -152,6 +94,7 @@ module Model
 			#回合数+1
 			@round = @round + 1
 		end
+		#是否赢了比赛
 		def isWin()
 			@result[:win]
 		end
@@ -164,7 +107,10 @@ module Model
 				end
 			end 
 		end
-
+		#获取星级
+		def getStars()
+			@result[:stars]
+		end
 		def getPkResult()
 			@result
 		end
@@ -243,6 +189,8 @@ module Model
 			end
 		end
 		#战斗计算
+		#@params[Hash,Hash]
+		#@return nothing
 		def calculateBattle(actionOne,receiveOne)
 			report = {}
 			oldBlood = receiveOne[:blood]
@@ -263,5 +211,11 @@ module Model
 			end
 			@report[:battleproc][@round] << report
 		end
-	end
-end
+		# 战斗类型
+		# @params
+		# @return [Integer]
+		def getBattleType
+			@battleType
+		end
+	end #end class
+end #end module
