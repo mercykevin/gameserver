@@ -291,13 +291,6 @@ module Model
 
 		end
 
-		#消耗装备
-		#@param [Integer,Integer,Integer] playerId,id,count
-		#@return
-		def self.costEquip(playerId,iid,count)
-			#TODO
-		end
-
 		#强化装备
 		#@param [Hash,Integer] playerId,id 装备id
 		#@return [Hash]
@@ -710,7 +703,12 @@ module Model
 			if bookList.size < bookMaxCount
 				bookMaxCount = bookList.size
 			end
-			bookList[0,bookMaxCount]
+			bookList = bookList[0,bookMaxCount]
+			list = []
+			bookList.each do |book|
+				list << {:id => book[:id] , :iid => book[:iid]}
+			end
+			list
 		end
 
 
