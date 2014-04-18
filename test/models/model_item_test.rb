@@ -182,20 +182,10 @@ class HeroTest < Minitest::Test
 	def test_sort
 		player = Model::Player.register("andy","image")[:player]
 		playerId = player[:playerId]
-		puts "添加兵法	"
-
-		count = 2
-		iid = 500070
-		Model::Item.addItem(player,iid,count)
-		count = 1
-		iid = 500089
-		Model::Item.addItem(player,iid,count)
-		count = 2
-		iid = 500001
-		Model::Item.addItem(player,iid,count)
+		
 		count = 1
 		iid = 500015
-		Model::Item.addItem(player,iid,count)
+		Model::Item.addItem4Test(player)
 	
 		itemList = Model::Item.getEquipUnusedList(playerId,Const::ItemTypeBook)  
 		puts "排序前兵法 #{itemList}"
