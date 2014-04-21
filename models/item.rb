@@ -381,12 +381,17 @@ module Model
 		#@param [Hash,Integer,Array]
 		#@return 
 		def self.deleteEqiupList(playerId , sort , equipIdArr)
-			equipList = {}
+			itemDao = ItemDao.new
+			equipIdList = itemDao.getEquipUnusedIdList(playerId , sort)
+			delRet = {}
 			equipIdArr.each do |bId|
 				equipKey = Const::Rediskeys.getItemKey(playerId,sort,bId)
-				equipList[equipKey] = nil
+				delRet[equipKey] = nil
+				equipIdList.delete(bId.to_i)
 			end
-			equipList
+			equipIdListKey = Const::Rediskeys.getEquipUnusedIdListKey(playerId , Const::ItemTypeBook)
+			delRet[equipIdListKey] = equipIdList
+			delRet
 		end
 
 		#兵法进阶
@@ -453,10 +458,11 @@ module Model
 			#消耗兵法
 			delEquipHash = deleteEqiupList(playerId,Const::ItemTypeBook,bookIdArr)
 			bookDataHash = bookDataHash.merge(delEquipHash)
+			#处理未上阵兵法列表
+			bookDataHash[playerKey] = player 
+			bookDataHash[bookKey] = bookData 
 			#成功
 			if advSucc
-				bookDataHash[playerKey] = player 
-				bookDataHash[bookKey] = bookData 
 				commonDao.update(bookDataHash)
 				#追加加成
 				bookData = appendEquipBuff(bookData)
@@ -465,8 +471,8 @@ module Model
 			else
 				if bookFragmentData
 					bookFragmentKey = Const::Rediskeys.getBookFragmentKey(playerId,bookFragmentData[:iid])	
-					bookDataHash[playerKey] = player 
 					bookDataHash[bookFragmentKey] = bookFragmentData 
+					commonDao.update(bookDataHash)
 					GameLogger.info("Model::Item.advanceBook  playerId:#{playerId} , bookId:#{id} , bookIid:#{bookData[:iid]} ，advance fail ! award book fragment iid:#{bookFragmentData[:iid]}  ")
 	 				return {:retcode => Const::ErrorCode::Ok , :result => Const::BookAdvanceFail , :debris =>  bookFragmentData[:iid]}
 				else
