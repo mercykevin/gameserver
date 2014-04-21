@@ -2,7 +2,7 @@
 name;value;desc
 player_init_diamond;20000;玩家初始钻石
 player_init_siliver;50000;玩家初始银币
-player_init_general;1;玩家初始英雄数量
+player_init_general;"{""314002"",""302004"",""314002"",""302004"",""314002"",""302004"",""314002""}";玩家初始英雄ID
 level_great_than_player_level_max_rate;3;强化等操作不能超过君主等级三倍
 book_advance_uprate_need_count;5;兵法进阶至少需要放满X本书，合成失败后才能在下次增加成功率
 book_advance_auto_choose_book_count;5;一键选择,兵法数量

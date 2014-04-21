@@ -4,9 +4,9 @@ module Model
 		#@param [String,Hash,String]
 		#@return [Hash]
 		def self.recuritHero(player,recuritetype)
-			#TODO random templete hero id
-			templeteHeroId = 301001
 			metaDao = MetaDao.instance
+			#TODO random templete hero id
+			templeteHeroId = metaDao.getAllHeroTempId.sample
 			commonDao = CommonDao.new
 			heroDao = HeroDao.new
 			templeteHero = metaDao.getHeroMetaData(templeteHeroId)

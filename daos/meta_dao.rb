@@ -471,4 +471,8 @@ class MetaDao
 		@npcMetaMap[npcId.to_s]
 	end
 
+	def getAllHeroTempId()
+		@heroMetaMap.keys
+	end
+
 end

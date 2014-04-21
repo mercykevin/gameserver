@@ -57,7 +57,7 @@ class BattleDao
       npcList = JSON.parse(battleMetaData.bNPCID)
       npcList.each_with_index do |npcId, index|
         npcmetaData = metaDao.getNPC(npcId)
-        npc = {:id=>index, :attack=>npcmetaData.nATK.to_i, :defend=>npcmetaData.nDEF.to_i, 
+        npc = {:id=>index,:templeteHeroId=>npcmetaData.npcID, :attack=>npcmetaData.nATK.to_i, :defend=>npcmetaData.nDEF.to_i, 
                 :intelegence=>npcmetaData.nINT.to_i, :blood=>npcmetaData.nHP.to_i, 
                 :level=>1,:name=>npcmetaData.nName, :headpic=>npcmetaData.nIconsID, :isAction=>false, 
                 :index=>index }
@@ -77,7 +77,7 @@ class BattleDao
         if Hash == hero.class
           #存在英雄信息
           heroMetaData = metaDao.getHeroMetaData(hero[:templeteHeroId])
-          heroBattle = {:id=>hero[:heroId], :attack=>hero[:attack], :defend=>hero[:defend],
+          heroBattle = {:id=>hero[:heroId],:templeteHeroId=>hero[:templeteHeroId],:attack=>hero[:attack], :defend=>hero[:defend],
             :intelegence=>hero[:intelegence], :blood=>hero[:blood], :level=>hero[:level], 
             :name=>heroMetaData.gName, :isAction=>false, :index=>index}
           heroBattleHash[index] = heroBattle  

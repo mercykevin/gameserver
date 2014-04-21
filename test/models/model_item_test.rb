@@ -127,29 +127,32 @@ class HeroTest < Minitest::Test
 	# 	puts "强化后player	#{player}"
 	# end
 
-	##测试的话，单独测试这一个，id是写死的 !
-	# def test_advanceBook
-	# 	equipId  = 1
-	# 	iid = 500077#兵法
-	# 	count = 6
-	# 	player = Model::Player.register("andy","image")[:player]
+	#测试的话，单独测试这一个，id是写死的 !
+	def test_advanceBook
+		equipId  = 1
+		iid = 500077#兵法
+		count = 6
+		player = Model::Player.register("andy","image")[:player]
 
-	# 	Model::Item.addItem(player,iid,count)
+		Model::Item.addItem4Test(player)
 		
-	# 	bookData = Model::Item.getBookData(player[:playerId],equipId)
-	# 	puts "进阶前兵法	#{bookData}"
+		bookData = Model::Item.getBookData(player[:playerId],equipId)
+		puts "进阶前兵法	#{bookData}"
 
-	# 	ret = Model::Item.preAdvanceBookService(player , 1 , "2")
-	# 	puts "进阶预览：#{ret}"
+		ret = Model::Item.preAdvanceBookService(player , 16 , JSON.parse("[17,18]"))
+		puts "进阶预览：#{ret}"
 
-	# 	ret = Model::Item.advanceBook(player , 1 , "2,3")
-	# 	puts "进阶返回信息 :#{ret}"
-	# 	bookData = Model::Item.getBookData(player[:playerId],equipId)
-	# 	puts "进阶后player:#{player}"
+		ret = Model::Item.advanceBook(player , 16 ,JSON.parse("[17,18]"))
 
-	# 	 list= Model::Item.autoChooseBooks(player[:playerId])
-	# 	 puts "list - - - - - #{list}"
-	# end
+		# puts "进阶返回信息 :#{ret}"
+		# bookData = Model::Item.getBookData(player[:playerId],equipId)
+		puts "进阶：#{ret}"
+
+		itemList = Model::Item.getEquipUnusedList(player[:playerId],Const::ItemTypeBook)  
+		puts "进阶后列白哦 : #{itemList}"
+		 # list= Model::Item.autoChooseBooks(player[:playerId])
+		 # puts "list - - - - - #{list}"
+	end
 
 	# def test_calcBuff
 	# 	bookBuff = Model::Item.calcBookBuff(500002 , 2)
@@ -172,14 +175,14 @@ class HeroTest < Minitest::Test
 	# end
 
 
-	def test_extendPackCell
-		player = Model::Player.register("andy","image")[:player]
-		puts "扩展背包前：#{player}"
-		ret = Model::Item.extendPackCell(player,Const::ItemTypeBook) 
-		ret = Model::Item.extendPackCell(player,Const::ItemTypeBook) 
-		ret = Model::Item.extendPackCell(player,Const::ItemTypeShield) 
-		puts "扩展背包后： ret:#{ret} #{player}"
-	end
+	# def test_extendPackCell
+	# 	player = Model::Player.register("andy","image")[:player]
+	# 	puts "扩展背包前：#{player}"
+	# 	ret = Model::Item.extendPackCell(player,Const::ItemTypeBook) 
+	# 	ret = Model::Item.extendPackCell(player,Const::ItemTypeBook) 
+	# 	ret = Model::Item.extendPackCell(player,Const::ItemTypeShield) 
+	# 	puts "扩展背包后： ret:#{ret} #{player}"
+	# end
 
 	# def test_sort
 	# 	player = Model::Player.register("andy","image")[:player]

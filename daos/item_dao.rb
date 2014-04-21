@@ -55,7 +55,6 @@ class ItemDao
 	def getEquipUnusedList(playerId,sort)
 		equipList = []
 		equipIdList = getEquipUnusedIdList(playerId,sort)
-		puts "equipIdList ... #{equipIdList}	sort#{sort}"
 		if equipIdList and equipIdList.length > 0
 			equipIdListKey = []
 			equipIdList.each do |equipId|
