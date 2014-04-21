@@ -392,7 +392,7 @@ module Model
 		#兵法进阶
 		#  	进阶成功就清掉所有兵法的失败次数
 		# 	进阶失败并且是5本书，累计失败次数,清掉其他所有兵法的失败次数
-		#@param [Hash,Integer,String] playerId,id 兵法id ,兵法列表：逗号分隔
+		#@param [Hash,Integer,Array] playerId,id 兵法id ,兵法列表：数组
 		#@return [Hash]
 		def self.advanceBook(player , id, bookIds)
 			metaDao = MetaDao.instance
@@ -527,7 +527,7 @@ module Model
 			playerId = player[:playerId]
 			itemDao = ItemDao.new
 			#没有选择兵法来祭祀
-			if bookIds and bookIds.to_s.empty?
+			if bookIds and bookIds.empty?
 				raise Const::ErrorCode::BookAdvancedNoBooksChoosed.to_s
 			end
 			#银币不足
@@ -551,7 +551,7 @@ module Model
 			end
 			#选择的兵法验证
 			rateSumUp = 0
-			bookIdArr = bookIds.split(",")
+			bookIdArr = bookIds
 			#自己进阶自己
 			if bookIdArr.include?(id.to_s)
 				GameLogger.debug("Model::Item.preAdvanceBook playerId:#{playerId} , book id:#{id} bookIds:'#{bookIds}', cannont advance book use itself book !")
