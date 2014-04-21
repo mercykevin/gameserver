@@ -40,7 +40,7 @@ post '/item/book/advance/pre' do
 	player = request[:player]
 	id = requestParams[:id]
 	srcIds = requestParams[:srcIds]
-	result = Model::Item.preAdvanceBookService(player[:playerId],id ,srcIds)
+	result = Model::Item.preAdvanceBookService(player,id ,srcIds)
 	result.to_json
 end
 
