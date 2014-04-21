@@ -677,6 +677,9 @@ module Model
 			sortId
 		end
 		#数组排序
+		#升序
+		#@param [Array]
+		#@return [Array]
 		def self.sortNumArr(arr)
 		  len = arr.length
 		  for i in 0...len-1
