@@ -54,7 +54,7 @@ post '/item/book/advance' do
 	id = requestParams[:id]
 	srcIds = requestParams[:srcIds]
 	result = Model::Item.advanceBook(player,id , srcIds)
-	itemList.to_json
+	result.to_json
 end
 
 #扩展背包
