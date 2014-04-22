@@ -60,7 +60,7 @@ class BattleDao
         npc = {:id=>index,:templeteHeroId=>npcmetaData.npcID, :attack=>npcmetaData.nATK.to_i, :defend=>npcmetaData.nDEF.to_i, 
                 :intelegence=>npcmetaData.nINT.to_i, :blood=>npcmetaData.nHP.to_i, 
                 :level=>1,:name=>npcmetaData.nName, :headpic=>npcmetaData.nIconsID, :isAction=>false, 
-                :index=>index }
+                :index=>index,:unittype=>"e" }
         pvenpc[index] = npc      
       end
       pvenpc
@@ -79,7 +79,7 @@ class BattleDao
           heroMetaData = metaDao.getHeroMetaData(hero[:templeteHeroId])
           heroBattle = {:id=>hero[:heroId],:templeteHeroId=>hero[:templeteHeroId],:attack=>hero[:attack], :defend=>hero[:defend],
             :intelegence=>hero[:intelegence], :blood=>hero[:blood], :level=>hero[:level], 
-            :name=>heroMetaData.gName, :isAction=>false, :index=>index}
+            :name=>heroMetaData.gName, :isAction=>false, :index=>index,:unittype=>"p"}
           heroBattleHash[index] = heroBattle  
         end
       end
