@@ -649,6 +649,20 @@ module Model
 			end 
 			count
 		end
+		#某星级,某等级以上的装备数量 (所有武器防具坐骑)
+		#@param [Integer,Integer] playerId:玩家id，star:装备星级
+		#@return [Integer] 装备数量
+		def self.getEquipCountByLevelStar(playerId,level,star)
+			itemDao = ItemDao.new
+			equipList = itemDao.getEquipeAllList(playerId)
+			count = 0
+			equipList.each do |equip|
+				if equip[:level] >= level and equip[:star] == star.to_i
+					count += 1
+				end
+			end 
+			count
+		end
 		#某星级的装备数量 (所有武器防具坐骑)
 		#@param [Integer,Integer] playerId:玩家id，star:装备星级
 		#@return [Integer] 装备数量
@@ -663,6 +677,22 @@ module Model
 			end 
 			count
 		end
+		#某星级,某等级以上的兵法数量 (所有武器防具坐骑)
+		#@param [Integer,Integer] playerId:玩家id，star:装备星级
+		#@return [Integer] 装备数量
+		def self.getBookCountByLevelStar(playerId,level,star)
+			itemDao = ItemDao.new
+			bookList = itemDao.getBookAllList(playerId)
+			count = 0
+			bookList.each do |book|
+				if book[:level] >= level and book[:star] == star.to_i
+					count += 1
+				end
+			end 
+			count
+		end
+
+
 		#拼接id
 		def self.calcEquipSortId(equip)
 			levelMaxLen = 3
