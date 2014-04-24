@@ -13,7 +13,7 @@ configure :production do
 end
 
 configure :development do
-  set :run,             false
+  set :run,             true
   set :server,          'thin'
 end
 
