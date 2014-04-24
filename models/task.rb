@@ -55,17 +55,17 @@ module Model
 			#不存在
 			if not taskTemp or taskTemp.empty?
 				GameLogger.warn("Model::Task.getTaskAward playerId:#{playerId} , iid:#{iid}, the task is not exists ! ")
-				return Const::ErrorCode::Fail
+				return {:retcode=>Const::ErrorCode::Fail}
 			end
 			#已领取
 			awardedList = taskDao.getAwardedList(playerId)
 			if awardedList and awardedList.include?(iid.to_i)
-				return Const::ErrorCode::TaskIsAlreadyGetAward
+				return {:retcode=>Const::ErrorCode::TaskIsAlreadyGetAward}
 			end
 			#是否已完成
 			displayTaskList = taskDao.getDisplayList(playerId)
 			if  displayTaskList and displayTaskList[iid.to_s] != Const::StatusEnable
-				return Const::ErrorCode::TaskIsNotBeComplated
+				return {:retcode=>Const::ErrorCode::TaskIsNotBeComplated}
 			end
 		 	#处理奖励
 		 	saveHash = {}
@@ -73,7 +73,7 @@ module Model
 		 		awardRet = Model::Reward::processAward(player , taskTemp.bReward , Const::FunctionConst::TaskGetAward)
 			rescue
 				retcode = "#{$!}"
-				return {:retcode => retcode}
+				return {:retcode => Const::ErrorCode::Fail}
 			ensure
 				#finally
 			end
