@@ -47,7 +47,7 @@ end
 
 #游戏日志
 GameLogger = logger
-MemLogger = memlogger
+#MemLogger = memlogger
 
 # use Rack::CommonLogger, logger
 
