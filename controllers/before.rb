@@ -10,30 +10,30 @@ helpers do
 		end
 	end
 
-	def record_memory_before
-		if File.exist?("/proc/#{Process.pid}/status")
-			process_status = File.open("/proc/#{Process.pid}/status")
-			13.times { process_status.gets }
-			@rss_before_action = process_status.gets.split[1].to_i
-			process_status.close
-		end
-	end
-
-	def record_memory_end
-		if File.exist?("/proc/#{Process.pid}/status")
-		    process_status = File.open("/proc/#{Process.pid}/status")  
-		    13.times { process_status.gets }  
-		    rss_after_action = process_status.gets.split[1].to_i  
-		    process_status.close  
-		    MemLogger.info("CONSUME MEMORY: #{rss_after_action - @rss_before_action} \  
-		KB\tNow: #{rss_after_action} KB\t#{request.url}")
-		end  
-	end  
+#	def record_memory_before
+#		if File.exist?("/proc/#{Process.pid}/status")
+#			process_status = File.open("/proc/#{Process.pid}/status")
+#			13.times { process_status.gets }
+#			@rss_before_action = process_status.gets.split[1].to_i
+#			process_status.close
+#		end
+#	end
+#
+#	def record_memory_end
+#		if File.exist?("/proc/#{Process.pid}/status")
+#		    process_status = File.open("/proc/#{Process.pid}/status")  
+#		    13.times { process_status.gets }  
+#		    rss_after_action = process_status.gets.split[1].to_i  
+#		    process_status.close  
+#		    MemLogger.info("CONSUME MEMORY: #{rss_after_action - @rss_before_action} \  
+#		KB\tNow: #{rss_after_action} KB\t#{request.url}")
+#		end  
+#	end  
 end
 
 before do
 	#记录内存开始之前的数据
-	record_memory_before
+#	record_memory_before
 	#
 	response['X-UA-Compatible'] = "IE=edge,chrome=1"
 	session_id = cookies[:game_session_id]
@@ -50,10 +50,10 @@ before do
 	parseReq(request)
 end
 
-after do
-	#记录请求结束时的内存的数据
-	record_memory_end
-end
+#after do
+#	#记录请求结束时的内存的数据
+#	record_memory_end
+#end
 
 
 

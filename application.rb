@@ -28,21 +28,21 @@ case ENV["RACK_ENV"]
 when "production"
   logger = ::Logger.new("log/production.log",'daily')
   logger.level = ::Logger::WARN
-  memlogger = ::Logger.new("log/memory.log",'daily')
-  memlogger.level = ::Logger::WARN
+  #memlogger = ::Logger.new("log/memory.log",'daily')
+  #memlogger.level = ::Logger::WARN
 when "development"
   logger = ::Logger.new(STDOUT)
   logger.level = ::Logger::DEBUG
-  memlogger = ::Logger.new(STDOUT)
-  memlogger.level = ::Logger::DEBUG
+  #memlogger = ::Logger.new(STDOUT)
+  #memlogger.level = ::Logger::DEBUG
 when "test"
   logger = ::Logger.new(STDOUT)
   logger.level = ::Logger::DEBUG
-  memlogger = ::Logger.new(STDOUT)
-  memlogger.level = ::Logger::DEBUG
+  #memlogger = ::Logger.new(STDOUT)
+  #memlogger.level = ::Logger::DEBUG
 else
   logger = ::Logger.new("/dev/null")
-  memlogger = ::Logger.new("/dev/null")
+  #memlogger = ::Logger.new("/dev/null")
 end
 
 #游戏日志
