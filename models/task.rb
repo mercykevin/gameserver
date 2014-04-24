@@ -109,8 +109,6 @@ module Model
 		 	saveHash[taskDisplayedsKey] = displayTaskList
 		 	saveHash[taskAwardedKey] = awardedList
 		 	saveHash = saveHash.merge(awardRet)
-		 	puts "saveHash - - - -- #{saveHash}"
-		 	puts "awardRet - - - -- #{awardRet}"
 		 	commonDao.update(saveHash)
 		 	#返回奖励信息
 		 	playerKey = Const::Rediskeys.getPlayerKey(playerId)
@@ -169,15 +167,19 @@ module Model
 					needStar = needParam[:star].to_i
 					needLevel = needParam[:level].to_i
 					needCount = needParam[:num].to_i
-					
-					equipCount = 0 #TODO 
+					equipCount = Model::Item.getEquipCountByLevelStar(playerId,needStar,needLevel)
 					if equipCount >= needCount
 						return taskTemp
 					end
 				#兵法进阶 {"star":3,"level":2,"num":1} 进阶1本3星兵法到2级
 				when Const::TaskTypeBookAdvance 
-					#TODO 
-				
+					needStar = needParam[:star].to_i
+					needLevel = needParam[:level].to_i
+					needCount = needParam[:num].to_i
+					equipCount = Model::Item.getBookCountByLevelStar(playerId,needStar,needLevel)
+					if equipCount >= needCount
+						return taskTemp
+					end
 				#情谊 {"num":1}
 				when Const::TaskTypeShip
 					#TODO
