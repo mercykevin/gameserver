@@ -13,12 +13,15 @@ class TaskTask < Minitest::Test
 		Model::Task.addData4TaskTest(player)
 		list = Model::Task::getDisplayTaskList(player[:playerId])
 		puts "-----test------触发任务后的任务列表：#{list}"
+		ret = Model::Task::getTaskAward(player , 802001)
+		puts "领取任务返回：#{ret}"
 	end
 
 
 	def test_checkTask
 		player = Model::Player.register("andy","image")[:player]
 		playerId = player[:playerId]
+			taskDao  = TaskDao.new
 		# ret = Model::Task.checkTask(player , Const::TaskTypeBattle ,{:bsubid => 101006})
 		# puts "触发任务：#{ret}"
 		# list = Model::Task::getDisplayTaskList(player[:playerId])
@@ -32,7 +35,7 @@ class TaskTask < Minitest::Test
 		# puts "触发任务后的任务列表：#{list}"
 
 		# puts "---------------第二个任务"
-		taskDao  = TaskDao.new
+	
 		# complatedList = taskDao.getComplatedList(player[:playerId])
 		# puts "触发第二个任务前的完成列表：#{complatedList}"
 		# ret = Model::Task.checkTask(player , Const::TaskTypeBattle ,{:bsubid => 101107})
