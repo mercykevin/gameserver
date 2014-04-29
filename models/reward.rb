@@ -55,7 +55,8 @@ module Model
 				when Const::RewardTypeItem
 					awards.each do |iid,count|
 						itemRet = Model::Item.addItemNoSave(player , iid , count)
-						retHash = retHash.merge(itemRet)
+						dataHash = itemRet[:dataHash]
+						retHash = retHash.merge(dataHash)
 					end
 				#武将类
 				when Const::RewardTypeHero

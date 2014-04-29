@@ -22,7 +22,8 @@ module Model
 				return {:retcode => Const::ErrorCode::Fail}
 			end
 			retHash = addItemNoSave(player,iid,count)
-			commonDao.update(retHash)
+			dataHash = retHash[:dataHash]
+			commonDao.update(dataHash)
 			#保存数据后，验证任务
 			checkGainItemTask(player,tempItem)
 			{:retcode => Const::ErrorCode::Ok }
@@ -44,21 +45,30 @@ module Model
 		end
 		#搞个队列用来处理 道具类型的任务 check TODO
 		#添加道具 , 没有保存
-		#1：武器防具坐骑兵法
-		#2：宝物
+		#1：武器防具坐骑兵法  同样的装备有多个 id
+		#2：宝物  同样的宝物只有一个 id
 		#@param [Integer,Integer,Integer] playerId,iid,count 
-		#@return [Hash]
-		def self.addItemNoSave(player , iid , count)
+		#@return [Hash]  返回要保存的数据，和添加后的道具id数组        {:dataHash => 要保存的数据  , :itemIdArr => [id1,id2,id3]}
+		def self.addItemNoSave(player , iid , count=1)
 			itemDao = ItemDao.new
 			metaDao = MetaDao.instance
 			tempItem = metaDao.getTempItem(iid)
 			playerId = player[:playerId]
 			if ! tempItem
-				GameLogger.debug("Model::Item.addItem method params iid:#{iid} => tempItem is not exists !")
-				return {:retcode => Const::ErrorCode::Fail}
+				GameLogger.error("Model::Item.addItem method params iid:#{iid} => tempItem is not exists !")
+				raise Const::ErrorCode::Fail.to_s
+			end
+			#数量非法
+			if ! ( count && count.is_a?(Integer) && count > 0 )
+				GameLogger.error("Model::Item.addItem method params count:#{count} => count is illege !")
+				raise Const::ErrorCode::Fail.to_s
 			end
 			GameLogger.info("Model::Item.addItemNoSave method params playerId:#{playerId} , count:#{count} ,itemType:#{tempItem.eType} .")
 			#宝物类
+			retHash = Hash.new
+			#返回添加道具的id
+			itemIdArr = Array.new
+			#要保持的hash
 			itemHash = Hash.new
 			if tempItem.eType == Const::ItemTypeProp
 				propData = itemDao.getPropData(playerId,tempItem.propID)
@@ -70,6 +80,7 @@ module Model
 				else
 					#添加宝物
 					propData = {}
+					propData[:id] = tempItem.propID.to_i
 					propData[:iid] = tempItem.propID.to_i
 					propData[:count] = count
 					#宝物类型
@@ -80,6 +91,8 @@ module Model
 				#key
 				propKey = Const::Rediskeys.getItemKey(playerId,tempItem.eType,tempItem.propID) 
 				itemHash[propKey] = propData 
+				#返回添加的id array
+				itemIdArr << propData[:id]
 			elsif
 				#添加到未装备列表 ，类型
 				equipIdList = itemDao.getEquipUnusedIdList(playerId , tempItem.eType)
@@ -117,12 +130,16 @@ module Model
 					itemHash[equipKey] = equip 
 					#装备列表
 					equipIdList << equip[:id]
+					#返回{iid,id}
+					itemIdArr << equip[:id]
 				end
 				#未装备列表key
 				equipIdListKey = Const::Rediskeys.getEquipUnusedIdListKey(playerId , tempItem.eType)
 				itemHash[equipIdListKey] = equipIdList
+				retHash[:dataHash] = itemHash
+				retHash[:itemIdArr] = itemIdArr 
 			end
-			itemHash
+			retHash
 		end
 
 		#计算强化银币消耗

@@ -108,6 +108,8 @@ class ItemDao
 	end
 
 	#获取兵法信息
+	#@param [Integer,Integer] playerId 兵法id
+	#@return [Hash]
 	def getBookData(playerId,id)
 		bookKey = Const::Rediskeys.getItemKey(playerId,Const::ItemTypeBook,id)
 		bookData = RedisClient.get(bookKey)
@@ -159,6 +161,7 @@ class ItemDao
 	end
 
 	#兵法碎片
+	#@param [Integer,Integer] playerId 兵法iid
 	def getBookFragmentData(playerId, bookIid)
 		bookFragmentKey = Const::Rediskeys.getBookFragmentKey(playerId,bookIid)
 		formateDataByKey(bookFragmentKey)
