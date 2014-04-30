@@ -12,7 +12,7 @@ class HeroTest < Minitest::Test
 		assert_equal(true, heroidlist.index(heroid) != nil)
 		#recurite again
 		retcode  = Model::Hero.recuritHero(player,"normal")[:retcode]
-		assert_equal(Const::ErrorCode::HeroRecuritDimondNotEnough, retcode)
+		assert_equal(Const::ErrorCode::Ok, retcode)
 	end
 
 	def test_register_main_hero
@@ -120,6 +120,8 @@ class HeroTest < Minitest::Test
 		player = Model::Player.register("advanced_hero","image")[:player]
 		heroMain  = Model::Hero.registerMainHero("301001",player)[:hero]
 		heroFree  = Model::Hero.recuritHero(player,"normal")[:hero]
+		heroFree[:templeteHeroId] = 301001
+		RedisClient.set(Const::Rediskeys.getHeroKey(heroFree[:heroId], player[:playerId]), heroFree.to_json)
 		ret = Model::Hero.advancedHero(heroMain[:heroId], heroFree[:heroId], player[:playerId])
 		assert_equal(Const::ErrorCode::Ok,ret[:retcode])
 		advancedHeroMain = Model::Hero.getHero(heroMain[:heroId], player[:playerId])

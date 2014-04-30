@@ -27,6 +27,9 @@ post '/hero/recruite' do
 	player = request[:player]
 	recruitetype = request[:req_parames][:recruitetype]
 	ret = Model::Hero.recuritHero(player,recruitetype)
+	if ret[:retcode] == Const::ErrorCode::Ok
+		Model::Hero.setItemData2Hero(ret[:hero], player)
+	end
 	ret.to_json
 end
 
@@ -36,6 +39,9 @@ post '/hero/register' do
 	player = request[:player]
 	templetHeroId = requestParams[:metaheroid]
 	ret = Model::Hero.registerMainHero(templetHeroId, player)
+	if ret[:retcode] == Const::ErrorCode::Ok
+		Model::Hero.setItemData2Hero(ret[:hero], player)
+	end	
 	ret.to_json
 end
 
@@ -43,6 +49,11 @@ end
 post '/hero/list' do
 	player = request[:player]
 	herolist = Model::Hero.getBattleHeroList(player[:playerId])
+	herolist.each do |hero|
+		if hero.class == Hash
+			Model::Hero.setItemData2Hero(hero, player)
+		end
+	end
 	herolist.to_json
 end
 
@@ -50,6 +61,11 @@ end
 post '/hero/freelist' do
 	player = request[:player]
 	herolist = Model::Hero.getHeroList(player[:playerId])
+	herolist.each do |hero|
+		if hero.class == Hash
+			Model::Hero.setItemData2Hero(hero, player)
+		end
+	end
 	herolist.to_json
 end
 

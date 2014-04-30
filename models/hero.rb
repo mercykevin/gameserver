@@ -7,6 +7,7 @@ module Model
 			metaDao = MetaDao.instance
 			#TODO random templete hero id
 			templeteHeroId = metaDao.getAllHeroTempId.sample
+			templeteHeroId = 301001
 			commonDao = CommonDao.new
 			heroDao = HeroDao.new
 			templeteHero = metaDao.getHeroMetaData(templeteHeroId)
@@ -67,16 +68,29 @@ module Model
 				end
 				recruiteTime = Time.new.to_i
 			end
+			addbookret = nil
+			##处理兵法
+			if templeteHero.gInitialWarcraft and templeteHero.gInitialWarcraft != ''
+				addbookret = Model::Item.addItemNoSave(player , templeteHero.gInitialWarcraft, 1)
+				hero[:books][0] = addbookret[:itemIdArr][0]
+			end
+			#TODO 处理默认装备
 			#更新相关信息到redis中
 			heroIdListKey = Const::Rediskeys.getHeroListKey(player[:playerId])
 			herokey = Const::Rediskeys.getHeroKey(hero[:heroId],player[:playerId])
 			playerkey = Const::Rediskeys.getPlayerKey(player[:playerId])
 			recruiteInfokey = Const::Rediskeys.getHeroRecruiteKey(player[:playerId])
+			updateEntitis = nil
 			if consumetype == "diamond"
-				commonDao.update({herokey => hero, heroIdListKey => heroIdList, playerkey => player})
+				updateEntitis = {herokey => hero, heroIdListKey => heroIdList, playerkey => player}
 			else
-				commonDao.update({herokey => hero, heroIdListKey => heroIdList, recruiteInfokey => recruiteinfo})
+				updateEntitis = {herokey => hero, heroIdListKey => heroIdList, recruiteInfokey => recruiteinfo}
 			end
+			if addbookret 
+				updateEntitis = updateEntitis.merge(addbookret[:dataHash])
+				p updateEntitis
+			end
+			commonDao.update(updateEntitis)
 			#触发任务-武将数量
 			Model::Task.checkTask(player , Const::TaskTypeHero , nil)
 			#计算剩余时间，返回给前端
@@ -110,6 +124,10 @@ module Model
 			hero[:adlevel] = 0
 			#潜力
 			hero[:capacity] = 0
+			#兵法
+			hero[:books] = Array.new(3)
+			#装备
+			hero[:weapons] = Array.new(3)
 			hero
 		end
 		#创建主将
@@ -505,6 +523,19 @@ module Model
 		#@return [Integer] 返回数量
 		def self.getHeroCountByStar(playerId,star)
 			0
+		end
+		# 这个方法在controler里面调用
+		#@param [Hash] 英雄信息
+		#@return	
+		def self.setItemData2Hero(hero,player)
+			if hero and hero.class == Hash
+				hero[:books].each_with_index do |bookid,index|
+					if bookid
+						book = Model::Item.getBookData(player[:playerId], bookid)
+						hero[:books][index] = book
+					end
+				end
+			end
 		end
 	end # class
 end # model definition
