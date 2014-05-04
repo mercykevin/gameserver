@@ -64,5 +64,14 @@ module Const
 		#任务未完成
 		TaskIsNotBeComplated = 2000111
 
+		#----------------------------换装
+		#武将自带兵法不可换下
+		SwitchEquipCannotBeRemoved = 2000200
+		#星级太低，格子尚未开放
+		SwitchEquipBookCellIsNotOpen = 2000201
+		#无需换装
+		SwitchEquipBookNeednotDo = 2000202
+
+
 	end
 end

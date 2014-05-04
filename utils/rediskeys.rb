@@ -72,9 +72,9 @@ module Const
 			"equip_id_inc"
 		end
 		# 装备(武器防具坐骑道具兵法) key是id
-		# 道具类型 key 是 iid
-  		def self.getItemKey(playerId,sort,idOrIid)
-			"player:[#{playerId}]itemsort:[#{sort}]idOrIid:[#{idOrIid}]"
+		# 道具类型
+  		def self.getItemKey(playerId,sort,id)
+			"player:[#{playerId}]itemsort:[#{sort}]id:[#{id}]"
 		end
 		# 未装备id列表（武器防具坐骑道具兵法） key 未装备的分类
 		def self.getEquipUnusedIdListKey(playerId,sort)

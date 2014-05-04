@@ -786,6 +786,26 @@ module Model
 			end
 			list
 		end
+		#从未装备列表移除， 注意和 addToEquipUnusedIdList 一起使用的时候  merge 的话会覆盖！！
+		#@param [Integer,Integer,Integer] 玩家id，装备类型，装备id
+		#@return [Hash] 未装备列表 k:v
+		def self.removeFromEquipUnusedIdList(playerId,type,id)
+			itemDao = ItemDao.new
+			equipIdList = itemDao.getEquipUnusedIdList(playerId,type)
+			equipIdListKey = Const::Rediskeys.getEquipUnusedIdListKey(playerId , type)
+			equipIdList.delete(id)
+			{equipIdListKey => equipIdList}
+		end
+		#添加到未装备列表 ， 注意和 removeFromEquipUnusedIdList 一起使用的时候  merge 的话会覆盖！！
+		#@param [Integer,Integer,Integer] 玩家id，装备类型，装备id
+		#@return [Hash] 未装备列表 k:v
+		def self.addToEquipUnusedIdList(playerId,type,id)
+			itemDao = ItemDao.new
+			equipIdList = itemDao.getEquipUnusedIdList(playerId,type)
+			equipIdListKey = Const::Rediskeys.getEquipUnusedIdListKey(playerId , type)
+			equipIdList << id
+			{equipIdListKey => equipIdList}
+		end
 
 
 		#上阵兵法 TODO ，兵法记录在武将身上，上阵后从兵法列表中删掉该兵法

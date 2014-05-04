@@ -537,5 +537,121 @@ module Model
 				end
 			end
 		end
+		#换装备
+		#@param [Hash,Integer,Integer,Index,Integer] 玩家信息，武将id，装备区域(0：装备，1：兵法)，装备id
+		#@return [Integer]
+		def self.switchEquipment(player,heroId,area,index,id)
+			#参数非法
+			if not (heroId and heroId.is_a?(Integer) and area and area.is_a?(Integer) and index and index.is_a?(Integer) and id and id.is_a?(Integer))
+				GameLogger.debug("Model::Hero.switchEquipment heroId:'#{heroId}' area:'#{area}' index:'#{index}' id:'#{id}' param is illege ! ")
+				return {:retcode => Const::ErrorCode::Fail}
+			end
+			#非法区域
+			if not [Const::SquadAreaEquip , Const::SquadAreaBook].include?(area)
+				GameLogger.debug("Model::Hero.switchEquipment area:'#{area}' is illege ! ")
+				return {:retcode => Const::ErrorCode::Fail}
+			end
+			#非法index 0,1,2
+			if not (0..2).include?(index)
+				GameLogger.debug("Model::Hero.switchEquipment index:'#{index}' is illege ! ")
+				return {:retcode => Const::ErrorCode::Fail} 
+			end
+			heroDao = HeroDao.new
+			playerId = player[:playerId]
+			hero = heroDao.get(heroId,playerId)
+			#武将不存在
+			if not hero 
+				GameLogger.debug("Model::Hero.switchEquipment hero is not exists heroId:'#{heroId}' ! ")
+				return {:retcode => Const::ErrorCode::Fail}
+			end
+			#装备不存在
+			itemDao = ItemDao.new
+			itemData = nil
+			itemType = Const::ItemTypeWeapon
+			#装备区域
+			if area == Const::SquadAreaEquip
+				itemData = itemDao.getEquipmentData(playerId,id)
+				if not itemData 
+					GameLogger.debug("Model::Hero.switchEquipment equip is not exists itemId '#{id}' ! ")
+					return {:retcode => Const::ErrorCode::EquipmentIsNotExist}
+				end
+				#非法数据
+				itemType = itemData[:type].to_i
+				if (index == 0 and itemType != Const::ItemTypeWeapon) or (index == 1 and itemType != Const::ItemTypeShield) or (index == 2 and itemType != Const::ItemTypeHorse)
+					GameLogger.debug("Model::Hero.switchEquipment item id '#{id}' type '#{itemType}' not suitable for area '#{area}' index '#{index}'! ")
+					return {:retcode => Const::ErrorCode::Fail}
+				end
+				#无需换装
+				if hero[:weapons][index] == id
+					return {:retcode => Const::ErrorCode::SwitchEquipBookNeednotDo}
+				end
+			#兵法
+			elsif Const::SquadAreaBook
+				itemData = itemDao.getBookData(playerId,id)
+				if not itemData 
+					GameLogger.debug("Model::Hero.switchEquipment book is not exists itemId '#{id}' ! ")
+					return {:retcode => Const::ErrorCode::BookIsNotExist}
+				end
+				metaDao = MetaDao.instance
+				#star = 0
+				case index
+				#自带兵法
+				when 0
+					return {:retcode => Const::ErrorCode::SwitchEquipCannotBeRemoved}
+				#兵法2
+				when 1 
+					star = metaDao.getFlagIntValue("book_cell_2_open_star")
+				#兵法3
+				when 2
+					star = metaDao.getFlagIntValue("book_cell_3_open_star")
+				else
+				end
+				#格子尚未开放
+				if itemData[:star] < star
+					GameLogger.debug("Model::Hero.switchEquipment star '#{itemData[:star]}' need star '#{star}' ! ")
+					return {:retcode => Const::ErrorCode::SwitchEquipBookCellIsNotOpen}
+				end
+				#无需换装
+				if hero[:books][index] == id
+					return {:retcode => Const::ErrorCode::SwitchEquipBookNeednotDo}
+				end
+				itemType = Const::ItemTypeBook
+			else
+			end
+			#处理换装
+			#卸下的装备id
+			removeItemId = 0
+			case area
+			when Const::SquadAreaEquip
+				equipId = hero[:weapons][index]
+				if equipId
+					removeItemId = equipId
+				end
+				hero[:weapons][index] = id
+			when Const::SquadAreaBook
+				bookId = hero[:books][index]
+				if bookId
+					removeItemId = bookId
+				end
+				hero[:books][index] = id
+			end
+			commonDao = CommonDao.new
+			saveHash = Hash.new
+			equipIdListKey = Const::Rediskeys.getEquipUnusedIdListKey(playerId , itemType)
+			equipIdList = itemDao.getEquipUnusedIdList(playerId,itemType)
+			#放回未装备列表
+			if removeItemId > 0 
+				equipIdList << removeItemId
+			end
+			#删掉该装备
+			equipIdList.delete(id)
+			saveHash = saveHash.merge({equipIdListKey => equipIdList})
+			herokey = Const::Rediskeys.getHeroKey(heroId,playerId)
+			itemKey = Const::Rediskeys.getItemKey(playerId,itemType,itemData[:id]) 
+			saveHash[herokey] = hero
+			saveHash[itemKey] = itemData
+			commonDao.update(saveHash)
+			return {:retcode => Const::ErrorCode::Ok} 
+		end
 	end # class
 end # model definition

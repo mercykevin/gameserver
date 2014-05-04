@@ -83,6 +83,9 @@ module Const
 	#-------排序类型
 	SortDesc = "desc"
 	SortAsc = "asc"
+	#-------装备区域类型
+	SquadAreaEquip = 1
+	SquadAreaBook = 2
 
 	#战斗类型
 	#征讨

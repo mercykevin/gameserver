@@ -382,6 +382,11 @@ class MetaDao
 	def getFlagValue(key)
 		@flagMap[key].value
 	end
+	#获取flag表配置数据，转 integer
+	def getFlagIntValue(key)
+		@flagMap[key].value.to_i
+	end
+
 
 	#兵法碎片
 	#@param [Integer] 兵法碎片

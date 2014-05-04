@@ -74,22 +74,29 @@ class ItemDao
 	def getEquipmentData(playerId,id)
 		#武器
 		equipKey = Const::Rediskeys.getItemKey(playerId,Const::ItemTypeWeapon,id)
-		if not equipKey
-			#防具
-			equipKey = Const::Rediskeys.getItemKey(playerId,Const::ItemTypeShield,id)
-		end
-		if not equipKey
-			#坐骑
-			equipKey = Const::Rediskeys.getItemKey(playerId,Const::ItemTypeHorse,id)
-		end
-
 		equipData = RedisClient.get(equipKey)
-
-		if equipData and not equipData.empty?
-			JSON.parse(equipData, {:symbolize_names => true}) 
-		else
-			nil
+		if equipData
+			return JSON.parse(equipData, {:symbolize_names => true}) 
 		end
+		#防具
+		equipKey = Const::Rediskeys.getItemKey(playerId,Const::ItemTypeShield,id)
+		equipData = RedisClient.get(equipKey)
+		if equipData
+			return JSON.parse(equipData, {:symbolize_names => true}) 
+		end
+		#坐骑
+		equipKey = Const::Rediskeys.getItemKey(playerId,Const::ItemTypeHorse,id)
+		equipData = RedisClient.get(equipKey)
+		if equipData
+			return JSON.parse(equipData, {:symbolize_names => true}) 
+		end
+		#兵法
+		equipKey = Const::Rediskeys.getItemKey(playerId,Const::ItemTypeBook,id)
+		equipData = RedisClient.get(equipKey)
+		if equipData
+			return JSON.parse(equipData, {:symbolize_names => true}) 
+		end
+		return nil
 	end
 
 	#验证装备id是否存在

@@ -135,4 +135,13 @@ post '/hero/bringup' do
 	ret.to_json
 end
 
+#武将换装 
+#参数 heroId：武将id , area：装备区域(1:装备类，2：兵法类), index:格子索引，itemId：装备id
+#返回  retcode , 前端处理换装后的 阵容数据
+post '/hero/equip/switch' do 
+	player = request[:player]
+	params = request[:req_parames]
+	ret = Model::Hero.switchEquipment(player,params[:heroId],params[:area],param[:index],param[:itemId])
+	ret.to_json
+end
 
