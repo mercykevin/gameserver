@@ -67,7 +67,7 @@ module Const
 		#----------------------------换装
 		#武将自带兵法不可换下
 		SwitchEquipCannotBeRemoved = 2000200
-		#星级太低，格子尚未开放
+		#君主等级太低，格子尚未开放
 		SwitchEquipBookCellIsNotOpen = 2000201
 		#无需换装
 		SwitchEquipBookNeednotDo = 2000202

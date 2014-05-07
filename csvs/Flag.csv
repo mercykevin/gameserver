@@ -10,5 +10,5 @@ pack_cell_init_count;50;背包格子初始数量
 pack_cell_extadd_max_count;50;背包格子额外增加最大个数，必须是每次增加格子数量的 整数倍
 pack_cell_extadd_each_count;5;背包格子每次增加格子的数量
 pack_cell_extadd_each_gold;5;背包格子扩展每个格子的价格
-book_cell_2_open_star;1;兵法第二个格子开启条件，3星
-book_cell_3_open_star;2;兵法第三个格子开启条件，4星
+book_cell_2_open_level;3;兵法第二个格子开启条件，玩家等级
+book_cell_3_open_level;5;兵法第三个格子开启条件，玩家等级

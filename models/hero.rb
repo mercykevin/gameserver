@@ -600,15 +600,15 @@ module Model
 					return {:retcode => Const::ErrorCode::SwitchEquipCannotBeRemoved}
 				#兵法2
 				when 1 
-					star = metaDao.getFlagIntValue("book_cell_2_open_star")
+					level = metaDao.getFlagIntValue("book_cell_2_open_level")
 				#兵法3
 				when 2
-					star = metaDao.getFlagIntValue("book_cell_3_open_star")
+					level = metaDao.getFlagIntValue("book_cell_3_open_level")
 				else
 				end
 				#格子尚未开放
-				if itemData[:star] < star
-					GameLogger.debug("Model::Hero.switchEquipment star '#{itemData[:star]}' need star '#{star}' ! ")
+				if player[:level] < level
+					GameLogger.debug("Model::Hero.switchEquipment level '#{player[:level]}' need level '#{level}' ! ")
 					return {:retcode => Const::ErrorCode::SwitchEquipBookCellIsNotOpen}
 				end
 				#无需换装

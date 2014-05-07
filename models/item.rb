@@ -711,23 +711,21 @@ module Model
 
 
 		#拼接id
+		#@param[Hash] star：1个长度，level：3位，id：10位
+		#@return Integer
 		def self.calcEquipSortId(equip)
 			levelMaxLen = 3
-			idMaxLen = 9
+			idMaxLen = 10
 			sortId = equip[:star].to_s
 			#level
-			count = levelMaxLen - equip[:level].to_s.length - 1 
-			for i in 0..count
-			  sortId << "0"
-			end
+			count = levelMaxLen - equip[:level].to_s.length
+		    sortId << "0" * count
 			sortId << equip[:level].to_s
-			#level
-			count = idMaxLen - equip[:id].to_s.length - 1 
-			for i in 0..count
-			  sortId << "0"
-			end
+			#id
+			count = idMaxLen - equip[:id].to_s.length
+			sortId << "0" * count
 			sortId << equip[:id].to_s
-			sortId
+			sortId.to_i
 		end
 		#数组排序
 		#升序

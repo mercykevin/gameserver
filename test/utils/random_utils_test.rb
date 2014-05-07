@@ -50,8 +50,8 @@ class RandomTest < Minitest::Test
 		puts "id #{id}"
 
 		equip = {}
-		equip[:id] = 654321456
-		equip[:level] = 149
+		equip[:id] = 1111122222
+		equip[:level] = 150
 		equip[:star] = 6
 		id = Model::Item.calcEquipSortId(equip)
 		puts "id #{id}"
