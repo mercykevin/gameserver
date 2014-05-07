@@ -13,8 +13,8 @@ RedisClient.set(Const::Rediskeys.getGameAreasKey,game_area.to_json)
 #hero meta data
 heroTempleteData =
 [
-	{:templeteId =>1,:name => "张飞",:attack => 10,:defend => 20,:blood => 10}
-	{:templeteId =>2,:name => "关羽",:attack => 10,:defend => 20,:blood => 10}
+	{:templeteId =>1,:name => "张飞",:attack => 10,:defend => 20,:blood => 10},
+	{:templeteId =>2,:name => "关羽",:attack => 10,:defend => 20,:blood => 10},
 	{:templeteId =>3,:name => "刘备",:attack => 10,:defend => 20,:blood => 10}
 ]
 
